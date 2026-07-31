@@ -1,0 +1,60 @@
+name: Deploy Laravel Backend to Rumahweb Hosting
+
+on:
+  push:
+    branches:
+      - main
+      - backend
+
+jobs:
+  web-deploy:
+    name: Deploy Laravel to Rumahweb FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup PHP Environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath, zip, gd
+
+      - name: 📦 Check or Build vendor.zip
+        run: |
+          if [ -d "backend_laravel" ]; then
+            cd backend_laravel
+          fi
+          chmod +x build_vendor.sh
+          ./build_vendor.sh
+
+      - name: 📂 Prepare Production Environment (.env)
+        run: |
+          if [ -d "backend_laravel" ]; then
+            cd backend_laravel
+          fi
+          if [ -f ".env.production" ]; then
+            cp .env.production .env
+          fi
+
+      - name: 🚀 Sync Files via FTP to Rumahweb
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER || 'ftp.synectra.xyz' }}
+          username: ${{ secrets.FTP_USERNAME || 'synf6654' }}
+          password: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          local-dir: ${{ hashFiles('backend_laravel/composer.json') != '' && 'backend_laravel/' || './' }}
+          server-dir: ./public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/.env.example
+            **/build_vendor.ps1
+
+      - name: ⚡ Trigger Server Unzip & Optimization Webhook
+        run: |
+          curl -s "http://synectra.xyz/deploy_helper.php?token=ootday_deploy_secret_2026&migrate=true"
