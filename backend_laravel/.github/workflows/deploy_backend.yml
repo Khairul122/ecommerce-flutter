@@ -38,24 +38,29 @@ jobs:
             cp .env.production .env
           fi
 
-      - name: 🚀 Sync Files via FTP to Rumahweb
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
-          username: ${{ secrets.FTP_USERNAME || 'synf6654' }}
-          password: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
-          security: loose
-          local-dir: ${{ hashFiles('backend_laravel/composer.json') != '' && 'backend_laravel/' || './' }}
-          server-dir: ./public_html/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/tests/**
-            **/.env.example
-            **/build_vendor.ps1
+      - name: 🚀 Sync Files via LFTP to Rumahweb
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME || 'synf6654' }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y lftp
+          
+          TARGET_DIR="./"
+          if [ -d "backend_laravel" ]; then
+            TARGET_DIR="backend_laravel/"
+          fi
+          
+          lftp -c "
+            set dns:order \"inet inet6\";
+            set ftp:passive-mode true;
+            set ftp:ssl-allow false;
+            set net:timeout 15;
+            set net:max-retries 3;
+            open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER;
+            mirror --reverse --delete --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude tests/ --exclude .env.example --exclude build_vendor.ps1 \$TARGET_DIR /public_html/;
+          "
 
       - name: ⚡ Trigger Server Unzip & Optimization Webhook
         run: |
