@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->command->info('Seeding database Ootday selesai!');
+        $this->command->info('Akun Admin: admin@ootday.com / admin123');
         $this->command->info('Akun Owner: owner@ootday.com / owner123');
         $this->command->info('Akun Pelanggan: budi@ootday.com / pelanggan123');
         $this->command->info('Akun Guest: guest@ootday.com / guest123');

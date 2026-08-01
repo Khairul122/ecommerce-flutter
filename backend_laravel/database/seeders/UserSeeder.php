@@ -10,6 +10,17 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // 0. Akun Admin Panel
+        User::firstOrCreate(
+            ['email' => 'admin@ootday.com'],
+            [
+                'name' => 'Ootday Admin',
+                'password' => Hash::make('admin123'),
+                'phone' => '081200000000',
+                'role' => 'admin',
+            ]
+        );
+
         // 1. Akun Owner Toko
         User::firstOrCreate(
             ['email' => 'owner@ootday.com'],
