@@ -16,6 +16,14 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared';
 });
 
+Route::get('/update-code', function () {
+    $out = function_exists('shell_exec') ? shell_exec('git pull origin main 2>&1') : 'shell_exec disabled';
+    try { Artisan::call('view:clear'); } catch (\Throwable $e) {}
+    try { Artisan::call('config:clear'); } catch (\Throwable $e) {}
+    try { Artisan::call('cache:clear'); } catch (\Throwable $e) {}
+    return '<pre>' . htmlspecialchars($out) . '</pre>';
+});
+
 Route::get('/git-pull', function () {
     $log = [];
     try {
