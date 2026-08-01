@@ -8,12 +8,24 @@ Route::get('/', function () {
     return response()->json(['message' => 'Ootday API. Lihat /api untuk endpoint.']);
 });
 
-// TEMPORARY: hapus route ini setelah dipakai sekali untuk clear cache compiled view
+// TEMPORARY: hapus route ini setelah dipakai sekali untuk clear cache & update
 Route::get('/clear-cache', function () {
     Artisan::call('view:clear');
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
     return 'Cache cleared';
+});
+
+Route::get('/git-pull', function () {
+    $output = shell_exec('git pull origin main 2>&1');
+    Artisan::call('view:clear');
+    return '<pre>' . htmlspecialchars($output ?? 'shell_exec not available') . '</pre>';
+});
+
+Route::get('/check-form', function () {
+    $path = resource_path('views/admin/products/_form.blade.php');
+    if (!file_exists($path)) return 'File not found';
+    return '<pre>' . htmlspecialchars(file_get_contents($path)) . '</pre>';
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
