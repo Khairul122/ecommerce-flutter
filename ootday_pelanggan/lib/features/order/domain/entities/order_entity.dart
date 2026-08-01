@@ -22,6 +22,10 @@ class OrderEntity {
 
   final String? orderedAt;
 
+  final String? snapToken;
+  final String? snapRedirectUrl;
+  final String? paymentType;
+
   final List<OrderItemEntity> items;
 
   const OrderEntity({
@@ -39,6 +43,9 @@ class OrderEntity {
     this.receiverPhone,
     this.shippingAddress,
     this.orderedAt,
+    this.snapToken,
+    this.snapRedirectUrl,
+    this.paymentType,
     this.items = const [],
   });
 }

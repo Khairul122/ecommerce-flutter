@@ -46,6 +46,9 @@ class OrderModel extends OrderEntity {
       receiverPhone: json['receiver_phone']?.toString(),
       shippingAddress: json['shipping_address']?.toString(),
       orderedAt: json['ordered_at']?.toString() ?? json['created_at']?.toString(),
+      snapToken: json['snap_token']?.toString(),
+      snapRedirectUrl: json['snap_redirect_url']?.toString(),
+      paymentType: json['payment_type']?.toString(),
       items: <OrderItemEntity>[
         for (final item in rawItems) OrderItemModel.fromJson(Map<String, dynamic>.from(item as Map)),
       ],
