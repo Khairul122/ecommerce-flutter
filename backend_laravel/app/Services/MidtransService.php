@@ -27,8 +27,18 @@ class MidtransService
     protected function configure(): void
     {
         $this->ensureSDKLoaded();
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isProduction = (bool) config('midtrans.is_production');
+        $serverKey = config('midtrans.server_key');
+        $isProduction = config('midtrans.is_production');
+
+        if (str_starts_with($serverKey, 'SB-')) {
+            $isProduction = false;
+        } elseif (str_starts_with($serverKey, 'Mid-server-')) {
+            $isProduction = true;
+        }
+
+        \Midtrans\Config::$serverKey = $serverKey;
+        \Midtrans\Config::$clientKey = config('midtrans.client_key');
+        \Midtrans\Config::$isProduction = (bool) $isProduction;
         \Midtrans\Config::$isSanitized = (bool) config('midtrans.is_sanitized');
         \Midtrans\Config::$is3ds = (bool) config('midtrans.is_3ds');
     }
