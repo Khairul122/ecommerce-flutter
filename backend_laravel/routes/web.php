@@ -1,10 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return response()->json(['message' => 'Ootday API. Lihat /api untuk endpoint.']);
+});
+
+// TEMPORARY: hapus route ini setelah dipakai sekali untuk clear cache compiled view
+Route::get('/clear-cache', function () {
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    return 'Cache cleared';
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
