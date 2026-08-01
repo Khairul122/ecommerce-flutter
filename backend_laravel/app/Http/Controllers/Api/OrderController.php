@@ -165,7 +165,7 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Pesanan ini sudah lunas'], 422);
         }
 
-        if ($order->snap_token) {
+        if ($order->snap_token && $order->snap_redirect_url) {
             return response()->json([
                 'status' => 'success',
                 'data' => [

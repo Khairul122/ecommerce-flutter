@@ -17,12 +17,41 @@ Route::get('/clear-cache', function () {
 });
 
 Route::get('/git-pull', function () {
-    $output = shell_exec('git pull origin main 2>&1');
-    Artisan::call('migrate', ['--force' => true]);
-    Artisan::call('db:seed', ['--class' => 'PaymentShippingSeeder', '--force' => true]);
-    Artisan::call('view:clear');
-    Artisan::call('config:clear');
-    return '<pre>' . htmlspecialchars($output ?? 'shell_exec not available') . "\n\nMigration, Seeder & Cache cleared!</pre>";
+    $log = [];
+    try {
+        if (function_exists('shell_exec')) {
+            $log[] = "GIT PULL:\n" . (shell_exec('git pull origin main 2>&1') ?? 'No output');
+        } else {
+            $log[] = "shell_exec is disabled on this server.";
+        }
+    } catch (\Throwable $e) {
+        $log[] = "Git pull error: " . $e->getMessage();
+    }
+
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $log[] = "Migrate: " . Artisan::output();
+    } catch (\Throwable $e) {
+        $log[] = "Migrate error: " . $e->getMessage();
+    }
+
+    try {
+        Artisan::call('db:seed', ['--class' => 'PaymentShippingSeeder', '--force' => true]);
+        $log[] = "Seeder: " . Artisan::output();
+    } catch (\Throwable $e) {
+        $log[] = "Seeder error: " . $e->getMessage();
+    }
+
+    try {
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        $log[] = "Cache cleared!";
+    } catch (\Throwable $e) {
+        $log[] = "Cache clear error: " . $e->getMessage();
+    }
+
+    return '<pre>' . htmlspecialchars(implode("\n\n", $log)) . '</pre>';
 });
 
 Route::get('/check-form', function () {
