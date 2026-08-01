@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\MidtransNotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OwnerOrderController;
 use App\Http\Controllers\Api\PaymentShippingMethodController;
@@ -17,10 +18,6 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API Ootday
 |--------------------------------------------------------------------------
-| Menggantikan Firebase Auth/Firestore/Messaging/Crashlytics dan koneksi
-| MySQL langsung dari aplikasi mobile (mysql_service.dart). Semua akses
-| data sekarang wajib lewat endpoint di sini, diautentikasi dengan token
-| Sanctum yang dikirim lewat header Authorization: Bearer <token>.
 */
 
 // ---- Publik (tanpa login) ----
@@ -34,6 +31,9 @@ Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/payment-methods', [PaymentShippingMethodController::class, 'paymentMethods']);
 Route::get('/shipping-methods', [PaymentShippingMethodController::class, 'shippingMethods']);
+
+// Midtrans Webhook Callback Notification (Public)
+Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
 
 // ---- Wajib login (pelanggan maupun owner) ----
 Route::middleware('auth:sanctum')->group(function () {
@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders', [OrderController::class, 'store']);
+    Route::post('/orders/{order}/snap-token', [OrderController::class, 'getSnapToken']);
     Route::post('/orders/{order}/confirm-payment', [OrderController::class, 'confirmPayment']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
 

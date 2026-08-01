@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -138,11 +139,48 @@ class OrderController extends Controller
             return $order;
         });
 
+        // Buat Midtrans Snap Token & Redirect URL
+        $midtransService = app(MidtransService::class);
+        $midtransData = $midtransService->createSnapTransaction($order);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Pesanan berhasil dibuat, menunggu pembayaran',
-            'data' => $order->load('items'),
+            'data' => $order->fresh()->load(['items', 'store', 'paymentMethod', 'shippingMethod']),
+            'snap_token' => $midtransData['snap_token'] ?? null,
+            'snap_redirect_url' => $midtransData['snap_redirect_url'] ?? null,
         ], 201);
+    }
+
+    /**
+     * Mengambil atau membuat ulang Midtrans Snap Token untuk pesanan tertentu.
+     */
+    public function getSnapToken(Request $request, Order $order, MidtransService $midtransService)
+    {
+        if ($order->user_id !== $request->user()->id) {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak'], 403);
+        }
+
+        if ($order->payment_status === 'paid') {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan ini sudah lunas'], 422);
+        }
+
+        if ($order->snap_token) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'snap_token' => $order->snap_token,
+                    'snap_redirect_url' => $order->snap_redirect_url,
+                ],
+            ]);
+        }
+
+        $result = $midtransService->createSnapTransaction($order);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $result,
+        ]);
     }
 
     /**

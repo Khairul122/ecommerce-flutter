@@ -11,6 +11,7 @@ class Order extends Model
         'receiver_name', 'receiver_phone', 'shipping_address',
         'subtotal', 'shipping_cost', 'total_price',
         'status', 'payment_status', 'payment_proof_url', 'cancel_reason', 'ordered_at',
+        'snap_token', 'snap_redirect_url', 'payment_type',
     ];
 
     protected function casts(): array
