@@ -16,6 +16,42 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared';
 });
 
+Route::get('/run-migration', function () {
+    $log = [];
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $log[] = "Artisan Migrate: " . \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Throwable $e) {
+        $log[] = "Artisan Migrate Error: " . $e->getMessage();
+    }
+
+    try {
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'snap_token')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('snap_token')->nullable()->after('payment_status');
+            });
+            $log[] = "Added column snap_token manually.";
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'snap_redirect_url')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->text('snap_redirect_url')->nullable()->after('snap_token');
+            });
+            $log[] = "Added column snap_redirect_url manually.";
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'payment_type')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('payment_type')->nullable()->after('snap_redirect_url');
+            });
+            $log[] = "Added column payment_type manually.";
+        }
+        $log[] = "Schema check complete.";
+    } catch (\Throwable $e) {
+        $log[] = "Schema Alter Error: " . $e->getMessage();
+    }
+
+    return '<pre>' . htmlspecialchars(implode("\n\n", $log)) . '</pre>';
+});
+
 Route::get('/update-code', function () {
     $out = function_exists('shell_exec') ? shell_exec('git pull origin main 2>&1') : 'shell_exec disabled';
     try { Artisan::call('view:clear'); } catch (\Throwable $e) {}
