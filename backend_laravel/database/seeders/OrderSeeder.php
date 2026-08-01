@@ -38,10 +38,14 @@ class OrderSeeder extends Seeder
                     'store_id' => $store->id,
                     'payment_method_id' => $payDana ? $payDana->id : null,
                     'shipping_method_id' => $shipReg ? $shipReg->id : null,
+                    'receiver_name' => 'Budi Santoso',
+                    'receiver_phone' => '081298765432',
+                    'shipping_address' => 'Jl. Sudirman No. 45, RT 02 / RW 05, Kebayoran Baru, Jakarta Selatan 12190',
                     'subtotal' => $subtotal,
                     'shipping_cost' => $shipCost,
                     'total_price' => $subtotal + $shipCost,
                     'status' => 'selesai',
+                    'payment_status' => 'paid',
                 ]
             );
 
@@ -79,10 +83,14 @@ class OrderSeeder extends Seeder
                     'store_id' => $store->id,
                     'payment_method_id' => $payBCA ? $payBCA->id : null,
                     'shipping_method_id' => $shipExp ? $shipExp->id : null,
+                    'receiver_name' => 'Siti Rahma',
+                    'receiver_phone' => '081311223344',
+                    'shipping_address' => 'Jl. Diponegoro No. 12, Dago, Coblong, Kota Bandung 40135',
                     'subtotal' => $subtotal,
                     'shipping_cost' => $shipCost,
                     'total_price' => $subtotal + $shipCost,
                     'status' => 'diproses',
+                    'payment_status' => 'paid',
                 ]
             );
 

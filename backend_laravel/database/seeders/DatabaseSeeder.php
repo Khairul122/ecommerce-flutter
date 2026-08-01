@@ -31,7 +31,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->command->info('Seeding database Ootday selesai!');
-        $this->command->info('Akun Admin: admin@ootday.com / admin123');
         $this->command->info('Akun Owner: owner@ootday.com / owner123');
         $this->command->info('Akun Pelanggan: budi@ootday.com / pelanggan123');
         $this->command->info('Akun Guest: guest@ootday.com / guest123');
@@ -42,11 +41,24 @@ class DatabaseSeeder extends Seeder
      */
     private function copyImageAssetsToStorage(): void
     {
-        $sourceDir = base_path('../ootday_pelanggan/assets/images');
+        $possibleSources = [
+            base_path('../ootday_pelanggan/assets/images'),
+            base_path('public/assets/images'),
+            public_path('assets/images'),
+        ];
+
+        $sourceDir = null;
+        foreach ($possibleSources as $dir) {
+            if (File::exists($dir)) {
+                $sourceDir = $dir;
+                break;
+            }
+        }
+
         $destDir = storage_path('app/public/seed_images');
 
-        if (!File::exists($sourceDir)) {
-            $this->command->warn("Direktori sumber gambar tidak ditemukan di: {$sourceDir}");
+        if (!$sourceDir) {
+            $this->command->warn("Info: Direktori sumber gambar lokal tidak ditemukan, menggunakan jalur aset Flutter default.");
             return;
         }
 
