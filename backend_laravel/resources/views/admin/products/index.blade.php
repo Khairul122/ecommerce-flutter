@@ -22,6 +22,7 @@
             <table class="table mb-0 align-middle">
                 <thead>
                     <tr>
+                        <th style="width:70px">Gambar</th>
                         <th>Nama</th>
                         <th>Toko</th>
                         <th>Kategori</th>
@@ -33,8 +34,17 @@
                 </thead>
                 <tbody>
                     @forelse ($products as $product)
+                        @php
+                            $primaryImg = $product->primaryImage?->image_url ?? $product->images->first()?->image_url;
+                            $imgSrc = $primaryImg
+                                ? (str_starts_with($primaryImg, 'http') ? $primaryImg : asset($primaryImg))
+                                : asset('assets/images/Produk_1.png');
+                        @endphp
                         <tr>
-                            <td>{{ $product->name }}</td>
+                            <td>
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #e5e0d8">
+                            </td>
+                            <td class="fw-medium">{{ $product->name }}</td>
                             <td>{{ $product->store->store_name ?? '-' }}</td>
                             <td>{{ $product->category->name ?? '-' }}</td>
                             <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
@@ -53,7 +63,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-3">Tidak ada data</td></tr>
                     @endforelse
                 </tbody>
             </table>

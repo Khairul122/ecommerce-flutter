@@ -20,6 +20,7 @@
             <table class="table mb-0 align-middle">
                 <thead>
                     <tr>
+                        <th style="width:60px">Icon</th>
                         <th>Nama</th>
                         <th>Toko</th>
                         <th>Produk</th>
@@ -28,8 +29,16 @@
                 </thead>
                 <tbody>
                     @forelse ($categories as $category)
+                        @php
+                            $iconSrc = $category->icon_url
+                                ? (str_starts_with($category->icon_url, 'http') ? $category->icon_url : asset($category->icon_url))
+                                : asset('assets/images/pria icons.png');
+                        @endphp
                         <tr>
-                            <td>{{ $category->name }}</td>
+                            <td>
+                                <img src="{{ $iconSrc }}" alt="{{ $category->name }}" style="width:36px;height:36px;object-fit:contain">
+                            </td>
+                            <td class="fw-medium">{{ $category->name }}</td>
                             <td>{{ $category->store->store_name ?? '-' }}</td>
                             <td>{{ $category->products_count }}</td>
                             <td class="text-end">
@@ -41,7 +50,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="text-center text-muted py-3">Tidak ada data</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-3">Tidak ada data</td></tr>
                     @endforelse
                 </tbody>
             </table>
