@@ -34,6 +34,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
   }
 
   Future<void> _payWithMidtrans() async {
+    if (!mounted) return;
     setState(() => _isFetchingSnap = true);
     String? snapUrl = widget.order.snapRedirectUrl;
 
@@ -47,7 +48,9 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
       }
     }
 
-    setState(() => _isFetchingSnap = false);
+    if (mounted) {
+      setState(() => _isFetchingSnap = false);
+    }
 
     if (snapUrl == null || snapUrl.isEmpty) {
       if (mounted) {
@@ -234,17 +237,30 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
               if (!isCod) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: _isFetchingSnap ? null : _payWithMidtrans,
-                    icon: _isFetchingSnap
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Icon(Icons.qr_code_2, color: Colors.white, size: 26),
-                    label: Text('Bayar via QRIS Midtrans', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: tealColor,
                       minimumSize: const Size(double.infinity, 54),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
+                    child: _isFetchingSnap
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.qr_code_2, color: Colors.white, size: 26),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Bayar via QRIS Midtrans',
+                                style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
                 const SizedBox(height: 12),
