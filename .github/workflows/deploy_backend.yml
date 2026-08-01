@@ -41,10 +41,12 @@ jobs:
       - name: 🚀 Sync Files via FTP to Rumahweb
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER || 'ftp.synectra.xyz' }}
+          server: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
           username: ${{ secrets.FTP_USERNAME || 'synf6654' }}
           password: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
           port: ${{ secrets.FTP_PORT || 21 }}
+          protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
+          security: loose
           local-dir: ${{ hashFiles('backend_laravel/composer.json') != '' && 'backend_laravel/' || './' }}
           server-dir: ./public_html/
           exclude: |
