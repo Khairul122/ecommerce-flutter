@@ -10,11 +10,23 @@ class MidtransService
 {
     public function __construct()
     {
+        $this->ensureSDKLoaded();
         $this->configure();
+    }
+
+    protected function ensureSDKLoaded(): void
+    {
+        if (!class_exists(\Midtrans\Config::class)) {
+            $sdkPath = app_path('Services/MidtransSDK/Midtrans.php');
+            if (file_exists($sdkPath)) {
+                require_once $sdkPath;
+            }
+        }
     }
 
     protected function configure(): void
     {
+        $this->ensureSDKLoaded();
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
         \Midtrans\Config::$isProduction = (bool) config('midtrans.is_production');
         \Midtrans\Config::$isSanitized = (bool) config('midtrans.is_sanitized');
