@@ -100,3 +100,25 @@ body {
     width: 100%;
     max-width: 380px;
 }
+
+/* Pagination Styling */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-item .page-link {
+    color: var(--ootday-ink);
+    border-color: #e5e0d8;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--ootday-brand);
+    border-color: var(--ootday-brand);
+    color: #fff;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: var(--ootday-brand-dark);
+}
