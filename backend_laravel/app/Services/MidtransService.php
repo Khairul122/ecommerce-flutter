@@ -111,6 +111,72 @@ class MidtransService
     }
 
     /**
+     * Charge QRIS langsung via Midtrans Core API (menghasilkan QR Code Image URL & QR String).
+     */
+    public function createQrisTransaction(Order $order): array
+    {
+        $this->configure();
+        $order->loadMissing(['user', 'items']);
+
+        $params = [
+            'payment_type' => 'qris',
+            'transaction_details' => [
+                'order_id' => $order->order_code,
+                'gross_amount' => (int) round($order->total_price),
+            ],
+            'qris' => [
+                'acquirer' => 'gopay',
+            ],
+            'customer_details' => [
+                'first_name' => $order->receiver_name,
+                'email' => $order->user->email ?? 'buyer@ootday.com',
+                'phone' => $order->receiver_phone,
+            ],
+        ];
+
+        try {
+            $chargeResponse = \Midtrans\CoreApi::charge($params);
+
+            $qrCodeUrl = null;
+            if (isset($chargeResponse->actions) && is_array($chargeResponse->actions)) {
+                foreach ($chargeResponse->actions as $action) {
+                    if (isset($action->name) && $action->name === 'generate-qr-code') {
+                        $qrCodeUrl = $action->url;
+                        break;
+                    }
+                }
+            }
+
+            $qrString = $chargeResponse->qr_string ?? null;
+
+            if ($qrCodeUrl || isset($chargeResponse->transaction_id)) {
+                $order->update([
+                    'snap_token' => $chargeResponse->transaction_id ?? null,
+                    'snap_redirect_url' => $qrCodeUrl,
+                    'payment_type' => 'qris',
+                ]);
+            }
+
+            return [
+                'status' => 'success',
+                'qr_code_url' => $qrCodeUrl,
+                'qr_string' => $qrString,
+                'transaction_id' => $chargeResponse->transaction_id ?? null,
+                'gross_amount' => $order->total_price,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Midtrans QRIS Charge Error: '.$e->getMessage(), [
+                'order_code' => $order->order_code,
+            ]);
+
+            return [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Memproses Webhook/Notification HTTP Callback dari Midtrans.
      */
     public function handleNotification(array $payload): bool

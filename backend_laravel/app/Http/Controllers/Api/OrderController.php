@@ -184,6 +184,38 @@ class OrderController extends Controller
     }
 
     /**
+     * Menghasilkan QR Code Image URL khusus QRIS Midtrans secara langsung tanpa membuka browser.
+     */
+    public function getQrisCode(Request $request, Order $order, MidtransService $midtransService)
+    {
+        if ($order->user_id !== $request->user()->id) {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak'], 403);
+        }
+
+        if ($order->payment_status === 'paid') {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan ini sudah lunas'], 422);
+        }
+
+        if ($order->snap_redirect_url && str_contains($order->snap_redirect_url, 'qr-code')) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'qr_code_url' => $order->snap_redirect_url,
+                    'transaction_id' => $order->snap_token,
+                    'gross_amount' => $order->total_price,
+                ],
+            ]);
+        }
+
+        $result = $midtransService->createQrisTransaction($order);
+
+        return response()->json([
+            'status' => $result['status'] ?? 'success',
+            'data' => $result,
+        ]);
+    }
+
+    /**
      * Pelanggan menandai sudah membayar. Status pembayaran menjadi
      * "menunggu_konfirmasi", BUKAN langsung "paid" -- verifikasi akhir tetap
      * di tangan owner lewat OwnerOrderController::confirmPayment. Ini
