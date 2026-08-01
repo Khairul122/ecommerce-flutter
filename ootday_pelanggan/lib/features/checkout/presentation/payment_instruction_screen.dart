@@ -3,14 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/services/api_service.dart';
 import 'payment_success_screen.dart';
 import '../../order/domain/entities/order_entity.dart';
 import '../../order/presentation/providers/order_provider.dart';
 import '../domain/entities/payment_method_entity.dart';
 
-/// Perbaikan audit penting: layar ini mendukung pembayaran via Midtrans Snap
-/// (GoPay, QRIS, Transfer Bank, Virtual Account) melalui url_launcher, serta
-/// konfirmasi manual jika diperlukan.
+/// Layar instruksi pembayaran dengan dukungan tombol pembayaran QRIS Midtrans
 class PaymentInstructionScreen extends StatefulWidget {
   final OrderEntity order;
   final PaymentMethodEntity paymentMethod;
@@ -23,6 +22,7 @@ class PaymentInstructionScreen extends StatefulWidget {
 class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
   bool _isExpanded = true;
   bool _isConfirming = false;
+  bool _isFetchingSnap = false;
   final Color maroonColor = const Color(0xFF5D1A1A);
 
   String get _orderCode => widget.order.orderCode.isNotEmpty ? widget.order.orderCode : '-';
@@ -34,13 +34,30 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
   }
 
   Future<void> _payWithMidtrans() async {
-    final snapUrl = widget.order.snapRedirectUrl;
+    setState(() => _isFetchingSnap = true);
+    String? snapUrl = widget.order.snapRedirectUrl;
+
     if (snapUrl == null || snapUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('URL pembayaran Midtrans tidak ditemukan.')),
-      );
+      try {
+        final res = await ApiService().post('/orders/${widget.order.id}/snap-token', {});
+        final data = res['data'] as Map<String, dynamic>?;
+        snapUrl = data?['snap_redirect_url']?.toString();
+      } catch (e) {
+        print('Error fetching snap token: $e');
+      }
+    }
+
+    setState(() => _isFetchingSnap = false);
+
+    if (snapUrl == null || snapUrl.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('URL pembayaran QRIS Midtrans tidak tersedia.')),
+        );
+      }
       return;
     }
+
     final uri = Uri.parse(snapUrl);
     try {
       final launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
@@ -48,9 +65,11 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal membuka Midtrans: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal membuka Midtrans: $e')),
+        );
+      }
     }
   }
 
@@ -81,7 +100,6 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
 
     final num totalPrice = widget.order.totalPrice;
     final bool isCod = _paymentType == 'cod';
-    final bool hasSnap = widget.order.snapRedirectUrl != null && widget.order.snapRedirectUrl!.isNotEmpty;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -110,7 +128,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    Icon(isCod ? Icons.handshake_outlined : Icons.account_balance_wallet_outlined, size: 40, color: tealColor),
+                    Icon(isCod ? Icons.handshake_outlined : Icons.qr_code_scanner, size: 40, color: tealColor),
                     const SizedBox(width: 15),
                     Expanded(
                       child: Text(
@@ -165,16 +183,14 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                     Text(
                       isCod
                           ? 'Pembayaran dilakukan saat pesanan tiba'
-                          : hasSnap
-                              ? 'Bayar instan via Midtrans (GoPay, QRIS, Transfer Bank)'
-                              : 'Selesaikan pembayaran lalu konfirmasi di aplikasi',
+                          : 'Bayar via QRIS Midtrans (GoPay, ShopeePay, All Bank)',
                       style: GoogleFonts.outfit(color: tealColor, fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 15),
                     Text(
                       isCod
                           ? 'Siapkan pembayaran sejumlah ${_formatRp(totalPrice)} saat kurir mengantarkan pesanan Anda.'
-                          : 'Tekan tombol "Bayar Sekarang via Midtrans" untuk membuka halaman pembayaran (GoPay, ShopeePay, QRIS, Virtual Account Bank).',
+                          : 'Tekan tombol "Bayar via QRIS Midtrans" di bawah untuk melakukan Scan QRIS.',
                       style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, height: 1.5),
                     ),
                   ],
@@ -209,19 +225,21 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      'Pembayaran via Midtrans akan otomatis terverifikasi secara real-time. Setelah pembayaran berhasil di Midtrans, status pesanan akan langsung berubah menjadi "diproses".',
+                      'Pembayaran via QRIS Midtrans akan otomatis terverifikasi secara real-time. Setelah QRIS berhasil di-scan dan dibayar, status pesanan akan langsung berubah menjadi "diproses".',
                       style: GoogleFonts.outfit(fontSize: 13, color: Colors.black87, height: 1.5),
                     ),
                   ),
                 ),
               const SizedBox(height: 30),
-              if (hasSnap) ...[
+              if (!isCod) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ElevatedButton.icon(
-                    onPressed: _payWithMidtrans,
-                    icon: const Icon(Icons.payment, color: Colors.white),
-                    label: Text('Bayar Sekarang via Midtrans', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    onPressed: _isFetchingSnap ? null : _payWithMidtrans,
+                    icon: _isFetchingSnap
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Icon(Icons.qr_code_2, color: Colors.white, size: 26),
+                    label: Text('Bayar via QRIS Midtrans', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: tealColor,
                       minimumSize: const Size(double.infinity, 54),
