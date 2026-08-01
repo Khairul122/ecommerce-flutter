@@ -18,8 +18,10 @@ Route::get('/clear-cache', function () {
 
 Route::get('/git-pull', function () {
     $output = shell_exec('git pull origin main 2>&1');
+    Artisan::call('migrate', ['--force' => true]);
     Artisan::call('view:clear');
-    return '<pre>' . htmlspecialchars($output ?? 'shell_exec not available') . '</pre>';
+    Artisan::call('config:clear');
+    return '<pre>' . htmlspecialchars($output ?? 'shell_exec not available') . "\n\nMigration & Cache cleared!</pre>";
 });
 
 Route::get('/check-form', function () {
