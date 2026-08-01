@@ -29,7 +29,7 @@ class ApiService {
   // GANTI dengan alamat IP LAN komputer yang menjalankan `php artisan serve`
   // (bukan localhost/127.0.0.1 kalau diuji dari HP fisik/emulator berbeda
   // jaringan). Contoh: 'http://192.168.1.10:8000/api'
-  static const String baseUrl = 'http://192.168.1.77:8000/api';
+  static const String baseUrl = 'https://backend-ecommerce.synectra.xyz/api';
 
   static const Duration _timeout = Duration(seconds: 15);
 
