@@ -82,7 +82,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final addresses = addressProvider.addresses;
       AddressEntity? mainAddress;
       if (addresses.isNotEmpty) {
-        mainAddress = addresses.firstWhere((a) => a.isMain, orElse: () => addresses.first);
+        for (final a in addresses) {
+          if (a.isMain) {
+            mainAddress = a;
+            break;
+          }
+        }
+        mainAddress ??= addresses.first;
       }
 
       final shippingList = checkoutProvider.shippingMethods;
