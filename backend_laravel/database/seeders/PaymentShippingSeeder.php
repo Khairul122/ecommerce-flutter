@@ -12,11 +12,10 @@ class PaymentShippingSeeder extends Seeder
     {
         // Payment Methods
         $payments = [
-            ['name' => 'DANA', 'type' => 'ewallet'],
+            ['name' => 'QRIS (GoPay / ShopeePay / All Bank)', 'type' => 'qris'],
             ['name' => 'GoPay', 'type' => 'ewallet'],
-            ['name' => 'OVO', 'type' => 'ewallet'],
+            ['name' => 'ShopeePay', 'type' => 'ewallet'],
             ['name' => 'BCA Transfer', 'type' => 'bank_transfer'],
-            ['name' => 'Mandiri Transfer', 'type' => 'bank_transfer'],
             ['name' => 'COD (Bayar di Tempat)', 'type' => 'cod'],
         ];
 
