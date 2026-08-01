@@ -70,7 +70,7 @@
     <label class="form-label d-block">Varian (ukuran/warna)</label>
     <div id="variant-rows">
         @php $oldVariants = old('variants', $product?->variants?->toArray() ?? []); @endphp
-        @forelse ($oldVariants as $i => $variant)
+        @foreach ($oldVariants as $i => $variant)
             <div class="row g-2 mb-2 variant-row">
                 <div class="col-md-3">
                     <input type="text" name="variants[{{ $i }}][size]" value="{{ $variant['size'] ?? '' }}" class="form-control" placeholder="Ukuran">
@@ -88,7 +88,7 @@
                     <button type="button" class="btn btn-outline-danger remove-variant">Hapus</button>
                 </div>
             </div>
-        @endforelse
+        @endforeach
     </div>
     <button type="button" id="add-variant" class="btn btn-sm btn-outline-secondary">+ Tambah Varian</button>
 </div>
