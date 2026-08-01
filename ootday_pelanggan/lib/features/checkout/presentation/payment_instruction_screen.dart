@@ -37,13 +37,18 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
     if (!mounted) return;
     setState(() => _isFetchingSnap = true);
     String? snapUrl = widget.order.snapRedirectUrl;
+    String? serverError;
 
     if (snapUrl == null || snapUrl.isEmpty) {
       try {
         final res = await ApiService().post('/orders/${widget.order.id}/snap-token', {});
         final data = res['data'] as Map<String, dynamic>?;
         snapUrl = data?['snap_redirect_url']?.toString();
+        if (snapUrl == null || snapUrl.isEmpty) {
+          serverError = data?['error']?.toString() ?? res['message']?.toString();
+        }
       } catch (e) {
+        serverError = e.toString();
         print('Error fetching snap token: $e');
       }
     }
@@ -55,7 +60,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
     if (snapUrl == null || snapUrl.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('URL pembayaran QRIS Midtrans tidak tersedia.')),
+          SnackBar(content: Text(serverError ?? 'URL pembayaran QRIS Midtrans tidak tersedia.')),
         );
       }
       return;
