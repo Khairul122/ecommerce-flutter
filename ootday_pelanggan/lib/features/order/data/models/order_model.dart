@@ -18,6 +18,9 @@ class OrderModel extends OrderEntity {
     super.receiverPhone,
     super.shippingAddress,
     super.orderedAt,
+    super.snapToken,
+    super.snapRedirectUrl,
+    super.paymentType,
     super.items,
   });
 
