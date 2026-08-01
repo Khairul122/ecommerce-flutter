@@ -31,7 +31,12 @@
         ]
     },
     "extra": { "laravel": { "dont-discover": [] } },
-    "config": { "optimize-autoloader": true, "preferred-install": "dist", "sort-packages": true },
+    "config": { "optimize-autoloader": true, "preferred-install": "dist", "sort-packages": true,
+        "policy": {
+            "advisories": {
+                "block": false
+            }
+        } },
     "minimum-stability": "stable",
     "prefer-stable": true
 }
