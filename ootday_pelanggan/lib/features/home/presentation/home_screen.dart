@@ -401,12 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _primaryImageUrl(ProductEntity product) {
-    if (product.images.isEmpty) return 'assets/images/Produk_1.png';
-    final primary = product.images.firstWhere(
-      (img) => img.isPrimary,
-      orElse: () => product.images.first,
-    );
-    return primary.imageUrl;
+    return product.primaryImageUrl;
   }
 
   Widget _buildProductItem(List<ProductEntity> products, int index) {

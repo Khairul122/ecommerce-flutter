@@ -76,4 +76,14 @@ class ProductEntity {
   });
 
   List<String> get imageUrls => images.map((e) => e.imageUrl).toList();
+
+  String get primaryImageUrl {
+    if (images.isEmpty) return 'assets/images/Produk_1.png';
+    for (final img in images) {
+      if (img.isPrimary && img.imageUrl.isNotEmpty) return img.imageUrl;
+    }
+    return images.first.imageUrl.isNotEmpty
+        ? images.first.imageUrl
+        : 'assets/images/Produk_1.png';
+  }
 }
