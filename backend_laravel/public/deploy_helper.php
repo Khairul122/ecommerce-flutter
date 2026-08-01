@@ -28,6 +28,26 @@ $log = [];
 
 $log[] = 'Base directory: ' . $baseDir;
 
+// 0. Ensure required storage and bootstrap cache directories exist
+$requiredDirs = [
+    $baseDir . '/bootstrap/cache',
+    $baseDir . '/storage/app/public',
+    $baseDir . '/storage/framework/cache/data',
+    $baseDir . '/storage/framework/sessions',
+    $baseDir . '/storage/framework/views',
+    $baseDir . '/storage/logs',
+];
+
+foreach ($requiredDirs as $dir) {
+    if (!file_exists($dir)) {
+        if (@mkdir($dir, 0755, true)) {
+            $log[] = "Created directory: $dir";
+        } else {
+            $log[] = "Failed to create directory: $dir";
+        }
+    }
+}
+
 // 1. Unzip vendor.zip if present
 if (file_exists($vendorZip)) {
     $log[] = 'Found vendor.zip. Unzipping into vendor/...';
@@ -36,7 +56,6 @@ if (file_exists($vendorZip)) {
         $zip->extractTo($baseDir);
         $zip->close();
         $log[] = 'vendor.zip extracted successfully!';
-        // Optionally delete vendor.zip after extraction to save disk space
         @unlink($vendorZip);
         $log[] = 'vendor.zip removed after extraction.';
     } else {
