@@ -140,7 +140,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
           ],
         ),
-        body: (isLoading && order == null)
+        body: isLoading
             ? const Center(child: CircularProgressIndicator())
             : (error != null && order == null)
                 ? Center(
@@ -156,10 +156,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       ],
                     ),
                   )
-                : _buildOrderBody(order!, maroonColor, lightPinkBg),
-        bottomSheet: (isLoading && order == null) || (error != null && order == null)
+                : order == null
+                    ? const Center(child: Text('Pesanan tidak ditemukan'))
+                    : _buildOrderBody(order, maroonColor, lightPinkBg),
+        bottomSheet: (isLoading || order == null)
             ? null
-            : _buildBottomButtons(context, order!, maroonColor, provider.isMutating),
+            : _buildBottomButtons(context, order, maroonColor, provider.isMutating),
       ),
     );
   }
@@ -359,13 +361,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13)),
+        const SizedBox(width: 10),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 18, color: iconColor),
               const SizedBox(width: 5),
             ],
-            Flexible(child: Text(value, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500))),
+            Text(value, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
       ],
