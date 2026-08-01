@@ -66,7 +66,7 @@ class MidtransService
                 'order_id' => $order->order_code,
                 'gross_amount' => (int) round($order->total_price),
             ],
-            'enabled_payments' => ['qris', 'gopay', 'shopeepay'],
+            'enabled_payments' => ['gopay', 'shopeepay', 'other_qris'],
             'customer_details' => [
                 'first_name' => $order->receiver_name,
                 'email' => $order->user->email ?? 'buyer@ootday.com',
