@@ -179,9 +179,9 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: tealColor.withValues(alpha: 0.08),
+                    color: tealColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: tealColor.withValues(alpha: 0.2)),
+                    border: Border.all(color: tealColor.withOpacity(0.2)),
                   ),
                   child: Column(
                     children: [
@@ -242,9 +242,9 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: tealColor.withValues(alpha: 0.08),
+                    color: tealColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: tealColor.withValues(alpha: 0.2)),
+                    border: Border.all(color: tealColor.withOpacity(0.2)),
                   ),
                   child: Column(
                     children: [

@@ -28,7 +28,7 @@ class AppDialog {
                 width: 65,
                 height: 65,
                 decoration: BoxDecoration(
-                  color: successGreen.withValues(alpha: 0.1),
+                  color: successGreen.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle_rounded, color: successGreen, size: 45),
@@ -106,7 +106,7 @@ class AppDialog {
                 width: 65,
                 height: 65,
                 decoration: BoxDecoration(
-                  color: errorRed.withValues(alpha: 0.1),
+                  color: errorRed.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.error_rounded, color: errorRed, size: 45),
