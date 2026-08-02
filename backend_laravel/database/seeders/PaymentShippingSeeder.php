@@ -24,9 +24,14 @@ class PaymentShippingSeeder extends Seeder
         ];
 
         foreach ($payments as $p) {
+            $code = isset($p['code']) ? $p['code'] : null;
             PaymentMethod::updateOrCreate(
                 ['name' => $p['name']],
-                ['type' => $p['type'], 'code' => $p['code'] ?? null, 'is_active' => true]
+                [
+                    'type' => $p['type'],
+                    'code' => $code,
+                    'is_active' => true,
+                ]
             );
         }
 
@@ -40,7 +45,10 @@ class PaymentShippingSeeder extends Seeder
         foreach ($shippings as $s) {
             ShippingMethod::firstOrCreate(
                 ['name' => $s['name']],
-                ['base_cost' => $s['base_cost'], 'is_active' => true]
+                [
+                    'base_cost' => $s['base_cost'],
+                    'is_active' => true,
+                ]
             );
         }
     }
