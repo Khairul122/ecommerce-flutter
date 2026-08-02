@@ -73,9 +73,8 @@ class OwnerOrderController extends Controller
     }
 
     /**
-     * Owner memverifikasi bukti bayar pelanggan (payment_status: menunggu_konfirmasi -> paid).
-     * Ini adalah verifikasi manual pengganti payment gateway sungguhan -- proyek ini
-     * belum terintegrasi dengan payment gateway pihak ketiga (Midtrans/Xendit dll).
+     * Owner memverifikasi pembayaran pelanggan (payment_status: menunggu_konfirmasi -> paid).
+     * Terintegrasi dengan Xendit Payment Gateway & konfirmasi manual owner.
      */
     public function confirmPayment(Request $request, Order $order)
     {

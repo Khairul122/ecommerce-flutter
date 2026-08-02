@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConversationController;
-use App\Http\Controllers\Api\MidtransNotificationController;
+use App\Http\Controllers\Api\XenditNotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OwnerOrderController;
 use App\Http\Controllers\Api\PaymentShippingMethodController;
@@ -32,8 +32,8 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/payment-methods', [PaymentShippingMethodController::class, 'paymentMethods']);
 Route::get('/shipping-methods', [PaymentShippingMethodController::class, 'shippingMethods']);
 
-// Midtrans Webhook Callback Notification (Public)
-Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
+// Xendit Webhook Callback Notification (Public)
+Route::post('/xendit/callback', [XenditNotificationController::class, 'handle']);
 
 // ---- Wajib login (pelanggan maupun owner) ----
 Route::middleware('auth:sanctum')->group(function () {

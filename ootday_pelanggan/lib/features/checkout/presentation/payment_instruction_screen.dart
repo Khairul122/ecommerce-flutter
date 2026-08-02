@@ -54,7 +54,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
     try {
       final res = await ApiService().post('/orders/${widget.order.id}/qris', {});
       final data = res['data'] as Map<String, dynamic>?;
-      String? url = data?['qr_code_url']?.toString();
+      String? url = data?['qr_url']?.toString() ?? data?['qr_code_url']?.toString();
       final qrString = data?['qr_string']?.toString();
 
       if ((url == null || url.isEmpty) && qrString != null && qrString.isNotEmpty) {
@@ -65,7 +65,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
         setState(() {
           _qrisImageUrl = (url != null && url.isNotEmpty) ? url : null;
           if (_qrisImageUrl == null) {
-            _qrisError = data?['message']?.toString() ?? data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat QRIS';
+            _qrisError = data?['message']?.toString() ?? data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat QRIS Xendit';
           }
           _isLoadingQris = false;
         });

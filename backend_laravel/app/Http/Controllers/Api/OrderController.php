@@ -57,7 +57,7 @@ class OrderController extends Controller
      *   pembayaran baru berubah lewat endpoint confirmPayment terpisah,
      *   bukan otomatis sukses seperti alur payment_instruction_screen.dart lama.
      */
-    public function store(Request $request)
+    public function store(Request $request, XenditService $xenditService)
     {
         $validator = Validator::make($request->all(), [
             'address_id' => ['required', 'exists:addresses,id'],
@@ -139,97 +139,77 @@ class OrderController extends Controller
             return $order;
         });
 
-        // Buat Midtrans Snap Token & Redirect URL
-        $midtransService = app(MidtransService::class);
-        $midtransData = $midtransService->createSnapTransaction($order);
+        // 4. Generate Xendit Invoice Url secara langsung
+        try {
+            $xenditResult = $xenditService->createInvoice($order);
+            $order->refresh();
+        } catch (\Exception $e) {
+            // Jika Xendit fail, pesanan tetap tersimpan dengan status pending
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Pesanan berhasil dibuat, menunggu pembayaran',
-            'data' => $order->fresh()->load(['items', 'store', 'paymentMethod', 'shippingMethod']),
-            'snap_token' => $midtransData['snap_token'] ?? null,
-            'snap_redirect_url' => $midtransData['snap_redirect_url'] ?? null,
+            'message' => 'Pesanan berhasil dibuat',
+            'data' => $order->load(['items', 'paymentMethod', 'shippingMethod']),
         ], 201);
     }
 
     /**
-     * Mengambil atau membuat ulang Midtrans Snap Token untuk pesanan tertentu.
+     * Menghasilkan URL Invoice Xendit untuk pembayaran pesanan.
      */
-    public function getSnapToken(Request $request, Order $order, MidtransService $midtransService)
+    public function getSnapToken(Request $request, Order $order, XenditService $xenditService)
     {
         if ($order->user_id !== $request->user()->id) {
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak'], 403);
         }
 
-        if ($order->payment_status === 'paid') {
+        if (in_array($order->payment_status, ['paid', 'sudah_dibayar'])) {
             return response()->json(['status' => 'error', 'message' => 'Pesanan ini sudah lunas'], 422);
         }
 
-        if ($order->snap_token && $order->snap_redirect_url) {
+        if ($order->payment_url) {
             return response()->json([
                 'status' => 'success',
                 'data' => [
                     'snap_token' => $order->snap_token,
-                    'snap_redirect_url' => $order->snap_redirect_url,
+                    'snap_redirect_url' => $order->payment_url,
+                    'payment_url' => $order->payment_url,
                 ],
             ]);
         }
 
-        $result = $midtransService->createSnapTransaction($order);
+        $result = $xenditService->createInvoice($order);
 
         return response()->json([
             'status' => 'success',
-            'data' => $result,
+            'data' => [
+                'snap_token' => $result['invoice_id'] ?? null,
+                'snap_redirect_url' => $result['invoice_url'] ?? null,
+                'payment_url' => $result['invoice_url'] ?? null,
+            ],
         ]);
     }
 
     /**
-     * Menghasilkan QR Code Image URL khusus QRIS Midtrans secara langsung tanpa membuka browser.
+     * Menghasilkan QR Code QRIS Xendit secara langsung.
      */
-    public function getQrisCode(Request $request, Order $order, MidtransService $midtransService)
+    public function getQrisCode(Request $request, Order $order, XenditService $xenditService)
     {
         if ($order->user_id !== $request->user()->id) {
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak'], 403);
         }
 
-        if ($order->payment_status === 'paid') {
+        if (in_array($order->payment_status, ['paid', 'sudah_dibayar'])) {
             return response()->json(['status' => 'error', 'message' => 'Pesanan ini sudah lunas'], 422);
         }
 
-        if ($order->snap_redirect_url && str_contains($order->snap_redirect_url, 'qr-code')) {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'qr_code_url' => $order->snap_redirect_url,
-                    'transaction_id' => $order->snap_token,
-                    'gross_amount' => $order->total_price,
-                ],
-            ]);
-        }
-
-        $result = $midtransService->createQrisTransaction($order);
-
-        if (isset($result['status']) && $result['status'] === 'error') {
-            return response()->json([
-                'status' => 'error',
-                'message' => $result['message'] ?? $result['error'] ?? 'Gagal memproses QRIS Midtrans',
-                'data' => $result,
-            ], 400);
-        }
+        $result = $xenditService->createQrisCode($order);
 
         return response()->json([
             'status' => 'success',
             'data' => $result,
         ]);
     }
-
-    /**
-     * Pelanggan menandai sudah membayar. Status pembayaran menjadi
-     * "menunggu_konfirmasi", BUKAN langsung "paid" -- verifikasi akhir tetap
-     * di tangan owner lewat OwnerOrderController::confirmPayment. Ini
-     * menggantikan payment_instruction_screen.dart lama yang langsung
-     * menganggap pembayaran sukses tanpa verifikasi apa pun.
-     */
     public function confirmPayment(Request $request, Order $order)
     {
         if ($order->user_id !== $request->user()->id) {
