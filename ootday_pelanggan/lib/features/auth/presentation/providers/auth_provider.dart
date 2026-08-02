@@ -11,6 +11,7 @@ class AuthProvider extends ChangeNotifier {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final RefreshMeUseCase refreshMeUseCase;
+  final UpdateProfileUseCase updateProfileUseCase;
   final ChangePasswordUseCase changePasswordUseCase;
   final ForgotPasswordUseCase forgotPasswordUseCase;
   final ResetPasswordUseCase resetPasswordUseCase;
@@ -22,6 +23,7 @@ class AuthProvider extends ChangeNotifier {
     required this.loginUseCase,
     required this.registerUseCase,
     required this.refreshMeUseCase,
+    required this.updateProfileUseCase,
     required this.changePasswordUseCase,
     required this.forgotPasswordUseCase,
     required this.resetPasswordUseCase,
@@ -67,6 +69,12 @@ class AuthProvider extends ChangeNotifier {
 
   Future<UserEntity> refreshMe() async {
     _user = await refreshMeUseCase(const NoParams());
+    notifyListeners();
+    return _user!;
+  }
+
+  Future<UserEntity> updateProfile({required String name, String? phone}) async {
+    _user = await updateProfileUseCase(UpdateProfileParams(name: name, phone: phone));
     notifyListeners();
     return _user!;
   }

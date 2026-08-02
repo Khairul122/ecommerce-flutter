@@ -25,7 +25,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _loadConversations();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadConversations());
   }
 
   @override

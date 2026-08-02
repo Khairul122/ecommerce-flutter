@@ -320,6 +320,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               'image': imageUrl,
               'description': product.description ?? '',
               'stock': product.stock.toString(),
+              'store_id': product.storeId.toString(),
+              'store_name': product.store?.name ?? 'Toko',
             }),
           ),
         );

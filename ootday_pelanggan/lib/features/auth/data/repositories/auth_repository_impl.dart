@@ -84,6 +84,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity> updateProfile({
+    required String name,
+    String? phone,
+  }) async {
+    final user = await remote.updateProfile(name: name, phone: phone);
+    _cachedUser = user;
+    await local.saveUser(user.toJson());
+    return user;
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

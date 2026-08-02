@@ -59,6 +59,23 @@ class RefreshMeUseCase extends UseCase<UserEntity, NoParams> {
   Future<UserEntity> call(NoParams params) => repository.refreshMe();
 }
 
+class UpdateProfileParams {
+  final String name;
+  final String? phone;
+  const UpdateProfileParams({required this.name, this.phone});
+}
+
+class UpdateProfileUseCase extends UseCase<UserEntity, UpdateProfileParams> {
+  final AuthRepository repository;
+  UpdateProfileUseCase(this.repository);
+
+  @override
+  Future<UserEntity> call(UpdateProfileParams params) => repository.updateProfile(
+        name: params.name,
+        phone: params.phone,
+      );
+}
+
 class ChangePasswordParams {
   final String currentPassword;
   final String newPassword;

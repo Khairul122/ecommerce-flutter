@@ -20,6 +20,11 @@ abstract class AuthRepository {
 
   Future<UserEntity> refreshMe();
 
+  Future<UserEntity> updateProfile({
+    required String name,
+    String? phone,
+  });
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

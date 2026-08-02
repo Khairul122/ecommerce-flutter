@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/cart_provider.dart';
 import '../domain/entities/cart_item_entity.dart';
 import '../../checkout/presentation/checkout_screen.dart';
+import '../../chat/presentation/chat_list_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -17,7 +18,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCart();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCart());
   }
 
   Future<void> _loadCart() async {
@@ -92,7 +93,10 @@ class _CartScreenState extends State<CartScreen> {
                 height: 24,
                 color: const Color(0xFF5D1A1A),
               ),
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatListScreen()),
+              ),
             ),
           ],
         ),

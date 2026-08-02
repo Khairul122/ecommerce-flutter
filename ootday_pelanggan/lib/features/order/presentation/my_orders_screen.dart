@@ -143,7 +143,7 @@ class _StatusOrdersTabState extends State<_StatusOrdersTab> with AutomaticKeepAl
   @override
   void initState() {
     super.initState();
-    _loadOrders();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadOrders());
   }
 
   Future<void> _loadOrders() {

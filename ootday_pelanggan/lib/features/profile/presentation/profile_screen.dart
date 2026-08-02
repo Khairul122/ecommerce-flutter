@@ -13,6 +13,7 @@ import '../../chat/presentation/chat_list_screen.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../order/presentation/my_orders_screen.dart';
 import '../../order/presentation/providers/order_provider.dart';
+import '../../cart/presentation/providers/cart_provider.dart';
 import '../../../core/widgets/custom_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -80,6 +81,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
+    final cartCount = context.watch<CartProvider>().items.fold<int>(
+          0,
+          (sum, item) => sum + item.quantity,
+        );
     const Color maroonColor = Color(0xFF5D1A1A);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -117,16 +122,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               alignment: Alignment.center,
                               children: [
                                 const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
-                                Positioned(
-                                  right: -2,
-                                  top: -2,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                    constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
-                                    child: const Text('3', style: TextStyle(color: Color(0xFF5D1A1A), fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                if (cartCount > 0)
+                                  Positioned(
+                                    right: -2,
+                                    top: -2,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                      constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                                      child: Text('$cartCount', style: const TextStyle(color: Color(0xFF5D1A1A), fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

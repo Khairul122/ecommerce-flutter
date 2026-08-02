@@ -110,6 +110,27 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:100'],
+            'phone' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationError($validator);
+        }
+
+        $user = $request->user();
+        $user->update($validator->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profil berhasil diperbarui',
+            'data' => ['user' => $this->userPayload($user->fresh('store'))],
+        ]);
+    }
+
     public function updatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [

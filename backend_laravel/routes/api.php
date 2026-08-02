@@ -44,6 +44,7 @@ Route::get('/xendit/redirect/failure', fn () => response('Pembayaran gagal atau 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me', [AuthController::class, 'updateProfile']);
     Route::put('/me/password', [AuthController::class, 'updatePassword']);
     Route::delete('/me', [AuthController::class, 'destroy']);
     Route::post('/upload', [UploadController::class, 'store']);

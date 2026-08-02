@@ -102,6 +102,7 @@ class AppDependencies {
       loginUseCase: LoginUseCase(authRepository),
       registerUseCase: RegisterUseCase(authRepository),
       refreshMeUseCase: RefreshMeUseCase(authRepository),
+      updateProfileUseCase: UpdateProfileUseCase(authRepository),
       changePasswordUseCase: ChangePasswordUseCase(authRepository),
       forgotPasswordUseCase: ForgotPasswordUseCase(authRepository),
       resetPasswordUseCase: ResetPasswordUseCase(authRepository),

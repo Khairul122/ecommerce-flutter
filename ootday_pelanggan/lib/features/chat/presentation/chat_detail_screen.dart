@@ -28,7 +28,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _loadMessages();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadMessages());
     _pollTimer = Timer.periodic(
       const Duration(seconds: 5),
       (_) => _loadMessages(showSpinner: false),

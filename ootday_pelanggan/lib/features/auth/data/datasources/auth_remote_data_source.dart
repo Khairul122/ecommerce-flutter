@@ -61,6 +61,19 @@ class AuthRemoteDataSource {
     return UserModel.fromJson(userJson);
   }
 
+  Future<UserModel> updateProfile({
+    required String name,
+    String? phone,
+  }) async {
+    final result = await _api.put('/me', {
+      'name': name,
+      'phone': (phone == null || phone.isEmpty) ? null : phone,
+    });
+    final data = (result['data'] ?? result) as Map<String, dynamic>;
+    final userJson = (data['user'] ?? data) as Map<String, dynamic>;
+    return UserModel.fromJson(userJson);
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

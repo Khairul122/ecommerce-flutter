@@ -29,7 +29,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadOrder();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadOrder());
   }
 
   Future<void> _loadOrder() {

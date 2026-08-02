@@ -58,8 +58,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _startBannerTimer();
-    _fetchData();
-    _refreshUserSilently();
+    // fetchProducts/fetchCategories notify listeners synchronously before
+    // their first await, so calling them directly here throws "setState()
+    // called during build" — defer to after the first frame instead.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData();
+      _refreshUserSilently();
+    });
   }
 
   // Segarkan data user dari server (menggantikan sinkronisasi manual ke
@@ -448,15 +453,23 @@ class _HomeScreenState extends State<HomeScreen> {
           'image': imageUrl,
           'description': product.description ?? '',
           'stock': product.stock.toString(),
+          'store_id': product.storeId.toString(),
+          'store_name': product.store?.name ?? 'Toko',
         })),
       ).then((_) => _refreshCartCount()),
       child: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10), 
-              image: DecorationImage(image: AssetImage(imageUrl), fit: BoxFit.cover)
-            )
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: imageUrl.startsWith('assets/')
+                ? Image.asset(imageUrl, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                : Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (c, e, s) => Container(color: Colors.grey[200]),
+                  ),
           ),
           Positioned(
             top: 0, right: 0,

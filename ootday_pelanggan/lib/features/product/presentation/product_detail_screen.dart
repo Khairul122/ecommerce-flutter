@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import '../../cart/presentation/cart_screen.dart';
 import '../../checkout/presentation/checkout_screen.dart';
 import '../../cart/data/cart_data.dart';
+import '../../chat/presentation/chat_list_screen.dart';
+import '../../chat/presentation/chat_detail_screen.dart';
+import '../../../core/services/api_service.dart';
 import 'providers/product_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -50,7 +53,36 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         });
       }
     } catch (e) {
-      print('Error fetching cart count: $e');
+      debugPrint('Error fetching cart count: $e');
+    }
+  }
+
+  Future<void> _contactSeller() async {
+    final storeId = widget.product['store_id'];
+    final storeName = widget.product['store_name'] ?? 'Toko';
+    if (storeId == null) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatListScreen()));
+      return;
+    }
+    try {
+      final result = await ApiService().post('/conversations', {'store_id': int.parse(storeId)});
+      final conversation = Map<String, dynamic>.from(result['data'] ?? {});
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatDetailScreen(
+            conversationId: conversation['id'].toString(),
+            storeName: storeName,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal membuka chat: $e')),
+        );
+      }
     }
   }
 
@@ -132,7 +164,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         });
       }
     } catch (e) {
-      print('Error loading product details: $e');
+      debugPrint('Error loading product details: $e');
       if (mounted) {
         setState(() {
           _images = [widget.product['image'] ?? 'assets/images/Produk_1.png'];
@@ -774,13 +806,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           decoration: BoxDecoration(color: lightBg, borderRadius: const BorderRadius.vertical(top: Radius.circular(30)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))]),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                child: Image.asset(
-                  'assets/images/icons msg.png',
-                  width: 28,
-                  height: 28,
-                  color: const Color(0xFF5D1A1A),
+              GestureDetector(
+                onTap: _contactSeller,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  child: Image.asset(
+                    'assets/images/icons msg.png',
+                    width: 28,
+                    height: 28,
+                    color: const Color(0xFF5D1A1A),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),

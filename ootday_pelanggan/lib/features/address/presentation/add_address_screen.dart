@@ -26,14 +26,26 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     _nameController = TextEditingController(text: widget.address?['name'] ?? '');
     _phoneController = TextEditingController(text: widget.address?['phone'] ?? '');
     
-    // Parsing fullAddress jika ada untuk mengembalikan ke field masing-masing (sederhana)
+    // Parsing fullAddress (format tulis: "jalan\nprovinsi kodepos\ndetail")
+    // untuk mengembalikan ke field masing-masing saat mode edit.
     String full = widget.address?['fullAddress'] ?? '';
     List<String> lines = full.split('\n');
     _streetController = TextEditingController(text: lines.isNotEmpty ? lines[0] : '');
-    
-    _provinceController = TextEditingController(text: '');
-    _zipController = TextEditingController(text: '');
-    _detailController = TextEditingController(text: '');
+
+    String province = '';
+    String zip = '';
+    if (lines.length > 1) {
+      final lastSpace = lines[1].lastIndexOf(' ');
+      if (lastSpace != -1) {
+        province = lines[1].substring(0, lastSpace);
+        zip = lines[1].substring(lastSpace + 1);
+      } else {
+        province = lines[1];
+      }
+    }
+    _provinceController = TextEditingController(text: province);
+    _zipController = TextEditingController(text: zip);
+    _detailController = TextEditingController(text: lines.length > 2 ? lines.sublist(2).join('\n') : '');
   }
 
   @override
@@ -50,7 +62,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Future<void> _saveAddress(bool isMain) async {
     if (_isSaving) return;
     setState(() => _isSaving = true);
-    String fullAddr = '${_streetController.text}\n${_provinceController.text} ${_zipController.text}';
+    String fullAddr = '${_streetController.text}\n${_provinceController.text} ${_zipController.text}\n${_detailController.text}';
     final name = _nameController.text;
     final phone = _phoneController.text;
 
