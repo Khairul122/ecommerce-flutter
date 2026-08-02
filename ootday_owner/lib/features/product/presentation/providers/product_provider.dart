@@ -82,6 +82,7 @@ class ProductProvider extends ChangeNotifier {
     required String description,
     String? imageUrl,
     List<String> sizes = const ['S', 'M', 'L', 'XL'],
+    Map<String, String>? variantImageUrls,
   }) async {
     final product = await addProductUseCase(AddProductParams(
       name: name,
@@ -91,6 +92,7 @@ class ProductProvider extends ChangeNotifier {
       description: description,
       imageUrl: imageUrl,
       sizes: sizes,
+      variantImageUrls: variantImageUrls,
     ));
     _products = [..._products, product];
     notifyListeners();

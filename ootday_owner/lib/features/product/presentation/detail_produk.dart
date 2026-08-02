@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../domain/entities/product_entity.dart';
+
 class DetailProduk extends StatelessWidget {
   final String name;
   final int price;
   final String image;
   final String? description;
+  final List<ProductVariantEntity> variants;
 
   const DetailProduk({
     super.key,
@@ -12,6 +15,7 @@ class DetailProduk extends StatelessWidget {
     required this.price,
     required this.image,
     this.description,
+    this.variants = const [],
   });
 
   final Color redMain = const Color(0xFFB40001);
@@ -93,6 +97,42 @@ class DetailProduk extends StatelessWidget {
                             height: 1.5,
                           ),
                         ),
+                        if (variants.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          const Divider(),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Varian',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: variants.map((v) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF5F5F5),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                ),
+                                child: Text(
+                                  '${v.size} · ${v.color} · Stok ${v.stock}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ],
                     ),
                   ),

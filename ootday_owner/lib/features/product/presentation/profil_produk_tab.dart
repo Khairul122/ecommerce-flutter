@@ -131,6 +131,8 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
               image: imageUrl.isNotEmpty
                   ? imageUrl
                   : 'assets/produk.1.png',
+              description: product.description,
+              variants: product.variants,
             ),
           ),
         );

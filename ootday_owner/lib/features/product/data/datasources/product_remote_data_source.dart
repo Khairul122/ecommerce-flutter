@@ -64,6 +64,7 @@ class ProductRemoteDataSource {
     required String description,
     String? imageUrl,
     List<String> sizes = const ['S', 'M', 'L', 'XL'],
+    Map<String, String>? variantImageUrls,
   }) async {
     final variantStock = sizes.isEmpty
         ? stock
@@ -74,6 +75,7 @@ class ProductRemoteDataSource {
               'size': size,
               'color': 'Default',
               'stock': variantStock,
+              if (variantImageUrls?[size] != null) 'image_url': variantImageUrls![size],
             })
         .toList();
 

@@ -24,6 +24,7 @@ class ProductRepositoryImpl implements ProductRepository {
     required String description,
     String? imageUrl,
     List<String> sizes = const ['S', 'M', 'L', 'XL'],
+    Map<String, String>? variantImageUrls,
   }) {
     return remote.addProduct(
       name: name,
@@ -33,6 +34,7 @@ class ProductRepositoryImpl implements ProductRepository {
       description: description,
       imageUrl: imageUrl,
       sizes: sizes,
+      variantImageUrls: variantImageUrls,
     );
   }
 

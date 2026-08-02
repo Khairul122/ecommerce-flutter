@@ -33,6 +33,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
   int? _selectedCategoryId;
   List<CategoryEntity> _categories = [];
   final Set<String> _selectedSizes = {'S', 'M', 'L', 'XL'};
+  final Map<String, File> _variantImages = {};
   bool _isLoading = false;
   bool _isInitializing = true;
 
@@ -94,6 +95,17 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
     setState(() => _imageFile = File(picked.path));
   }
 
+  Future<void> _pickVariantImage(String size) async {
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _variantImages[size] = File(picked.path));
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -111,6 +123,14 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
         imageUrl = await productProvider.uploadImage(_imageFile!);
       }
 
+      final variantImageUrls = <String, String>{};
+      for (final size in _selectedSizes) {
+        final file = _variantImages[size];
+        if (file != null) {
+          variantImageUrls[size] = await productProvider.uploadImage(file);
+        }
+      }
+
       final price = double.parse(_priceController.text.trim());
       final stock = int.parse(_stockController.text.trim());
 
@@ -122,6 +142,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
         description: _descriptionController.text.trim(),
         imageUrl: imageUrl,
         sizes: _selectedSizes.toList(),
+        variantImageUrls: variantImageUrls.isEmpty ? null : variantImageUrls,
       );
 
       if (!mounted) return;
@@ -243,6 +264,8 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
                               ),
                               const SizedBox(height: 18),
                               _sizeSelector(),
+                              const SizedBox(height: 18),
+                              _variantImageSelector(),
                               const SizedBox(height: 28),
                               SizedBox(
                                 width: double.infinity,
@@ -477,6 +500,66 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
                 color: selected
                     ? maroonColor.withValues(alpha: 0.4)
                     : Colors.grey.shade300,
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _variantImageSelector() {
+    if (_selectedSizes.isEmpty) return const SizedBox.shrink();
+    final sizes = _selectedSizes.toList()..sort();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Foto Varian (opsional)',
+          style: GoogleFonts.outfit(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: maroonColor,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Beda foto per ukuran, misalnya untuk warna yang berbeda.',
+          style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey.shade600),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: sizes.map((size) {
+            final file = _variantImages[size];
+            return GestureDetector(
+              onTap: () => _pickVariantImage(size),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: maroonColor.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: file != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(11),
+                            child: Image.file(file, fit: BoxFit.cover),
+                          )
+                        : Icon(
+                            Iconsax.gallery_add,
+                            color: maroonColor.withValues(alpha: 0.4),
+                          ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(size, style: GoogleFonts.outfit(fontSize: 12, color: maroonColor)),
+                ],
               ),
             );
           }).toList(),

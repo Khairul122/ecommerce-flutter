@@ -504,6 +504,25 @@ class _ProfilTokoState extends State<ProfilToko>
     );
   }
 
+  Widget _storeLogoPlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.storefront_rounded, color: _redMain, size: 32),
+        const SizedBox(height: 4),
+        Text(
+          'Ootday',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: _redMain,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _storeCard() {
     final store = context.watch<StoreProvider>().store;
     return Container(
@@ -531,26 +550,13 @@ class _ProfilTokoState extends State<ProfilToko>
               border: Border.all(color: _redMain.withValues(alpha: 0.2)),
             ),
             child: ClipOval(
-              child: Image.asset(
-                'assets/logo.png',
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.storefront_rounded, color: _redMain, size: 32),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Ootday',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: _redMain,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: (store?.logoUrl != null && store!.logoUrl!.isNotEmpty)
+                  ? Image.network(
+                      store.logoUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _storeLogoPlaceholder(),
+                    )
+                  : _storeLogoPlaceholder(),
             ),
           ),
           const SizedBox(width: 16),

@@ -75,6 +75,7 @@ class ProductController extends Controller
             'variants.*.color' => ['required_with:variants', 'string'],
             'variants.*.stock' => ['nullable', 'integer', 'min:0'],
             'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.image_url' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -102,6 +103,7 @@ class ProductController extends Controller
                 'color' => $variant['color'],
                 'stock' => $variant['stock'] ?? 0,
                 'price' => $variant['price'] ?? $data['price'],
+                'image_url' => $variant['image_url'] ?? null,
             ]);
         }
 

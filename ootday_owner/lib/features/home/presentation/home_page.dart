@@ -648,7 +648,10 @@ class _HomePageState extends State<HomePage> {
     if (confirmed != true) return;
 
     try {
-      await _api.put('/owner/orders/$id/status', {'status': 'dibatalkan'});
+      await _api.put('/owner/orders/$id/status', {
+        'status': 'dibatalkan',
+        'cancel_reason': 'Dibatalkan oleh toko',
+      });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Pesanan $code dibatalkan')),

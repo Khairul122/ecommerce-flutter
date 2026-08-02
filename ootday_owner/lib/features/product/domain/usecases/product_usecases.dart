@@ -22,6 +22,7 @@ class AddProductParams {
   final String description;
   final String? imageUrl;
   final List<String> sizes;
+  final Map<String, String>? variantImageUrls;
 
   const AddProductParams({
     required this.name,
@@ -31,6 +32,7 @@ class AddProductParams {
     required this.description,
     this.imageUrl,
     this.sizes = const ['S', 'M', 'L', 'XL'],
+    this.variantImageUrls,
   });
 }
 
@@ -47,6 +49,7 @@ class AddProductUseCase extends UseCase<ProductEntity, AddProductParams> {
         description: params.description,
         imageUrl: params.imageUrl,
         sizes: params.sizes,
+        variantImageUrls: params.variantImageUrls,
       );
 }
 

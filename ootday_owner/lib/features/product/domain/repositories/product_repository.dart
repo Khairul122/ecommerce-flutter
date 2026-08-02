@@ -17,6 +17,7 @@ abstract class ProductRepository {
     required String description,
     String? imageUrl,
     List<String> sizes,
+    Map<String, String>? variantImageUrls,
   });
 
   Future<ProductEntity> updateProduct(
