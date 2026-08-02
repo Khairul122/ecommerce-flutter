@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Services\NotificationService;
 use App\Services\XenditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -237,6 +238,14 @@ class OrderController extends Controller
             'payment_proof_url' => $request->input('payment_proof_url'),
         ]);
 
+        NotificationService::notify(
+            $order->store->user_id,
+            'Konfirmasi Pembayaran',
+            "Pesanan #{$order->id} menunggu verifikasi pembayaran.",
+            'order',
+            $order->id,
+        );
+
         return response()->json(['status' => 'success', 'message' => 'Konfirmasi pembayaran terkirim, menunggu verifikasi toko', 'data' => $order->fresh()]);
     }
 
@@ -267,6 +276,14 @@ class OrderController extends Controller
                 'cancel_reason' => $request->input('reason', 'Dibatalkan oleh pelanggan'),
             ]);
         });
+
+        NotificationService::notify(
+            $order->store->user_id,
+            'Pesanan Dibatalkan',
+            "Pesanan #{$order->id} dibatalkan oleh pembeli.",
+            'order',
+            $order->id,
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Pesanan dibatalkan', 'data' => $order->fresh()]);
     }

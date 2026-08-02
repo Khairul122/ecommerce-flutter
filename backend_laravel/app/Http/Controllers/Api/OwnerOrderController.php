@@ -99,6 +99,14 @@ class OwnerOrderController extends Controller
             'status' => $order->status === 'menunggu_pembayaran' ? 'diproses' : $order->status,
         ]);
 
+        \App\Services\NotificationService::notify(
+            $order->user_id,
+            'Pesanan Diterima',
+            "Pesanan #{$order->id} telah dikonfirmasi dan sedang diproses.",
+            'order',
+            $order->id,
+        );
+
         return response()->json(['status' => 'success', 'message' => 'Pembayaran dikonfirmasi', 'data' => $order->fresh()]);
     }
 }

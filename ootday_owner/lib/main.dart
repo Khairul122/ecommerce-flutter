@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 import 'core/services/api_service.dart';
+import 'core/services/local_notification_service.dart';
 import 'core/services/token_storage.dart';
 
 import 'features/auth/data/datasources/auth_local_data_source.dart';
@@ -46,8 +47,9 @@ import 'features/splash/presentation/splash_page.dart';
 // Firebase (Auth, Firestore, Messaging, Crashlytics, Storage) dan koneksi
 // MySQL langsung dari mobile (mysql_service.dart) sudah dihapus seluruhnya
 // sesuai audit keamanan. Backend sekarang Laravel REST API + Sanctum token.
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotificationService().init();
   runApp(MyApp(deps: AppDependencies.build()));
 }
 
@@ -135,7 +137,7 @@ class AppDependencies {
       getNotificationsUseCase: GetNotificationsUseCase(notificationRepository),
       getUnreadCountUseCase: GetUnreadCountUseCase(notificationRepository),
       markNotificationReadUseCase: MarkNotificationReadUseCase(notificationRepository),
-    );
+    )..startPolling();
 
     final storeRemote = StoreRemoteDataSource(apiService);
     final storeRepository = StoreRepositoryImpl(remote: storeRemote);

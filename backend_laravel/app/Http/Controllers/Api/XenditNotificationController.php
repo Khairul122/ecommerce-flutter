@@ -77,6 +77,14 @@ class XenditNotificationController extends Controller
                     $order->id,
                 );
 
+                \App\Services\NotificationService::notify(
+                    $order->store->user_id,
+                    'Pesanan Baru',
+                    "Pesanan #{$order->id} telah dibayar dan menunggu diproses.",
+                    'order',
+                    $order->id,
+                );
+
                 Log::info('Order #' . $order->id . ' marked as PAID via Xendit webhook');
             } elseif (in_array($status, ['EXPIRED', 'FAILED', 'CANCELLED'])) {
                 if ($order->status === 'menunggu_pembayaran') {

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ConversationController extends Controller
 {
@@ -85,6 +87,18 @@ class ConversationController extends Controller
             'message' => $request->message,
         ]);
         $conversation->touch();
+
+        $recipientId = $user->isOwner()
+            ? $conversation->user_id
+            : $conversation->loadMissing('store')->store->user_id;
+
+        NotificationService::notify(
+            $recipientId,
+            'Pesan Baru',
+            Str::limit($request->message, 80),
+            'chat',
+            $conversation->id,
+        );
 
         return response()->json(['status' => 'success', 'data' => $message], 201);
     }

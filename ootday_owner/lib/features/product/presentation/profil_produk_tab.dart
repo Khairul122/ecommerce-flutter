@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ootday_owner/features/product/presentation/detail_produk.dart';
+import 'package:ootday_owner/features/product/presentation/edit_produk_page.dart';
 import 'package:ootday_owner/features/product/presentation/tambah_produk_page.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/widgets/custom_dialog.dart';
 import '../domain/entities/product_entity.dart';
 import 'providers/product_provider.dart';
 
@@ -32,6 +34,37 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
   }
 
   int _priceOf(ProductEntity product) => product.price.toInt();
+
+  Future<void> _editProduct(ProductEntity product) async {
+    final updated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => EditProdukPage(product: product)),
+    );
+    if (updated == true) loadProducts();
+  }
+
+  Future<void> _deleteProduct(ProductEntity product) async {
+    final confirm = await AppDialog.showConfirm(
+      context,
+      title: 'Hapus Produk',
+      message: 'Apakah Anda yakin ingin menghapus "${product.name}"? Tindakan ini tidak bisa dibatalkan.',
+      confirmText: 'Ya, Hapus',
+      cancelText: 'Batal',
+      confirmColor: Colors.red,
+    );
+    if (!confirm) return;
+
+    try {
+      await context.read<ProductProvider>().deleteProduct(product.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Produk "${product.name}" dihapus')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppDialog.showError(context, title: 'Gagal Menghapus', message: e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,13 +188,37 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
           children: [
             Expanded(
               flex: 4,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(6),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: _buildProductImage(imageUrl),
-                ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(6),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: _buildProductImage(imageUrl),
+                    ),
+                  ),
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: Material(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      shape: const CircleBorder(),
+                      child: PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert, size: 18),
+                        padding: EdgeInsets.zero,
+                        onSelected: (value) {
+                          if (value == 'edit') _editProduct(product);
+                          if (value == 'delete') _deleteProduct(product);
+                        },
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(value: 'edit', child: Text('Edit')),
+                          PopupMenuItem(value: 'delete', child: Text('Hapus')),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Container(

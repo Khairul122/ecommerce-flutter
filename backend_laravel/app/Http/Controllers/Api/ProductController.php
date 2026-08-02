@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
@@ -84,28 +85,32 @@ class ProductController extends Controller
 
         $data = $validator->validated();
 
-        $product = $store->products()->create([
-            'category_id' => $data['category_id'] ?? null,
-            'name' => $data['name'],
-            'price' => $data['price'],
-            'stock' => $data['stock'] ?? 0,
-            'status' => $data['status'] ?? 'active',
-            'description' => $data['description'] ?? null,
-        ]);
-
-        foreach (($data['images'] ?? []) as $i => $url) {
-            $product->images()->create(['image_url' => $url, 'is_primary' => $i === 0, 'sort_order' => $i]);
-        }
-
-        foreach (($data['variants'] ?? []) as $variant) {
-            $product->variants()->create([
-                'size' => $variant['size'],
-                'color' => $variant['color'],
-                'stock' => $variant['stock'] ?? 0,
-                'price' => $variant['price'] ?? $data['price'],
-                'image_url' => $variant['image_url'] ?? null,
+        $product = DB::transaction(function () use ($store, $data) {
+            $product = $store->products()->create([
+                'category_id' => $data['category_id'] ?? null,
+                'name' => $data['name'],
+                'price' => $data['price'],
+                'stock' => $data['stock'] ?? 0,
+                'status' => $data['status'] ?? 'active',
+                'description' => $data['description'] ?? null,
             ]);
-        }
+
+            foreach (($data['images'] ?? []) as $i => $url) {
+                $product->images()->create(['image_url' => $url, 'is_primary' => $i === 0, 'sort_order' => $i]);
+            }
+
+            foreach (($data['variants'] ?? []) as $variant) {
+                $product->variants()->create([
+                    'size' => $variant['size'],
+                    'color' => $variant['color'],
+                    'stock' => $variant['stock'] ?? 0,
+                    'price' => $variant['price'] ?? $data['price'],
+                    'image_url' => $variant['image_url'] ?? null,
+                ]);
+            }
+
+            return $product;
+        });
 
         return response()->json(['status' => 'success', 'data' => $product->load('images', 'variants')], 201);
     }

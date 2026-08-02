@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'core/services/api_service.dart';
+import 'core/services/local_notification_service.dart';
 import 'core/services/token_storage.dart';
 
 import 'features/auth/data/datasources/auth_local_data_source.dart';
@@ -57,6 +58,8 @@ void main() async {
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
   ));
+
+  await LocalNotificationService().init();
 
   runApp(OotdayApp(deps: AppDependencies.build()));
 }
@@ -165,7 +168,7 @@ class AppDependencies {
       getNotificationsUseCase: GetNotificationsUseCase(notificationRepository),
       getUnreadCountUseCase: GetUnreadCountUseCase(notificationRepository),
       markNotificationReadUseCase: MarkNotificationReadUseCase(notificationRepository),
-    );
+    )..startPolling();
 
     final checkoutRemote = CheckoutRemoteDataSource(apiService);
     final checkoutRepository = CheckoutRepositoryImpl(remote: checkoutRemote);
