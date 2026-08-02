@@ -35,7 +35,7 @@ class XenditService
         if (!empty($order->items)) {
             foreach ($order->items as $item) {
                 $itemsPayload[] = [
-                    'name' => $item->product->name ?? 'Produk Ootday',
+                    'name' => $item->product_name ?? $item->product->name ?? 'Produk Ootday',
                     'quantity' => (int) $item->quantity,
                     'price' => (int) round($item->price),
                 ];

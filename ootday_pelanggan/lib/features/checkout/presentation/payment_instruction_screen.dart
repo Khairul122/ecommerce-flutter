@@ -174,7 +174,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          _qrisError ?? 'Channel QRIS belum diaktifkan di akun Midtrans.',
+                          _qrisError ?? 'Channel pembayaran QRIS belum diaktifkan.',
                           style: GoogleFonts.outfit(color: Colors.red[800], fontSize: 12, height: 1.4),
                         ),
                       ),
@@ -326,7 +326,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      'Pembayaran via QRIS Midtrans akan otomatis terverifikasi secara real-time. Setelah QRIS berhasil di-scan dan dibayar, status pesanan akan langsung berubah menjadi "diproses".',
+                      'Pembayaran via QRIS / Payment Gateway akan otomatis terverifikasi secara real-time. Setelah pembayaran berhasil, status pesanan Anda akan langsung berubah menjadi "diproses".',
                       style: GoogleFonts.outfit(fontSize: 13, color: Colors.black87, height: 1.5),
                     ),
                   ),
