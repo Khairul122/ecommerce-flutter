@@ -69,6 +69,14 @@ class OwnerOrderController extends Controller
             'cancel_reason' => $request->status === 'dibatalkan' ? $request->cancel_reason : $order->cancel_reason,
         ]);
 
+        \App\Services\NotificationService::notify(
+            $order->user_id,
+            'Status Pesanan Diperbarui',
+            "Pesanan #{$order->id} sekarang {$request->status}.",
+            'order',
+            $order->id,
+        );
+
         return response()->json(['status' => 'success', 'message' => 'Status pesanan diperbarui', 'data' => $order->fresh()]);
     }
 

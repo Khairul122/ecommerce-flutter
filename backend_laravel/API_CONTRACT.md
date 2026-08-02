@@ -58,6 +58,11 @@ Semua response berbentuk `{ "status": "success"|"error", "message"?: string, "da
 - `GET /conversations/{id}/messages`
 - `POST /conversations/{id}/messages` — `message`
 
+## Notifikasi (login diperlukan, dipakai kedua aplikasi)
+- `GET /notifications` — daftar notifikasi milik user login, terbaru dulu
+- `GET /notifications/unread-count` — `{ count }`
+- `POST /notifications/{id}/read` — tandai satu notifikasi sebagai terbaca
+
 ## Khusus owner (login + role owner), prefix `/owner`
 - `GET /owner/store` / `PUT /owner/store` — `store_name?, description?, address?, phone?, logo_url?`
 - `PUT /owner/profile` — `name?, phone?`

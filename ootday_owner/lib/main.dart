@@ -26,6 +26,11 @@ import 'features/chat/data/repositories/chat_repository_impl.dart';
 import 'features/chat/domain/usecases/chat_usecases.dart';
 import 'features/chat/presentation/providers/chat_provider.dart';
 
+import 'features/notification/data/datasources/notification_remote_data_source.dart';
+import 'features/notification/data/repositories/notification_repository_impl.dart';
+import 'features/notification/domain/usecases/notification_usecases.dart';
+import 'features/notification/presentation/providers/notification_provider.dart';
+
 import 'features/store/data/datasources/store_remote_data_source.dart';
 import 'features/store/data/repositories/store_repository_impl.dart';
 import 'features/store/domain/usecases/store_usecases.dart';
@@ -54,6 +59,7 @@ class AppDependencies {
   final ProductProvider productProvider;
   final OrderProvider orderProvider;
   final ChatProvider chatProvider;
+  final NotificationProvider notificationProvider;
   final StoreProvider storeProvider;
   final DashboardProvider dashboardProvider;
 
@@ -62,6 +68,7 @@ class AppDependencies {
     required this.productProvider,
     required this.orderProvider,
     required this.chatProvider,
+    required this.notificationProvider,
     required this.storeProvider,
     required this.dashboardProvider,
   });
@@ -122,6 +129,14 @@ class AppDependencies {
       sendMessageUseCase: SendMessageUseCase(chatRepository),
     );
 
+    final notificationRemote = NotificationRemoteDataSource(apiService);
+    final notificationRepository = NotificationRepositoryImpl(remote: notificationRemote);
+    final notificationProvider = NotificationProvider(
+      getNotificationsUseCase: GetNotificationsUseCase(notificationRepository),
+      getUnreadCountUseCase: GetUnreadCountUseCase(notificationRepository),
+      markNotificationReadUseCase: MarkNotificationReadUseCase(notificationRepository),
+    );
+
     final storeRemote = StoreRemoteDataSource(apiService);
     final storeRepository = StoreRepositoryImpl(remote: storeRemote);
     final storeProvider = StoreProvider(
@@ -142,6 +157,7 @@ class AppDependencies {
       productProvider: productProvider,
       orderProvider: orderProvider,
       chatProvider: chatProvider,
+      notificationProvider: notificationProvider,
       storeProvider: storeProvider,
       dashboardProvider: dashboardProvider,
     );
@@ -160,6 +176,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: deps.productProvider),
         ChangeNotifierProvider.value(value: deps.orderProvider),
         ChangeNotifierProvider.value(value: deps.chatProvider),
+        ChangeNotifierProvider.value(value: deps.notificationProvider),
         ChangeNotifierProvider.value(value: deps.storeProvider),
         ChangeNotifierProvider.value(value: deps.dashboardProvider),
       ],

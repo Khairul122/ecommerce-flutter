@@ -1,12 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:ootday_owner/core/widgets/owner_bottom_nav.dart';
+import 'package:provider/provider.dart';
 import '../../home/presentation/home_page.dart';
+import '../domain/entities/notification_entity.dart';
+import 'providers/notification_provider.dart';
 
-class NotifikasiPage extends StatelessWidget {
+class NotifikasiPage extends StatefulWidget {
   const NotifikasiPage({super.key});
 
   @override
+  State<NotifikasiPage> createState() => _NotifikasiPageState();
+}
+
+class _NotifikasiPageState extends State<NotifikasiPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().loadNotifications();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = context.watch<NotificationProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -63,94 +81,113 @@ class NotifikasiPage extends StatelessWidget {
       ),
 
       // ===================== BODY =====================
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Column(
-            children: const [
-              NotifCard(
-                title: "Pesanan tiba",
-                desc:
-                    "Pesanan 2498761khpsdm dengan no. resi BMLH12JK7 telah tiba di tujuan.",
-              ),
-              SizedBox(height: 15),
-
-              NotifCard(
-                title: "Pesanan segera tiba!",
-                desc: "Pesanan sedang diantarkan menuju alamat anda.",
-              ),
-              SizedBox(height: 15),
-
-              NotifCard(
-                title: "Menunggu Pembayaran!",
-                desc:
-                    "Mohon lakukan pembayaran sebesar Rp89.000 sebelum 25-10-2025 24:00.",
-              ),
-              SizedBox(height: 15),
-
-              NotifCard(
-                title: "Pesanan dikirim!",
-                desc:
-                    "Pesanan 2498761khpsdm dengan no. resi BMLH12JK7 telah diserahkan ke jasa kirim. Periksa selengkapnya..",
-              ),
-              SizedBox(height: 15),
-
-              NotifCard(
-                title: "Pesanan dibuat!",
-                desc:
-                    "Pesanan 2498761khpsdm dengan no. resi BMLH12JK7 sedang di proses. Periksa selengkapnya..",
-              ),
-              SizedBox(height: 30),
-            ],
-          ),
-        ),
+      body: RefreshIndicator(
+        onRefresh: () => context.read<NotificationProvider>().loadNotifications(),
+        child: _buildBody(provider),
       ),
 
       bottomNavigationBar: const OwnerBottomNav(currentIndex: 2),
+    );
+  }
+
+  Widget _buildBody(NotificationProvider provider) {
+    if (provider.isLoading && provider.notifications.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.error != null && provider.notifications.isEmpty) {
+      return ListView(
+        children: [
+          const SizedBox(height: 80),
+          Icon(Icons.error_outline, size: 40, color: Colors.grey.shade400),
+          const SizedBox(height: 10),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(provider.error!, style: TextStyle(color: Colors.grey.shade600), textAlign: TextAlign.center),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (provider.notifications.isEmpty) {
+      return ListView(
+        children: [
+          const SizedBox(height: 80),
+          Icon(Icons.notifications_none, size: 40, color: Colors.grey.shade400),
+          const SizedBox(height: 10),
+          Center(
+            child: Text('Belum ada notifikasi', style: TextStyle(color: Colors.grey.shade600)),
+          ),
+        ],
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      itemCount: provider.notifications.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 15),
+      itemBuilder: (context, index) => NotifCard(notification: provider.notifications[index]),
     );
   }
 }
 
 // ====================== NOTIF CARD ======================
 class NotifCard extends StatelessWidget {
-  final String title;
-  final String desc;
+  final NotificationEntity notification;
 
   const NotifCard({
     super.key,
-    required this.title,
-    required this.desc,
+    required this.notification,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: const Color(0xffe7e7e7),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xffb30505),
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
+    return GestureDetector(
+      onTap: () => context.read<NotificationProvider>().markAsRead(notification.id),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: notification.isRead ? const Color(0xffe7e7e7) : const Color(0xfff3d6d6),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notification.title,
+                    style: const TextStyle(
+                      color: Color(0xffb30505),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notification.body,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            desc,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black87,
-            ),
-          ),
-        ],
+            if (!notification.isRead)
+              Container(
+                margin: const EdgeInsets.only(left: 8, top: 4),
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(color: Color(0xffb30505), shape: BoxShape.circle),
+              ),
+          ],
+        ),
       ),
     );
   }

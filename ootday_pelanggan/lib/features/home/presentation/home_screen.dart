@@ -245,33 +245,62 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: banner['color'],
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      banner['title'],
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.2),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(15)),
-                                      child: Text(banner['subtitle'], style: GoogleFonts.outfit(color: banner['color'], fontSize: 12, fontWeight: FontWeight.bold)),
-                                    ),
-                                  ],
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 6,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        banner['title'],
+                                        style: GoogleFonts.playfairDisplay(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1.2,
+                                        ),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.95),
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: Text(
+                                          banner['subtitle'],
+                                          style: GoogleFonts.outfit(
+                                            color: banner['color'],
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Positioned(
-                                right: 10, bottom: 0, top: 0,
-                                child: Image.asset(banner['image'], fit: BoxFit.contain),
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 4,
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Image.asset(
+                                      banner['image'],
+                                      fit: BoxFit.contain,
+                                      height: 140,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

@@ -57,10 +57,12 @@ class ChatProvider extends ChangeNotifier {
     return conversation;
   }
 
-  Future<void> loadMessages(int conversationId) async {
-    _isLoadingMessages = true;
+  Future<void> loadMessages(int conversationId, {bool showSpinner = true}) async {
+    if (showSpinner) {
+      _isLoadingMessages = true;
+      notifyListeners();
+    }
     _messagesError = null;
-    notifyListeners();
     try {
       _messages = await getMessagesUseCase(conversationId);
     } catch (e) {

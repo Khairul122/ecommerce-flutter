@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\XenditNotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OwnerOrderController;
@@ -67,6 +68,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/conversations', [ConversationController::class, 'storeOrGet']);
     Route::get('/conversations/{conversation}/messages', [ConversationController::class, 'messages']);
     Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
     // ---- Khusus role owner ----
     Route::middleware('role:owner')->prefix('owner')->group(function () {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,8 @@ class ChatDetailScreen extends StatefulWidget {
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  Timer? _pollTimer;
+  int _lastMessageCount = 0;
 
   int get _conversationId => int.tryParse(widget.conversationId) ?? 0;
 
@@ -26,19 +29,28 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   void initState() {
     super.initState();
     _loadMessages();
+    _pollTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _loadMessages(showSpinner: false),
+    );
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadMessages() async {
-    await context.read<ChatProvider>().loadMessages(_conversationId);
+  Future<void> _loadMessages({bool showSpinner = true}) async {
+    await context.read<ChatProvider>().loadMessages(_conversationId, showSpinner: showSpinner);
     if (mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      final newCount = context.read<ChatProvider>().messages.length;
+      if (newCount > _lastMessageCount) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      }
+      _lastMessageCount = newCount;
     }
   }
 

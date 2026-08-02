@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,15 +21,22 @@ class ChatDetailPage extends StatefulWidget {
 class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  Timer? _pollTimer;
+  int _lastMessageCount = 0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadMessages());
+    _pollTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _loadMessages(showSpinner: false),
+    );
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -38,7 +46,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     await context
         .read<ChatProvider>()
         .loadMessages(widget.conversationId, showSpinner: showSpinner);
-    _scrollToBottom();
+    if (!mounted) return;
+    final newCount = context.read<ChatProvider>().messages.length;
+    if (newCount > _lastMessageCount) {
+      _scrollToBottom();
+    }
+    _lastMessageCount = newCount;
   }
 
   void _scrollToBottom() {

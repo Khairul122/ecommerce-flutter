@@ -36,6 +36,11 @@ import 'features/chat/data/repositories/chat_repository_impl.dart';
 import 'features/chat/domain/usecases/chat_usecases.dart';
 import 'features/chat/presentation/providers/chat_provider.dart';
 
+import 'features/notification/data/datasources/notification_remote_data_source.dart';
+import 'features/notification/data/repositories/notification_repository_impl.dart';
+import 'features/notification/domain/usecases/notification_usecases.dart';
+import 'features/notification/presentation/providers/notification_provider.dart';
+
 import 'features/checkout/data/datasources/checkout_remote_data_source.dart';
 import 'features/checkout/data/repositories/checkout_repository_impl.dart';
 import 'features/checkout/domain/usecases/checkout_usecases.dart';
@@ -66,6 +71,7 @@ class AppDependencies {
   final AddressProvider addressProvider;
   final OrderProvider orderProvider;
   final ChatProvider chatProvider;
+  final NotificationProvider notificationProvider;
   final CheckoutProvider checkoutProvider;
 
   AppDependencies._({
@@ -75,6 +81,7 @@ class AppDependencies {
     required this.addressProvider,
     required this.orderProvider,
     required this.chatProvider,
+    required this.notificationProvider,
     required this.checkoutProvider,
   });
 
@@ -151,6 +158,14 @@ class AppDependencies {
       sendMessageUseCase: SendMessageUseCase(chatRepository),
     );
 
+    final notificationRemote = NotificationRemoteDataSource(apiService);
+    final notificationRepository = NotificationRepositoryImpl(remote: notificationRemote);
+    final notificationProvider = NotificationProvider(
+      getNotificationsUseCase: GetNotificationsUseCase(notificationRepository),
+      getUnreadCountUseCase: GetUnreadCountUseCase(notificationRepository),
+      markNotificationReadUseCase: MarkNotificationReadUseCase(notificationRepository),
+    );
+
     final checkoutRemote = CheckoutRemoteDataSource(apiService);
     final checkoutRepository = CheckoutRepositoryImpl(remote: checkoutRemote);
     final checkoutProvider = CheckoutProvider(
@@ -166,6 +181,7 @@ class AppDependencies {
       addressProvider: addressProvider,
       orderProvider: orderProvider,
       chatProvider: chatProvider,
+      notificationProvider: notificationProvider,
       checkoutProvider: checkoutProvider,
     );
   }
@@ -185,6 +201,7 @@ class OotdayApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: deps.addressProvider),
         ChangeNotifierProvider.value(value: deps.orderProvider),
         ChangeNotifierProvider.value(value: deps.chatProvider),
+        ChangeNotifierProvider.value(value: deps.notificationProvider),
         ChangeNotifierProvider.value(value: deps.checkoutProvider),
       ],
       child: MaterialApp(

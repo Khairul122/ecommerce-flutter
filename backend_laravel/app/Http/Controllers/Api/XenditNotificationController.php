@@ -70,6 +70,14 @@ class XenditNotificationController extends Controller
                     'paid_at' => now(),
                 ]);
 
+                \App\Services\NotificationService::notify(
+                    $order->user_id,
+                    'Pembayaran Berhasil',
+                    "Pembayaran untuk pesanan #{$order->id} telah diterima.",
+                    'payment',
+                    $order->id,
+                );
+
                 Log::info('Order #' . $order->id . ' marked as PAID via Xendit webhook');
             } elseif (in_array($status, ['EXPIRED', 'FAILED', 'CANCELLED'])) {
                 if ($order->status === 'menunggu_pembayaran') {
@@ -77,6 +85,15 @@ class XenditNotificationController extends Controller
                         'status' => 'dibatalkan',
                         'payment_status' => 'dibatalkan',
                     ]);
+
+                    \App\Services\NotificationService::notify(
+                        $order->user_id,
+                        'Pembayaran Gagal',
+                        "Pesanan #{$order->id} dibatalkan karena pembayaran tidak berhasil.",
+                        'payment',
+                        $order->id,
+                    );
+
                     Log::info('Order #' . $order->id . ' marked as CANCELLED via Xendit webhook');
                 }
             }
