@@ -67,7 +67,6 @@ class XenditNotificationController extends Controller
                 $order->update([
                     'status' => 'diproses',
                     'payment_status' => 'paid',
-                    'paid_at' => now(),
                 ]);
 
                 \App\Services\NotificationService::notify(
@@ -83,7 +82,6 @@ class XenditNotificationController extends Controller
                 if ($order->status === 'menunggu_pembayaran') {
                     $order->update([
                         'status' => 'dibatalkan',
-                        'payment_status' => 'dibatalkan',
                     ]);
 
                     \App\Services\NotificationService::notify(
