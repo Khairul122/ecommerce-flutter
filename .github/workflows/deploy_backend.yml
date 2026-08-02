@@ -38,24 +38,35 @@ jobs:
             cp .env.production .env
           fi
 
-      - name: 🚀 FTP Deploy to Rumahweb Hosting
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
-          username: ${{ secrets.FTP_USERNAME || 'synf6654' }}
-          password: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          protocol: ftp
-          local-dir: ./backend_laravel/
-          server-dir: /public_html/backend-ecommerce/
-          state-name: .ftp-deploy-sync-state.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/vendor/**
-            **/tests/**
-            **/.env.example
+      - name: 🚀 Sync Files via LFTP (IPv4 Direct) to Rumahweb
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME || 'synf6654' }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y lftp
+
+          TARGET_DIR="./"
+          if [ -d "backend_laravel" ]; then
+            TARGET_DIR="backend_laravel/"
+          fi
+
+          cat << EOF > deploy_script.lftp
+          set cmd:fail-exit yes;
+          set dns:order 'inet';
+          set ftp:passive-mode true;
+          set ftp:ssl-allow false;
+          set ftp:prefer-epsv false;
+          set net:timeout 60;
+          set net:max-retries 5;
+          set net:connection-limit 2;
+          open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER
+          mirror --reverse --only-newer --ignore-time --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude vendor/ --exclude tests/ --exclude .env.example --exclude build_vendor.ps1 $TARGET_DIR /public_html/backend-ecommerce/
+          quit
+          EOF
+
+          lftp -f deploy_script.lftp
 
       - name: ⚡ Trigger Server Unzip, Migration & Seeding Webhook
         run: |
