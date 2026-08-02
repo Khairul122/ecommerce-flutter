@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ootday_owner/features/auth/presentation/login.dart';
 import 'package:ootday_owner/features/auth/presentation/providers/auth_provider.dart';
+import 'package:ootday_owner/core/widgets/custom_dialog.dart';
 
 class HapusAkun extends StatefulWidget {
   const HapusAkun({super.key});
@@ -16,53 +17,45 @@ class _HapusAkunState extends State<HapusAkun> {
   bool _isLoading = false;
 
   Future<void> _deleteAccount() async {
+    final bool confirmed = await AppDialog.showConfirm(
+      context,
+      title: 'Hapus Akun Toko',
+      message: 'Apakah Anda yakin ingin menghapus akun? Tindakan ini permanen dan tidak dapat dibatalkan.',
+      confirmText: 'Ya, Hapus Akun',
+      cancelText: 'Batal',
+      confirmColor: Colors.red,
+    );
+    if (!confirmed) return;
+
     setState(() => _isLoading = true);
     try {
       await context.read<AuthProvider>().deleteAccount();
       if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
+      await AppDialog.showSuccess(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-        (route) => false,
+        title: 'Akun Dihapus',
+        message: 'Akun Anda telah berhasil dihapus dari sistem.',
+        onOk: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+          );
+        },
       );
     } catch (e) {
       setState(() => _isLoading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal menghapus akun: $e'),
-          backgroundColor: Colors.red,
-        ),
+      AppDialog.showError(
+        context,
+        title: 'Gagal Menghapus Akun',
+        message: e.toString(),
       );
     }
   }
 
   void _confirmDelete() {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Konfirmasi'),
-        content: const Text(
-          'Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              _deleteAccount();
-            },
-            child: const Text(
-              'Hapus',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
+    _deleteAccount();
   }
 
   @override

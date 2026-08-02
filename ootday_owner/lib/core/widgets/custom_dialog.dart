@@ -28,7 +28,7 @@ class AppDialog {
                 width: 65,
                 height: 65,
                 decoration: BoxDecoration(
-                  color: successGreen.withOpacity(0.1),
+                  color: successGreen.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle_rounded, color: successGreen, size: 45),
@@ -49,7 +49,7 @@ class AppDialog {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
-                  color: Colors.black64,
+                  color: Colors.black54,
                   height: 1.4,
                 ),
               ),
@@ -106,7 +106,7 @@ class AppDialog {
                 width: 65,
                 height: 65,
                 decoration: BoxDecoration(
-                  color: errorRed.withOpacity(0.1),
+                  color: errorRed.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.error_rounded, color: errorRed, size: 45),
@@ -127,7 +127,7 @@ class AppDialog {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
-                  color: Colors.black64,
+                  color: Colors.black54,
                   height: 1.4,
                 ),
               ),
@@ -186,7 +186,7 @@ class AppDialog {
                 width: 65,
                 height: 65,
                 decoration: BoxDecoration(
-                  color: maroonColor.withOpacity(0.1),
+                  color: maroonColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.help_outline_rounded, color: maroonColor, size: 45),
@@ -207,7 +207,7 @@ class AppDialog {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   fontSize: 14,
-                  color: Colors.black64,
+                  color: Colors.black54,
                   height: 1.4,
                 ),
               ),

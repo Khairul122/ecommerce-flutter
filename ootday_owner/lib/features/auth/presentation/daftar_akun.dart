@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:ootday_owner/features/auth/presentation/login.dart';
 import 'package:ootday_owner/features/auth/domain/exceptions/auth_exception.dart';
 import 'package:ootday_owner/features/auth/presentation/providers/auth_provider.dart';
+import 'package:ootday_owner/core/widgets/custom_dialog.dart';
 
 class DaftarPage extends StatefulWidget {
   const DaftarPage({super.key});
@@ -155,17 +156,17 @@ class _DaftarPageState extends State<DaftarPage> {
         storeName.isEmpty ||
         password.isEmpty ||
         rePassword.isEmpty) {
-      _showMessage('Semua field wajib diisi');
+      AppDialog.showError(context, title: 'Input Belum Lengkap', message: 'Semua kolom pendaftaran wajib diisi.');
       return;
     }
 
     if (password != rePassword) {
-      _showMessage('Password tidak cocok!');
+      AppDialog.showError(context, title: 'Password Tidak Cocok', message: 'Konfirmasi password yang Anda masukkan tidak sama.');
       return;
     }
 
     if (password.length < 6) {
-      _showMessage('Password minimal 6 karakter');
+      AppDialog.showError(context, title: 'Password Terlalu Pendek', message: 'Password minimal harus 6 karakter.');
       return;
     }
 
@@ -182,15 +183,26 @@ class _DaftarPageState extends State<DaftarPage> {
 
       if (!mounted) return;
       setState(() => isLoading = false);
-      _showSuccessDialog();
+      await AppDialog.showSuccess(
+        context,
+        title: 'Registrasi Berhasil!',
+        message: 'Selamat! Akun toko Anda telah berhasil dibuat. Silakan login untuk mengelola toko.',
+        onOk: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+          );
+        },
+      );
     } on AuthException catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      _showMessage(e.message, backgroundColor: Colors.red);
+      AppDialog.showError(context, title: 'Registrasi Gagal', message: e.message);
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      _showMessage('$e', backgroundColor: Colors.red);
+      AppDialog.showError(context, title: 'Registrasi Gagal', message: e.toString());
     }
   }
 

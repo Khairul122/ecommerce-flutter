@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../domain/entities/category_entity.dart';
 import 'providers/product_provider.dart';
+import '../../../core/widgets/custom_dialog.dart';
 
 class TambahProdukPage extends StatefulWidget {
   const TambahProdukPage({super.key});
@@ -97,7 +98,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedSizes.isEmpty) {
-      _showMessage('Pilih minimal satu ukuran');
+      AppDialog.showError(context, title: 'Ukuran Belum Dipilih', message: 'Silakan pilih minimal satu ukuran untuk produk.');
       return;
     }
 
@@ -125,86 +126,21 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
 
       if (!mounted) return;
       setState(() => _isLoading = false);
-      await _showSuccessDialog();
+      await AppDialog.showSuccess(
+        context,
+        title: 'Produk Berhasil Ditambahkan',
+        message: 'Produk baru Anda telah berhasil disimpan dan siap dijual.',
+        onOk: () => Navigator.pop(context, true),
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _showMessage('Gagal menyimpan produk: $e');
+      AppDialog.showError(
+        context,
+        title: 'Gagal Menyimpan Produk',
+        message: e.toString(),
+      );
     }
-  }
-
-  Future<void> _showSuccessDialog() async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 88,
-                height: 88,
-                decoration: BoxDecoration(
-                  color: maroonColor.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Iconsax.tick_circle,
-                  size: 48,
-                  color: maroonColor,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Produk Berhasil Ditambahkan!',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: maroonColor,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Produk sudah tersimpan dan siap ditampilkan di toko Anda.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  color: maroonColor.withValues(alpha: 0.6),
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    Navigator.pop(context, true);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: maroonColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Text(
-                    'Selesai',
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override

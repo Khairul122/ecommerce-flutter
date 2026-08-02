@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../domain/entities/order_entity.dart';
 import '../domain/usecases/order_usecases.dart';
 import 'providers/order_provider.dart';
+import '../../../core/widgets/custom_dialog.dart';
 
 /// Bucket status pesanan yang benar-benar ada di backend (kolom `status`
 /// pada tabel orders): menunggu_pembayaran|diproses|dikirim|selesai|dibatalkan.
@@ -109,71 +110,98 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
   }
 
   Future<void> _updateStatus(int orderId, String newStatus) async {
+    final bool confirm = await AppDialog.showConfirm(
+      context,
+      title: 'Ubah Status Pesanan',
+      message: 'Apakah Anda yakin ingin mengubah status pesanan ini menjadi "${newStatus}"?',
+      confirmText: 'Ya, Ubah',
+      cancelText: 'Batal',
+    );
+    if (!confirm) return;
+
     try {
       await context.read<OrderProvider>().updateStatus(
             orderId,
             status: newStatus,
           );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Status pesanan diperbarui'),
-          backgroundColor: Colors.green,
-        ),
+      await AppDialog.showSuccess(
+        context,
+        title: 'Berhasil',
+        message: 'Status pesanan berhasil diperbarui menjadi ${newStatus}.',
+        onOk: _loadOrders,
       );
-      _loadOrders();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memperbarui status: $e')),
+      AppDialog.showError(
+        context,
+        title: 'Gagal Memperbarui',
+        message: e.toString(),
       );
     }
   }
 
   Future<void> _confirmPayment(int orderId) async {
+    final bool confirm = await AppDialog.showConfirm(
+      context,
+      title: 'Verifikasi Pembayaran',
+      message: 'Apakah Anda yakin bukti pembayaran pesanan ini valid?',
+      confirmText: 'Konfirmasi Lunas',
+      cancelText: 'Batal',
+    );
+    if (!confirm) return;
+
     try {
       await context.read<OrderProvider>().confirmPayment(orderId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pembayaran dikonfirmasi'),
-          backgroundColor: Colors.green,
-        ),
+      await AppDialog.showSuccess(
+        context,
+        title: 'Pembayaran Dikonfirmasi',
+        message: 'Pesanan telah diverifikasi lunas dan berpindah ke status diproses.',
+        onOk: _loadOrders,
       );
-      _loadOrders();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal konfirmasi pembayaran: $e')),
+      AppDialog.showError(
+        context,
+        title: 'Gagal Konfirmasi',
+        message: e.toString(),
       );
     }
   }
 
   Future<void> _confirmCancel(int orderId) async {
-    final reasonController = TextEditingController();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Batalkan Pesanan'),
-        content: TextField(
-          controller: reasonController,
-          decoration: const InputDecoration(hintText: 'Alasan pembatalan'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Ya, Batalkan', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    final bool confirm = await AppDialog.showConfirm(
+      context,
+      title: 'Batalkan Pesanan',
+      message: 'Apakah Anda yakin ingin membatalkan pesanan ini dan mengembalikan stok?',
+      confirmText: 'Ya, Batalkan',
+      cancelText: 'Batal',
+      confirmColor: Colors.red,
     );
-    reasonController.dispose();
-    if (confirmed != true) return;
-    await _updateStatus(orderId, 'dibatalkan');
+    if (!confirm) return;
+
+    try {
+      await context.read<OrderProvider>().updateStatus(
+            orderId,
+            status: 'dibatalkan',
+            cancelReason: 'Dibatalkan oleh toko',
+          );
+      if (!mounted) return;
+      await AppDialog.showSuccess(
+        context,
+        title: 'Pesanan Dibatalkan',
+        message: 'Pesanan telah dibatalkan dan stok varian dikembalikan.',
+        onOk: _loadOrders,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppDialog.showError(
+        context,
+        title: 'Gagal Membatalkan',
+        message: e.toString(),
+      );
+    }
   }
 
   @override
