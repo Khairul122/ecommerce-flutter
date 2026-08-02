@@ -17,6 +17,19 @@ class ProductSeeder extends Seeder
 
         // Data Produk
         $products = [
+            // --- Produk Uji Coba Payment Gateway Rp 100 ---
+            [
+                'id' => 999,
+                'category_id' => 1,
+                'name' => '⚡ [TESTING] Produk Uji Coba Payment (Rp 100)',
+                'price' => 100,
+                'stock' => 9999,
+                'sold_count' => 100,
+                'description' => 'Produk khusus pengujian pembayaran digital Xendit / QRIS / VA Bank seharga Rp 100.',
+                'primary_image' => 'assets/images/produk_2.png',
+                'extra_images' => [],
+                'color' => 'Putih',
+            ],
             // --- Homepage Featured Products ---
             [
                 'id' => 101,
