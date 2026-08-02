@@ -154,6 +154,64 @@ class XenditService
     }
 
     /**
+     * Membuat Virtual Account Bank Xendit (POST /callback_virtual_accounts)
+     */
+    public function createVirtualAccount(Order $order, string $bankCode): array
+    {
+        $order->loadMissing(['user']);
+
+        $externalId = 'VA-' . $order->id . '-' . time();
+        $amount = (int) round($order->total_price ?? $order->total_amount ?? 0);
+        $customerName = substr($order->user->name ?? 'Pelanggan Ootday', 0, 30);
+
+        $payload = [
+            'external_id' => $externalId,
+            'bank_code' => strtoupper($bankCode),
+            'name' => $customerName,
+            'expected_amount' => $amount,
+            'is_closed' => true,
+            'is_single_use' => true,
+        ];
+
+        try {
+            $response = Http::withBasicAuth($this->secretKey, '')
+                ->withHeaders(['Content-Type' => 'application/json'])
+                ->post($this->baseUrl . '/callback_virtual_accounts', $payload);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return [
+                    'status' => 'success',
+                    'type' => 'va',
+                    'bank_code' => $data['bank_code'] ?? $bankCode,
+                    'account_number' => $data['account_number'] ?? null,
+                    'expected_amount' => $data['expected_amount'] ?? $amount,
+                    'expiration_date' => $data['expiration_date'] ?? null,
+                    'external_id' => $data['external_id'] ?? $externalId,
+                ];
+            } else {
+                Log::warning('Xendit Virtual Account API Failed', [
+                    'status' => $response->status(),
+                    'body' => $response->json() ?? $response->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::warning('Xendit Virtual Account API Exception, falling back to invoice', ['error' => $e->getMessage()]);
+        }
+
+        // Fallback ke Xendit Invoice
+        $invoice = $this->createInvoice($order);
+        return [
+            'status' => 'fallback',
+            'type' => 'invoice',
+            'invoice_url' => $invoice['invoice_url'] ?? null,
+            'payment_url' => $invoice['invoice_url'] ?? null,
+            'bank_code' => $bankCode,
+            'message' => 'Silakan buka halaman pembayaran resmi untuk melengkapi transfer ' . strtoupper($bankCode),
+        ];
+    }
+
+    /**
      * Cek status Invoice dari Xendit GET /v2/invoices/{id}
      */
     public function getInvoiceStatus(string $invoiceId): array

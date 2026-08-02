@@ -10,19 +10,23 @@ class PaymentShippingSeeder extends Seeder
 {
     public function run(): void
     {
-        // Payment Methods
+        // Payment Methods (Shopee Checkout Style - Xendit Integrated)
         $payments = [
-            ['name' => 'QRIS (GoPay / ShopeePay / All Bank)', 'type' => 'qris'],
-            ['name' => 'GoPay', 'type' => 'ewallet'],
-            ['name' => 'ShopeePay', 'type' => 'ewallet'],
-            ['name' => 'BCA Transfer', 'type' => 'bank_transfer'],
-            ['name' => 'COD (Bayar di Tempat)', 'type' => 'cod'],
+            ['name' => 'QRIS (GoPay, ShopeePay, DANA, OVO, m-Banking)', 'type' => 'qris', 'code' => 'QRIS'],
+            ['name' => 'BCA Virtual Account', 'type' => 'bank_transfer', 'code' => 'BCA'],
+            ['name' => 'Mandiri Virtual Account', 'type' => 'bank_transfer', 'code' => 'MANDIRI'],
+            ['name' => 'BNI Virtual Account', 'type' => 'bank_transfer', 'code' => 'BNI'],
+            ['name' => 'BRI Virtual Account', 'type' => 'bank_transfer', 'code' => 'BRI'],
+            ['name' => 'Permata Virtual Account', 'type' => 'bank_transfer', 'code' => 'PERMATA'],
+            ['name' => 'ShopeePay / E-Wallet', 'type' => 'ewallet', 'code' => 'SHOPEEPAY'],
+            ['name' => 'GoPay', 'type' => 'ewallet', 'code' => 'GOPAY'],
+            ['name' => 'COD (Bayar di Tempat)', 'type' => 'cod', 'code' => 'COD'],
         ];
 
         foreach ($payments as $p) {
-            PaymentMethod::firstOrCreate(
+            PaymentMethod::updateOrCreate(
                 ['name' => $p['name']],
-                ['type' => $p['type'], 'is_active' => true]
+                ['type' => $p['type'], 'code' => $p['code'] ?? null, 'is_active' => true]
             );
         }
 

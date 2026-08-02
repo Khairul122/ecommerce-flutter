@@ -203,7 +203,19 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Pesanan ini sudah lunas'], 422);
         }
 
-        $result = $xenditService->createQrisCode($order);
+        $order->loadMissing('paymentMethod');
+        $pm = $order->paymentMethod;
+        $pmType = strtolower($pm->type ?? '');
+        $pmCode = strtoupper($pm->code ?? '');
+
+        if ($pmType === 'bank_transfer' || in_array($pmCode, ['BCA', 'MANDIRI', 'BNI', 'BRI', 'PERMATA'])) {
+            $bankCode = in_array($pmCode, ['BCA', 'MANDIRI', 'BNI', 'BRI', 'PERMATA']) ? $pmCode : 'BCA';
+            $result = $xenditService->createVirtualAccount($order, $bankCode);
+        } elseif ($pmType === 'qris' || $pmCode === 'QRIS') {
+            $result = $xenditService->createQrisCode($order);
+        } else {
+            $result = $xenditService->createInvoice($order);
+        }
 
         return response()->json([
             'status' => 'success',

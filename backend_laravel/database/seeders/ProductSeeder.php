@@ -235,12 +235,17 @@ class ProductSeeder extends Seeder
                 );
             }
 
-            // Seed Varian Ukuran (S, M, L, XL)
-            foreach (['S', 'M', 'L', 'XL'] as $size) {
-                ProductVariant::updateOrCreate(
-                    ['product_id' => $product->id, 'size' => $size, 'color' => $p['color']],
-                    ['stock' => 25, 'price' => $p['price'], 'price_adjustment' => 0]
-                );
+            // Seed Varian Ukuran & Warna (S, M, L, XL) x (Merah, Putih, Hitam, Navy, Cream)
+            $colors = [$p['color'], 'Hitam', 'Putih', 'Navy', 'Cream'];
+            $colors = array_unique(array_filter($colors));
+
+            foreach ($colors as $color) {
+                foreach (['S', 'M', 'L', 'XL'] as $size) {
+                    ProductVariant::updateOrCreate(
+                        ['product_id' => $product->id, 'size' => $size, 'color' => $color],
+                        ['stock' => 20, 'price' => $p['price'], 'price_adjustment' => 0]
+                    );
+                }
             }
         }
     }

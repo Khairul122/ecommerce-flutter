@@ -25,6 +25,8 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
   bool _isLoadingQris = false;
   String? _qrisImageUrl;
   String? _invoiceUrl;
+  String? _vaNumber;
+  String? _bankCode;
   String? _qrisError;
 
   final Color maroonColor = const Color(0xFF5D1A1A);
@@ -42,7 +44,26 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
   void initState() {
     super.initState();
     if (_paymentType != 'cod') {
-      _loadQrisNative();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadQrisNative();
+      });
+    }
+  }
+
+  Future<void> _openInvoiceUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Buka di browser: $url')),
+        );
+      }
     }
   }
 
@@ -59,6 +80,8 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
       String? url = data?['qr_url']?.toString() ?? data?['qr_code_url']?.toString();
       final qrString = data?['qr_string']?.toString();
       final invoiceUrl = data?['invoice_url']?.toString() ?? data?['payment_url']?.toString() ?? data?['snap_redirect_url']?.toString();
+      final vaNum = data?['account_number']?.toString() ?? data?['va_number']?.toString();
+      final bank = data?['bank_code']?.toString();
 
       if ((url == null || url.isEmpty) && qrString != null && qrString.isNotEmpty) {
         url = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${Uri.encodeComponent(qrString)}';
@@ -68,7 +91,9 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
         setState(() {
           _qrisImageUrl = (url != null && url.isNotEmpty) ? url : null;
           _invoiceUrl = (invoiceUrl != null && invoiceUrl.isNotEmpty) ? invoiceUrl : null;
-          if (_qrisImageUrl == null && _invoiceUrl == null) {
+          _vaNumber = (vaNum != null && vaNum.isNotEmpty) ? vaNum : null;
+          _bankCode = (bank != null && bank.isNotEmpty) ? bank : null;
+          if (_qrisImageUrl == null && _invoiceUrl == null && _vaNumber == null) {
             _qrisError = data?['message']?.toString() ?? data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat pembayaran';
           }
           _isLoadingQris = false;
@@ -126,17 +151,19 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.qr_code_2, color: Color(0xFF00BFA5), size: 30),
+              Icon(_vaNumber != null ? Icons.account_balance : Icons.qr_code_2, color: const Color(0xFF00BFA5), size: 30),
               const SizedBox(width: 8),
               Text(
-                'Pembayaran Digital',
+                _vaNumber != null ? 'Virtual Account ${_bankCode ?? ''}' : 'Pembayaran Digital',
                 style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Scan via QRIS atau bayar lewat E-Wallet, Transfer VA Bank, dan Minimarket',
+            _vaNumber != null
+                ? 'Lakukan transfer ke nomor Virtual Account di bawah ini'
+                : 'Scan via QRIS atau bayar lewat E-Wallet, Transfer VA Bank, dan Minimarket',
             style: GoogleFonts.outfit(fontSize: 12, color: Colors.black54),
             textAlign: TextAlign.center,
           ),
@@ -145,6 +172,53 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
             const SizedBox(
               height: 220,
               child: Center(child: CircularProgressIndicator(color: Color(0xFF00BFA5))),
+            )
+          else if (_vaNumber != null)
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: tealColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: tealColor.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Nomor Virtual Account',
+                        style: GoogleFonts.outfit(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SelectableText(
+                            _vaNumber!,
+                            style: GoogleFonts.outfit(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: maroonColor,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          IconButton(
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: _vaNumber!));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Nomor VA $_vaNumber disalin!')),
+                              );
+                            },
+                            icon: const Icon(Icons.copy_rounded, color: Color(0xFF00BFA5), size: 22),
+                            tooltip: 'Salin No. VA',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             )
           else if (_qrisImageUrl != null)
             ClipRRect(
@@ -194,12 +268,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton.icon(
-                    onPressed: () async {
-                      final Uri uri = Uri.parse(_invoiceUrl!);
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri, mode: LaunchMode.externalApplication);
-                      }
-                    },
+                    onPressed: () => _openInvoiceUrl(_invoiceUrl!),
                     icon: const Icon(Icons.open_in_new_rounded, size: 20, color: Colors.white),
                     label: Text(
                       'Buka Halaman Pembayaran',
