@@ -131,19 +131,25 @@ class XenditService
                     'qr_url' => $qrUrl,
                     'external_id' => $data['external_id'] ?? $externalId,
                 ];
+            } else {
+                Log::warning('Xendit QR Code API Failed', [
+                    'status' => $response->status(),
+                    'body' => $response->json() ?? $response->body(),
+                ]);
             }
         } catch (Exception $e) {
             Log::warning('Xendit QR Code API Exception, falling back to invoice', ['error' => $e->getMessage()]);
         }
 
-        // Fallback: Jika endpoint /qr_codes belum aktif atau error, buat Invoice Xendit
+        // Fallback: Buat Invoice Xendit yang mencakup QRIS + seluruh metode pembayaran
         $invoice = $this->createInvoice($order);
         return [
             'status' => 'fallback',
-            'invoice_url' => $invoice['invoice_url'],
+            'invoice_url' => $invoice['invoice_url'] ?? null,
+            'payment_url' => $invoice['invoice_url'] ?? null,
             'qr_string' => null,
             'qr_url' => null,
-            'message' => 'Silakan lanjutkan pembayaran melalui Invoice Xendit.',
+            'message' => 'Silakan buka halaman pembayaran resmi untuk memilih QRIS, E-Wallet, atau Transfer Bank.',
         ];
     }
 

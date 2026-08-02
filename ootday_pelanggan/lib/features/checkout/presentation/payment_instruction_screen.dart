@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/services/api_service.dart';
 import 'payment_success_screen.dart';
 import '../../order/domain/entities/order_entity.dart';
 import '../../order/presentation/providers/order_provider.dart';
 import '../domain/entities/payment_method_entity.dart';
 
-/// Layar instruksi pembayaran dengan tampilan Native QRIS langsung di dalam aplikasi
+/// Layar instruksi pembayaran dengan tampilan Native QRIS / Invoice langsung di dalam aplikasi
 class PaymentInstructionScreen extends StatefulWidget {
   final OrderEntity order;
   final PaymentMethodEntity paymentMethod;
@@ -23,6 +24,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
   bool _isConfirming = false;
   bool _isLoadingQris = false;
   String? _qrisImageUrl;
+  String? _invoiceUrl;
   String? _qrisError;
 
   final Color maroonColor = const Color(0xFF5D1A1A);
@@ -56,6 +58,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
       final data = res['data'] as Map<String, dynamic>?;
       String? url = data?['qr_url']?.toString() ?? data?['qr_code_url']?.toString();
       final qrString = data?['qr_string']?.toString();
+      final invoiceUrl = data?['invoice_url']?.toString() ?? data?['payment_url']?.toString() ?? data?['snap_redirect_url']?.toString();
 
       if ((url == null || url.isEmpty) && qrString != null && qrString.isNotEmpty) {
         url = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${Uri.encodeComponent(qrString)}';
@@ -64,8 +67,9 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
       if (mounted) {
         setState(() {
           _qrisImageUrl = (url != null && url.isNotEmpty) ? url : null;
-          if (_qrisImageUrl == null) {
-            _qrisError = data?['message']?.toString() ?? data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat QRIS Xendit';
+          _invoiceUrl = (invoiceUrl != null && invoiceUrl.isNotEmpty) ? invoiceUrl : null;
+          if (_qrisImageUrl == null && _invoiceUrl == null) {
+            _qrisError = data?['message']?.toString() ?? data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat pembayaran';
           }
           _isLoadingQris = false;
         });
@@ -125,14 +129,14 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
               const Icon(Icons.qr_code_2, color: Color(0xFF00BFA5), size: 30),
               const SizedBox(width: 8),
               Text(
-                'QRIS Pembayaran',
+                'Pembayaran Digital',
                 style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Scan menggunakan GoPay, ShopeePay, BCA, Mandiri, BRI, BNI, DANA, OVO, atau m-Banking Anda',
+            'Scan via QRIS atau bayar lewat E-Wallet, Transfer VA Bank, dan Minimarket',
             style: GoogleFonts.outfit(fontSize: 12, color: Colors.black54),
             textAlign: TextAlign.center,
           ),
@@ -157,6 +161,58 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                   child: const Center(child: Text('Gagal memuat gambar QRIS')),
                 ),
               ),
+            )
+          else if (_invoiceUrl != null)
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: tealColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: tealColor.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.payment_rounded, color: Color(0xFF00BFA5), size: 40),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Portal Pembayaran Otomatis',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Tekan tombol di bawah untuk membuka halaman pembayaran resmi (QRIS, Transfer Bank VA, ShopeePay, DANA, OVO, Alfamart)',
+                        style: GoogleFonts.outfit(fontSize: 12, color: Colors.black54, height: 1.4),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      final Uri uri = Uri.parse(_invoiceUrl!);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    icon: const Icon(Icons.open_in_new_rounded, size: 20, color: Colors.white),
+                    label: Text(
+                      'Buka Halaman Pembayaran',
+                      style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: tealColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
             )
           else
             Column(
