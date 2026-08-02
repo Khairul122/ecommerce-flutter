@@ -71,11 +71,11 @@
     <div id="variant-rows">
         @php $oldVariants = old('variants', $product?->variants?->toArray() ?? []); @endphp
         @foreach ($oldVariants as $i => $variant)
-            <div class="row g-2 mb-2 variant-row">
-                <div class="col-md-3">
+            <div class="row g-2 mb-2 variant-row align-items-center">
+                <div class="col-md-2">
                     <input type="text" name="variants[{{ $i }}][size]" value="{{ $variant['size'] ?? '' }}" class="form-control" placeholder="Ukuran">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="text" name="variants[{{ $i }}][color]" value="{{ $variant['color'] ?? '' }}" class="form-control" placeholder="Warna">
                 </div>
                 <div class="col-md-2">
@@ -83,6 +83,13 @@
                 </div>
                 <div class="col-md-2">
                     <input type="number" step="0.01" name="variants[{{ $i }}][price]" value="{{ $variant['price'] ?? '' }}" class="form-control" placeholder="Harga">
+                </div>
+                <div class="col-md-2">
+                    <input type="file" name="variant_images[{{ $i }}]" class="form-control form-control-sm" accept="image/*">
+                    @if (! empty($variant['image_url']))
+                        <input type="hidden" name="variants[{{ $i }}][existing_image_url]" value="{{ $variant['image_url'] }}">
+                        <img src="{{ $variant['image_url'] }}" style="width:32px;height:32px;object-fit:cover;border-radius:4px" class="mt-1">
+                    @endif
                 </div>
                 <div class="col-md-2">
                     <button type="button" class="btn btn-outline-danger remove-variant">Hapus</button>
@@ -105,12 +112,13 @@
 
     document.getElementById('add-variant').addEventListener('click', function () {
         const row = document.createElement('div');
-        row.className = 'row g-2 mb-2 variant-row';
+        row.className = 'row g-2 mb-2 variant-row align-items-center';
         row.innerHTML = `
-            <div class="col-md-3"><input type="text" name="variants[${index}][size]" class="form-control" placeholder="Ukuran"></div>
-            <div class="col-md-3"><input type="text" name="variants[${index}][color]" class="form-control" placeholder="Warna"></div>
+            <div class="col-md-2"><input type="text" name="variants[${index}][size]" class="form-control" placeholder="Ukuran"></div>
+            <div class="col-md-2"><input type="text" name="variants[${index}][color]" class="form-control" placeholder="Warna"></div>
             <div class="col-md-2"><input type="number" name="variants[${index}][stock]" class="form-control" placeholder="Stok"></div>
             <div class="col-md-2"><input type="number" step="0.01" name="variants[${index}][price]" class="form-control" placeholder="Harga"></div>
+            <div class="col-md-2"><input type="file" name="variant_images[${index}]" class="form-control form-control-sm" accept="image/*"></div>
             <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-variant">Hapus</button></div>
         `;
         container.appendChild(row);

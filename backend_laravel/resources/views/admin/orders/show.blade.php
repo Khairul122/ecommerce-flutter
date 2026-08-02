@@ -3,6 +3,16 @@
 @section('title', 'Detail Pesanan')
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="row g-3">
         <div class="col-md-8">
             <div class="card mb-3">
@@ -68,14 +78,37 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.orders.update-status', $order) }}" class="mb-3">
                         @csrf @method('PATCH')
-                        <select name="status" class="form-select mb-2">
+                        <select name="status" id="order-status-select" class="form-select mb-2">
                             @foreach (['menunggu_pembayaran', 'diproses', 'dikirim', 'selesai', 'dibatalkan'] as $status)
-                                <option value="{{ $status }}" @selected($order->status === $status)>{{ $status }}</option>
+                                <option value="{{ $status }}" @selected(old('status', $order->status) === $status)>{{ $status }}</option>
                             @endforeach
                         </select>
-                        <input type="text" name="cancel_reason" class="form-control mb-2" placeholder="Alasan pembatalan (jika dibatalkan)">
+                        <input
+                            type="text"
+                            name="cancel_reason"
+                            id="cancel-reason-input"
+                            value="{{ old('cancel_reason', $order->cancel_reason) }}"
+                            class="form-control mb-2"
+                            placeholder="Alasan pembatalan (wajib diisi jika status dibatalkan)"
+                            style="display:none"
+                        >
                         <button class="btn btn-brand w-100">Simpan Status</button>
                     </form>
+                    <script>
+                        (function () {
+                            const statusSelect = document.getElementById('order-status-select');
+                            const reasonInput = document.getElementById('cancel-reason-input');
+
+                            function syncReasonField() {
+                                const isCancelled = statusSelect.value === 'dibatalkan';
+                                reasonInput.style.display = isCancelled ? 'block' : 'none';
+                                reasonInput.required = isCancelled;
+                            }
+
+                            statusSelect.addEventListener('change', syncReasonField);
+                            syncReasonField();
+                        })();
+                    </script>
 
                     @if ($order->payment_status === 'menunggu_konfirmasi')
                         <form method="POST" action="{{ route('admin.orders.confirm-payment', $order) }}">

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -55,20 +56,25 @@ class ProductController extends Controller
             'variants.*.color' => ['required_with:variants', 'string'],
             'variants.*.stock' => ['nullable', 'integer', 'min:0'],
             'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.existing_image_url' => ['nullable', 'string'],
+            'variant_images' => ['nullable', 'array'],
+            'variant_images.*' => ['nullable', 'file', 'image', 'max:5120'],
         ]);
 
-        $product = Product::create([
-            'store_id' => $data['store_id'],
-            'category_id' => $data['category_id'] ?? null,
-            'name' => $data['name'],
-            'price' => $data['price'],
-            'stock' => $data['stock'] ?? 0,
-            'status' => $data['status'],
-            'description' => $data['description'] ?? null,
-        ]);
+        DB::transaction(function () use ($data, $request) {
+            $product = Product::create([
+                'store_id' => $data['store_id'],
+                'category_id' => $data['category_id'] ?? null,
+                'name' => $data['name'],
+                'price' => $data['price'],
+                'stock' => $data['stock'] ?? 0,
+                'status' => $data['status'],
+                'description' => $data['description'] ?? null,
+            ]);
 
-        $this->syncImages($product, $request);
-        $this->syncVariants($product, $data['variants'] ?? []);
+            $this->syncImages($product, $request);
+            $this->syncVariants($product, $data['variants'] ?? [], $request);
+        });
 
         return redirect()->route('admin.products.index')->with('status', 'Produk berhasil ditambahkan');
     }
@@ -99,22 +105,27 @@ class ProductController extends Controller
             'variants.*.color' => ['required_with:variants', 'string'],
             'variants.*.stock' => ['nullable', 'integer', 'min:0'],
             'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.existing_image_url' => ['nullable', 'string'],
+            'variant_images' => ['nullable', 'array'],
+            'variant_images.*' => ['nullable', 'file', 'image', 'max:5120'],
         ]);
 
-        $product->update([
-            'store_id' => $data['store_id'],
-            'category_id' => $data['category_id'] ?? null,
-            'name' => $data['name'],
-            'price' => $data['price'],
-            'stock' => $data['stock'] ?? 0,
-            'status' => $data['status'],
-            'description' => $data['description'] ?? null,
-        ]);
+        DB::transaction(function () use ($product, $data, $request) {
+            $product->update([
+                'store_id' => $data['store_id'],
+                'category_id' => $data['category_id'] ?? null,
+                'name' => $data['name'],
+                'price' => $data['price'],
+                'stock' => $data['stock'] ?? 0,
+                'status' => $data['status'],
+                'description' => $data['description'] ?? null,
+            ]);
 
-        $this->syncImages($product, $request);
+            $this->syncImages($product, $request);
 
-        $product->variants()->delete();
-        $this->syncVariants($product, $data['variants'] ?? []);
+            $product->variants()->delete();
+            $this->syncVariants($product, $data['variants'] ?? [], $request);
+        });
 
         return redirect()->route('admin.products.index')->with('status', 'Produk berhasil diperbarui');
     }
@@ -160,11 +171,19 @@ class ProductController extends Controller
         }
     }
 
-    private function syncVariants(Product $product, array $variants): void
+    private function syncVariants(Product $product, array $variants, Request $request): void
     {
-        foreach ($variants as $variant) {
+        foreach ($variants as $i => $variant) {
             if (empty($variant['size']) || empty($variant['color'])) {
                 continue;
+            }
+
+            $imageUrl = $variant['existing_image_url'] ?? null;
+            if ($request->hasFile("variant_images.$i")) {
+                $file = $request->file("variant_images.$i");
+                $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
+                $path = $file->storeAs('uploads', $filename, 'public');
+                $imageUrl = url('/storage/'.$path);
             }
 
             $product->variants()->create([
@@ -172,6 +191,7 @@ class ProductController extends Controller
                 'color' => $variant['color'],
                 'stock' => $variant['stock'] ?? 0,
                 'price' => $variant['price'] ?? $product->price,
+                'image_url' => $imageUrl,
             ]);
         }
     }
