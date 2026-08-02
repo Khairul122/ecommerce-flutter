@@ -66,7 +66,7 @@ class XenditNotificationController extends Controller
             if (in_array($status, ['PAID', 'SETTLED', 'COMPLETED'])) {
                 $order->update([
                     'status' => 'diproses',
-                    'payment_status' => 'sudah_dibayar',
+                    'payment_status' => 'paid',
                     'paid_at' => now(),
                 ]);
 
