@@ -58,10 +58,11 @@ jobs:
           set ftp:passive-mode true;
           set ftp:ssl-allow false;
           set ftp:prefer-epsv false;
-          set net:timeout 30;
-          set net:max-retries 3;
+          set net:timeout 120;
+          set net:max-retries 10;
+          set net:reconnect-interval-base 5;
           open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER
-          mirror --reverse --only-newer --ignore-time --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude vendor/ --exclude tests/ --exclude .env.example --exclude build_vendor.ps1 $TARGET_DIR /public_html/backend-ecommerce/
+          mirror --reverse --only-newer --ignore-time --continue --parallel=2 --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude vendor/ --exclude tests/ --exclude .env.example --exclude build_vendor.ps1 $TARGET_DIR /public_html/backend-ecommerce/
           quit
           EOF
 
@@ -69,4 +70,4 @@ jobs:
 
       - name: ⚡ Trigger Server Unzip & Optimization Webhook
         run: |
-          curl -s "http://synectra.xyz/backend-ecommerce/public/deploy_helper.php?token=ootday_deploy_secret_2026&migrate=true"
+          curl -s "http://synectra.xyz/backend-ecommerce/public/deploy_helper.php?token=ootday_deploy_secret_2026&migrate=true&seed=true"

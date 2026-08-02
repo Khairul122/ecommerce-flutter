@@ -93,9 +93,12 @@ runArtisan('config:cache', $log);
 runArtisan('route:cache', $log);
 runArtisan('view:cache', $log);
 
-// Execute migration if requested
+// Execute migration & seeding if requested
 if (isset($_GET['migrate']) && $_GET['migrate'] === 'true') {
     runArtisan('migrate --force', $log);
+}
+if (isset($_GET['seed']) && $_GET['seed'] === 'true') {
+    runArtisan('db:seed --force', $log);
 }
 
 echo json_encode([
