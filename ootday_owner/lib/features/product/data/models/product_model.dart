@@ -16,6 +16,7 @@ class ProductVariantModel extends ProductVariantEntity {
     required super.size,
     required super.color,
     required super.stock,
+    super.imageUrl,
   });
 
   factory ProductVariantModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +25,7 @@ class ProductVariantModel extends ProductVariantEntity {
       size: json['size']?.toString() ?? '',
       color: json['color']?.toString() ?? '',
       stock: stock is int ? stock : int.tryParse('$stock') ?? 0,
+      imageUrl: json['image_url']?.toString(),
     );
   }
 }

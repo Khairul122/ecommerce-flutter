@@ -9,11 +9,13 @@ class ProductVariantEntity {
   final String size;
   final String color;
   final int stock;
+  final String? imageUrl;
 
   const ProductVariantEntity({
     required this.size,
     required this.color,
     required this.stock,
+    this.imageUrl,
   });
 }
 

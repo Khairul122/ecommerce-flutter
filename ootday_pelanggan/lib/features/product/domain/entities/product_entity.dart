@@ -20,6 +20,7 @@ class ProductVariantEntity {
   final String color;
   final int stock;
   final double? price;
+  final String? imageUrl;
 
   const ProductVariantEntity({
     required this.id,
@@ -27,6 +28,7 @@ class ProductVariantEntity {
     required this.color,
     required this.stock,
     this.price,
+    this.imageUrl,
   });
 }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/entities/product_entity.dart';
 
-class DetailProduk extends StatelessWidget {
+class DetailProduk extends StatefulWidget {
   final String name;
   final int price;
   final String image;
@@ -18,8 +18,31 @@ class DetailProduk extends StatelessWidget {
     this.variants = const [],
   });
 
+  @override
+  State<DetailProduk> createState() => _DetailProdukState();
+}
+
+class _DetailProdukState extends State<DetailProduk> {
   final Color redMain = const Color(0xFFB40001);
   final Color darkRed = const Color(0xFF7A0000);
+
+  late String _displayedImage;
+  ProductVariantEntity? _selectedVariant;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayedImage = widget.image;
+  }
+
+  void _selectVariant(ProductVariantEntity variant) {
+    setState(() {
+      _selectedVariant = variant;
+      _displayedImage = (variant.imageUrl != null && variant.imageUrl!.isNotEmpty)
+          ? variant.imageUrl!
+          : widget.image;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,17 +63,22 @@ class DetailProduk extends StatelessWidget {
                     decoration: const BoxDecoration(
                       color: Color(0xFFF5F5F5),
                     ),
-                    child: image.startsWith('http')
-                        ? Image.network(
-                            image,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                          )
-                        : Image.asset(
-                            image,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                          ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: _displayedImage.startsWith('http')
+                          ? Image.network(
+                              _displayedImage,
+                              key: ValueKey(_displayedImage),
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                            )
+                          : Image.asset(
+                              _displayedImage,
+                              key: ValueKey(_displayedImage),
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                            ),
+                    ),
                   ),
                   // Detail Produk
                   Padding(
@@ -59,7 +87,7 @@ class DetailProduk extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          name,
+                          widget.name,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -68,7 +96,7 @@ class DetailProduk extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Rp ${_formatPrice(price)}',
+                          'Rp ${_formatPrice(widget.price)}',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -88,22 +116,24 @@ class DetailProduk extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          (description == null || description!.trim().isEmpty)
+                          (widget.description == null || widget.description!.trim().isEmpty)
                               ? 'Belum ada deskripsi untuk produk ini.'
-                              : description!,
+                              : widget.description!,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade700,
                             height: 1.5,
                           ),
                         ),
-                        if (variants.isNotEmpty) ...[
+                        if (widget.variants.isNotEmpty) ...[
                           const SizedBox(height: 24),
                           const Divider(),
                           const SizedBox(height: 24),
-                          const Text(
-                            'Varian',
-                            style: TextStyle(
+                          Text(
+                            widget.variants.any((v) => v.imageUrl != null && v.imageUrl!.isNotEmpty)
+                                ? 'Varian (ketuk untuk lihat foto)'
+                                : 'Varian',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -113,20 +143,38 @@ class DetailProduk extends StatelessWidget {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: variants.map((v) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.grey.shade300),
-                                ),
-                                child: Text(
-                                  '${v.size} · ${v.color} · Stok ${v.stock}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.black87,
+                            children: widget.variants.map((v) {
+                              final isSelected = identical(_selectedVariant, v);
+                              final hasImage = v.imageUrl != null && v.imageUrl!.isNotEmpty;
+                              return GestureDetector(
+                                onTap: () => _selectVariant(v),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? redMain.withValues(alpha: 0.1)
+                                        : const Color(0xFFF5F5F5),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: isSelected ? redMain : Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (hasImage)
+                                        Icon(Icons.image, size: 14, color: isSelected ? redMain : Colors.grey),
+                                      if (hasImage) const SizedBox(width: 4),
+                                      Text(
+                                        '${v.size} · ${v.color} · Stok ${v.stock}',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: isSelected ? redMain : Colors.black87,
+                                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );

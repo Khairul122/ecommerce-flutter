@@ -34,6 +34,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // supaya CartData.addItem/buyNow bisa mengirim variant_id yang benar ke
   // POST /api/cart, bukan sekadar nama ukuran/warna sebagai teks.
   List<Map<String, dynamic>> _variants = [];
+  // Foto per warna (dari product_variants.image_url), dipakai supaya klik
+  // warna benar-benar menampilkan foto varian itu, bukan indeks acak dari
+  // daftar foto produk umum.
+  Map<String, String> _colorImages = {};
+  Map<String, int> _colorPageIndex = {};
   bool _isLoading = true;
 
   @override
@@ -137,20 +142,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 'color': v.color,
                 'stock': v.stock,
                 'price': v.price,
+                'image_url': v.imageUrl,
               })
           .toList();
 
       final Set<String> loadedSizes = {};
       final Set<String> loadedColors = {};
+      final Map<String, String> colorImages = {};
       for (var row in loadedVariants) {
         if (row['size'] != null) loadedSizes.add(row['size'].toString());
         if (row['color'] != null) loadedColors.add(row['color'].toString());
+        final color = row['color']?.toString();
+        final imgUrl = row['image_url']?.toString();
+        if (color != null && imgUrl != null && imgUrl.isNotEmpty && !colorImages.containsKey(color)) {
+          colorImages[color] = imgUrl;
+        }
+      }
+
+      // Gabungkan foto produk umum dengan foto khusus per-warna (kalau ada),
+      // supaya carousel utama juga bisa di-swipe ke foto varian tersebut.
+      final List<String> combinedImages = [...loadedImages];
+      final Map<String, int> colorPageIndex = {};
+      for (final entry in colorImages.entries) {
+        int index = combinedImages.indexOf(entry.value);
+        if (index == -1) {
+          combinedImages.add(entry.value);
+          index = combinedImages.length - 1;
+        }
+        colorPageIndex[entry.key] = index;
       }
 
       if (mounted) {
         setState(() {
-          _images = loadedImages;
+          _images = combinedImages;
           _variants = loadedVariants;
+          _colorImages = colorImages;
+          _colorPageIndex = colorPageIndex;
           _sizes = loadedSizes.isNotEmpty ? loadedSizes.toList() : ['S', 'M', 'L', 'XL'];
           _colors = loadedColors.isNotEmpty ? loadedColors.toList() : ['Default'];
 
@@ -701,15 +728,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             itemBuilder: (context, index) {
                               final color = _colors[index];
                               final bool isSel = _selectedColor == color;
-                              final String thumbImg = index < _images.length ? _images[index] : (widget.product['image'] ?? 'assets/images/Produk_1.png');
+                              final String thumbImg = _colorImages[color] ??
+                                  (widget.product['image'] ?? 'assets/images/Produk_1.png');
                               final bool isNetThumb = thumbImg.startsWith('http://') || thumbImg.startsWith('https://');
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
                                     _selectedColor = color;
                                     _selectedColorIndex = index;
-                                    if (index < _images.length) {
-                                      _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                    final pageIndex = _colorPageIndex[color];
+                                    if (pageIndex != null) {
+                                      _pageController.animateToPage(pageIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                                     }
                                   });
                                 },
