@@ -36,6 +36,10 @@ Route::get('/shipping-methods', [PaymentShippingMethodController::class, 'shippi
 // Xendit Webhook Callback Notification (Public)
 Route::post('/xendit/callback', [XenditNotificationController::class, 'handle']);
 
+// Xendit Redirect setelah pembayaran (Public) - status order diupdate via webhook callback di atas
+Route::get('/xendit/redirect/success', fn () => response('Pembayaran berhasil, silakan kembali ke aplikasi.'));
+Route::get('/xendit/redirect/failure', fn () => response('Pembayaran gagal atau dibatalkan, silakan kembali ke aplikasi.'));
+
 // ---- Wajib login (pelanggan maupun owner) ----
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
