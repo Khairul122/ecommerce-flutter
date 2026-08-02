@@ -4,12 +4,15 @@
  * Deployment Helper Script for Rumahweb Shared Hosting (cPanel)
  * Safely unzips vendor.zip and runs Laravel optimization & migration tasks without SSH terminal access.
  *
- * Usage: http://your-domain.com/deploy_helper.php?token=ootday_deploy_secret_2026
+ * Token diganti otomatis oleh workflow CI dari GitHub Secrets (DEPLOY_WEBHOOK_TOKEN)
+ * sebelum file ini di-upload -- jangan hardcode token asli di sini.
+ *
+ * Usage: http://your-domain.com/deploy_helper.php?token=<DEPLOY_WEBHOOK_TOKEN>
  */
 
 header('Content-Type: application/json');
 
-$secretToken = 'ootday_deploy_secret_2026';
+$secretToken = '__DEPLOY_TOKEN_PLACEHOLDER__';
 $providedToken = $_GET['token'] ?? '';
 
 if ($providedToken !== $secretToken) {

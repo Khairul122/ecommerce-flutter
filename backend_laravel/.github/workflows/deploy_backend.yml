@@ -6,6 +6,13 @@ on:
       - '**' # Auto deploy di setiap commit pada branch mana pun
   workflow_dispatch: # Mengizinkan trigger manual dari tab Actions di GitHub
 
+# Mencegah dua proses deploy jalan bersamaan (root cause file korup: dua
+# lftp mirror menulis file yang sama di saat bersamaan). Deploy baru akan
+# antre menunggu deploy sebelumnya selesai, bukan berjalan paralel.
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
 jobs:
   web-deploy:
     name: Deploy Laravel to Rumahweb FTP
@@ -21,7 +28,7 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath, zip, gd
 
-      - name: 📦 Check or Build vendor.zip
+      - name: 📦 Build vendor.zip
         run: |
           if [ -d "backend_laravel" ]; then
             cd backend_laravel
@@ -29,21 +36,55 @@ jobs:
           chmod +x build_vendor.sh || true
           ./build_vendor.sh
 
-      - name: 📂 Prepare Production Environment (.env)
+      - name: 🔐 Generate Production .env from GitHub Secrets
         run: |
           if [ -d "backend_laravel" ]; then
             cd backend_laravel
           fi
-          if [ -f ".env.production" ]; then
-            cp .env.production .env
-          fi
+          cat > .env << 'EOF'
+          APP_NAME=Ootday
+          APP_ENV=production
+          APP_KEY=${{ secrets.APP_KEY }}
+          APP_DEBUG=false
+          APP_TIMEZONE=Asia/Jakarta
+          APP_URL=${{ secrets.APP_URL }}
 
-      - name: 🚀 Sync Files via LFTP to Rumahweb
+          LOG_CHANNEL=daily
+          LOG_LEVEL=error
+
+          DB_CONNECTION=mysql
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_DATABASE=${{ secrets.DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          SESSION_DRIVER=file
+          CACHE_STORE=file
+          QUEUE_CONNECTION=sync
+
+          FILESYSTEM_DISK=public
+
+          MAIL_MAILER=log
+          MAIL_FROM_ADDRESS="noreply@synectra.xyz"
+          MAIL_FROM_NAME="\${APP_NAME}"
+
+          SANCTUM_TOKEN_EXPIRATION_MINUTES=525600
+          EOF
+
+      - name: 🔑 Suntik Deploy Webhook Token ke deploy_helper.php
+        run: |
+          if [ -d "backend_laravel" ]; then
+            cd backend_laravel
+          fi
+          sed -i "s/__DEPLOY_TOKEN_PLACEHOLDER__/${{ secrets.DEPLOY_WEBHOOK_TOKEN }}/" public/deploy_helper.php
+
+      - name: 🚀 Sync Files via LFTP to Rumahweb (hanya file yang berubah)
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME || 'synf6654' }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
-          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
         run: |
           sudo apt-get update && sudo apt-get install -y lftp
 
@@ -61,12 +102,12 @@ jobs:
           set net:timeout 30;
           set net:max-retries 3;
           open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER
-          mirror --reverse --only-newer --ignore-time --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude vendor/ --exclude tests/ --exclude .env.example --exclude build_vendor.ps1 $TARGET_DIR /public_html/backend-ecommerce/
+          mirror --reverse --ignore-time --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude vendor/ --exclude tests/ --exclude .env.example --exclude .env.production --exclude build_vendor.ps1 $TARGET_DIR /public_html/backend-ecommerce/
           quit
           EOF
 
           lftp -f deploy_script.lftp
 
-      - name: ⚡ Trigger Server Unzip & Optimization Webhook
+      - name: ⚡ Trigger Server Unzip, Migration & Seed Webhook
         run: |
-          curl -s "http://synectra.xyz/backend-ecommerce/public/deploy_helper.php?token=ootday_deploy_secret_2026&migrate=true"
+          curl -s "http://synectra.xyz/backend-ecommerce/public/deploy_helper.php?token=${{ secrets.DEPLOY_WEBHOOK_TOKEN }}&migrate=true&seed=true"

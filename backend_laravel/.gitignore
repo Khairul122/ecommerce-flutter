@@ -1,6 +1,8 @@
 /vendor
 /node_modules
+vendor.zip
 .env
+.env.production
 .env.backup
 .phpunit.result.cache
 Homestead.json
