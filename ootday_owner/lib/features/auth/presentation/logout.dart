@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ootday_owner/features/auth/presentation/login.dart';
 import 'package:ootday_owner/features/auth/presentation/providers/auth_provider.dart';
+import 'package:ootday_owner/core/widgets/custom_dialog.dart';
 
 class LogoutPage extends StatefulWidget {
   const LogoutPage({super.key});
@@ -16,20 +17,38 @@ class _LogoutPageState extends State<LogoutPage> {
   bool _isLoading = false;
 
   Future<void> _logout() async {
+    final confirmed = await AppDialog.showConfirm(
+      context,
+      title: 'Konfirmasi Keluar',
+      message: 'Apakah Anda yakin ingin keluar dari akun toko?',
+      confirmText: 'Ya, Keluar',
+      cancelText: 'Batal',
+    );
+    if (!confirmed) return;
+
     setState(() => _isLoading = true);
     try {
       await context.read<AuthProvider>().signOut();
       if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
+      await AppDialog.showSuccess(
         context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-        (route) => false,
+        title: 'Berhasil Keluar',
+        message: 'Anda telah keluar dari akun Toko Owner.',
+        onOk: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+            (route) => false,
+          );
+        },
       );
     } catch (e) {
       setState(() => _isLoading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal keluar: $e')),
+      AppDialog.showError(
+        context,
+        title: 'Gagal Keluar',
+        message: e.toString(),
       );
     }
   }

@@ -8,6 +8,7 @@ import 'providers/auth_provider.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import '../../home/presentation/home_screen.dart';
+import '../../../core/widgets/custom_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,6 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      AppDialog.showError(context, title: 'Input Belum Lengkap', message: 'Silakan isi email dan password Anda.');
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       await context.read<AuthProvider>().login(
@@ -38,16 +44,25 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text.trim(),
       );
       if (mounted) {
-        Navigator.pushAndRemoveUntil(
+        await AppDialog.showSuccess(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false,
+          title: 'Login Berhasil',
+          message: 'Selamat datang kembali di Ootday!',
+          onOk: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false,
+            );
+          },
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal Masuk: ${e.toString()}')),
+        AppDialog.showError(
+          context,
+          title: 'Login Gagal',
+          message: e.toString(),
         );
       }
     } finally {

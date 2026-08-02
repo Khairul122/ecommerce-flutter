@@ -549,9 +549,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           onPageChanged: (index) => setState(() => _currentPage = index),
                           itemCount: _images.length,
                           itemBuilder: (context, index) {
+                            final String imgPath = _images[index];
+                            final bool isNetwork = imgPath.startsWith('http://') || imgPath.startsWith('https://');
                             return Hero(
                               tag: index == 0 ? (widget.product['id'] ?? 'product_${widget.product['name']}') : 'img_$index',
-                              child: Image.asset(_images[index], width: double.infinity, height: 450, fit: BoxFit.cover),
+                              child: isNetwork
+                                  ? Image.network(
+                                      imgPath,
+                                      width: double.infinity,
+                                      height: 450,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (c, e, s) => Image.asset('assets/images/Produk_1.png', width: double.infinity, height: 450, fit: BoxFit.cover),
+                                    )
+                                  : Image.asset(imgPath, width: double.infinity, height: 450, fit: BoxFit.cover),
                             );
                           },
                         ),
@@ -659,6 +669,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             itemBuilder: (context, index) {
                               final color = _colors[index];
                               final bool isSel = _selectedColor == color;
+                              final String thumbImg = index < _images.length ? _images[index] : (widget.product['image'] ?? 'assets/images/Produk_1.png');
+                              final bool isNetThumb = thumbImg.startsWith('http://') || thumbImg.startsWith('https://');
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -675,7 +687,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(color: isSel ? maroonColor : Colors.grey.withOpacity(0.3), width: 2),
-                                    image: DecorationImage(image: AssetImage(widget.product['image'] ?? 'assets/images/Produk_1.png'), fit: BoxFit.cover),
+                                    image: DecorationImage(
+                                      image: isNetThumb ? NetworkImage(thumbImg) as ImageProvider : AssetImage(thumbImg),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                   alignment: Alignment.center,
                                   child: Container(

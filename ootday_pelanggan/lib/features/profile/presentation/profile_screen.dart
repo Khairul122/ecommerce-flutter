@@ -13,6 +13,7 @@ import '../../chat/presentation/chat_list_screen.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../order/presentation/my_orders_screen.dart';
 import '../../order/presentation/providers/order_provider.dart';
+import '../../../core/widgets/custom_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,33 +41,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _handleLogout(BuildContext context) async {
-    final authProvider = context.read<AuthProvider>();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Logout', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-        content: Text('Apakah Anda yakin ingin keluar dari akun?', style: GoogleFonts.outfit()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () async {
-              await authProvider.signOut();
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-                );
-              }
-            },
-            child: const Text('Keluar', style: TextStyle(color: Color(0xFF5D1A1A), fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialog.showConfirm(
+      context,
+      title: 'Konfirmasi Logout',
+      message: 'Apakah Anda yakin ingin keluar dari akun?',
+      confirmText: 'Keluar',
+      cancelText: 'Batal',
     );
+    if (!confirmed) return;
+
+    try {
+      await context.read<AuthProvider>().signOut();
+      if (context.mounted) {
+        await AppDialog.showSuccess(
+          context,
+          title: 'Berhasil Keluar',
+          message: 'Anda telah berhasil logout dari akun.',
+          onOk: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
+          },
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        AppDialog.showError(
+          context,
+          title: 'Gagal Logout',
+          message: e.toString(),
+        );
+      }
+    }
   }
 
   @override

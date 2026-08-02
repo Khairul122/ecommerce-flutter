@@ -10,6 +10,7 @@ import 'lupa_password.dart';
 import 'daftar_akun.dart';
 import '../domain/exceptions/auth_exception.dart';
 import 'providers/auth_provider.dart';
+import '../../../../core/widgets/custom_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      _showMessage('Email & Password wajib diisi');
+      AppDialog.showError(context, title: 'Input Belum Lengkap', message: 'Email & Password wajib diisi.');
       return;
     }
 
@@ -69,15 +70,20 @@ class _LoginPageState extends State<LoginPage> {
       await context.read<AuthProvider>().login(email, password);
       if (!mounted) return;
       setState(() => isLoading = false);
-      _goHome();
+      await AppDialog.showSuccess(
+        context,
+        title: 'Login Owner Berhasil',
+        message: 'Selamat datang kembali di Dashboard Toko Anda!',
+        onOk: _goHome,
+      );
     } on AuthException catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      _showMessage(e.message);
+      AppDialog.showError(context, title: 'Login Gagal', message: e.message);
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      _showMessage('Login gagal: $e');
+      AppDialog.showError(context, title: 'Login Gagal', message: e.toString());
     }
   }
 

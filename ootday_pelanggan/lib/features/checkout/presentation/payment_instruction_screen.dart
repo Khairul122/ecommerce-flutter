@@ -161,20 +161,40 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
           else
             Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    _qrisError ?? 'QRIS belum tersedia.',
-                    style: GoogleFonts.outfit(color: Colors.red, fontSize: 13),
-                    textAlign: TextAlign.center,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.red, size: 24),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _qrisError ?? 'Channel QRIS belum diaktifkan di akun Midtrans.',
+                          style: GoogleFonts.outfit(color: Colors.red[800], fontSize: 12, height: 1.4),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: _loadQrisNative,
-                  icon: const Icon(Icons.refresh, size: 18, color: Colors.white),
-                  label: const Text('Coba Lagi', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: tealColor),
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _loadQrisNative,
+                      icon: const Icon(Icons.refresh, size: 18, color: Colors.white),
+                      label: const Text('Muat Ulang QRIS', style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: tealColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

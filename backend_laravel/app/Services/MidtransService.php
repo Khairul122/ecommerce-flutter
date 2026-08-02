@@ -178,13 +178,25 @@ class MidtransService
                 'gross_amount' => $order->total_price,
             ];
         } catch (\Exception $e) {
-            Log::error('Midtrans QRIS Charge Error: '.$e->getMessage(), [
+            Log::warning('Midtrans Direct QRIS Charge Failed, falling back to Snap Transaction: '.$e->getMessage(), [
                 'order_code' => $order->order_code,
             ]);
 
+            $snapResult = $this->createSnapTransaction($order);
+            if (!empty($snapResult['snap_redirect_url'])) {
+                return [
+                    'status' => 'success',
+                    'qr_code_url' => null,
+                    'snap_redirect_url' => $snapResult['snap_redirect_url'],
+                    'snap_token' => $snapResult['snap_token'] ?? null,
+                    'fallback_snap' => true,
+                    'message' => 'Channel QRIS direct belum diaktifkan di Midtrans. Gunakan halaman pembayaran Midtrans.',
+                ];
+            }
+
             return [
                 'status' => 'error',
-                'message' => 'Gagal memanggil Midtrans QRIS: '.$e->getMessage(),
+                'message' => 'Channel pembayaran QRIS belum aktif di akun Midtrans. Silakan hubungi admin / buka dashboard Midtrans.',
                 'error' => $e->getMessage(),
             ];
         }
