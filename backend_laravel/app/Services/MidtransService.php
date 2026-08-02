@@ -149,12 +149,25 @@ class MidtransService
 
             $qrString = $chargeResponse->qr_string ?? null;
 
+            if (! $qrCodeUrl && $qrString) {
+                $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='.urlencode($qrString);
+            }
+
             if ($qrCodeUrl || isset($chargeResponse->transaction_id)) {
                 $order->update([
                     'snap_token' => $chargeResponse->transaction_id ?? null,
                     'snap_redirect_url' => $qrCodeUrl,
                     'payment_type' => 'qris',
                 ]);
+            }
+
+            if (! $qrCodeUrl) {
+                $errMsg = $chargeResponse->status_message ?? 'Midtrans tidak mengembalikan QR Code';
+                return [
+                    'status' => 'error',
+                    'message' => $errMsg,
+                    'error' => $errMsg,
+                ];
             }
 
             return [
@@ -171,6 +184,7 @@ class MidtransService
 
             return [
                 'status' => 'error',
+                'message' => 'Gagal memanggil Midtrans QRIS: '.$e->getMessage(),
                 'error' => $e->getMessage(),
             ];
         }

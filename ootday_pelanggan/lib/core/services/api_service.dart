@@ -71,8 +71,13 @@ class ApiService {
       return data;
     }
 
-    String message = data['message']?.toString() ??
-        _fallbackMessageForStatus(response.statusCode);
+    final dataPayload = data['data'];
+    String? serverMsg = data['message']?.toString() ?? data['error']?.toString();
+    if (serverMsg == null && dataPayload is Map) {
+      serverMsg = dataPayload['message']?.toString() ?? dataPayload['error']?.toString();
+    }
+
+    String message = serverMsg ?? _fallbackMessageForStatus(response.statusCode);
     throw ApiException(message, statusCode: response.statusCode);
   }
 

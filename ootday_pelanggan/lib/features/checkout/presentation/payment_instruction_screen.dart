@@ -54,13 +54,18 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
     try {
       final res = await ApiService().post('/orders/${widget.order.id}/qris', {});
       final data = res['data'] as Map<String, dynamic>?;
-      final url = data?['qr_code_url']?.toString();
+      String? url = data?['qr_code_url']?.toString();
+      final qrString = data?['qr_string']?.toString();
+
+      if ((url == null || url.isEmpty) && qrString != null && qrString.isNotEmpty) {
+        url = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${Uri.encodeComponent(qrString)}';
+      }
 
       if (mounted) {
         setState(() {
           _qrisImageUrl = (url != null && url.isNotEmpty) ? url : null;
           if (_qrisImageUrl == null) {
-            _qrisError = data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat QRIS';
+            _qrisError = data?['message']?.toString() ?? data?['error']?.toString() ?? res['message']?.toString() ?? 'Gagal memuat QRIS';
           }
           _isLoadingQris = false;
         });

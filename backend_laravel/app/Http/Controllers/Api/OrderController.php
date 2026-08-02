@@ -209,8 +209,16 @@ class OrderController extends Controller
 
         $result = $midtransService->createQrisTransaction($order);
 
+        if (isset($result['status']) && $result['status'] === 'error') {
+            return response()->json([
+                'status' => 'error',
+                'message' => $result['message'] ?? $result['error'] ?? 'Gagal memproses QRIS Midtrans',
+                'data' => $result,
+            ], 400);
+        }
+
         return response()->json([
-            'status' => $result['status'] ?? 'success',
+            'status' => 'success',
             'data' => $result,
         ]);
     }
