@@ -173,10 +173,10 @@ ON DUPLICATE KEY UPDATE store_name=VALUES(store_name);
 
 -- C. Seeder Default Categories
 INSERT INTO categories (id, store_id, name, icon_url) VALUES
-(1, 1, 'Pria', 'assets/images/pria icons.png'),
-(2, 1, 'Wanita', 'assets/images/wanita_icons.png'),
-(3, 1, 'rok', 'assets/images/rok_icons.png'),
-(4, 1, 'celana', 'assets/images/celana_icons.png')
+(1, 1, 'Pria', 'https://backend-ecommerce.synectra.xyz/storage/seed_images/pria%20icons.png'),
+(2, 1, 'Wanita', 'https://backend-ecommerce.synectra.xyz/storage/seed_images/wanita_icons.png'),
+(3, 1, 'rok', 'https://backend-ecommerce.synectra.xyz/storage/seed_images/rok_icons.png'),
+(4, 1, 'celana', 'https://backend-ecommerce.synectra.xyz/storage/seed_images/celana_icons.png')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 -- D. Seeder Homepage Products
@@ -192,12 +192,12 @@ ON DUPLICATE KEY UPDATE name=VALUES(name), price=VALUES(price);
 
 -- Gambar untuk Homepage Products
 INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES
-(101, 'assets/images/Produk_1.png', 1, 0),
-(102, 'assets/images/produk_2.png', 1, 0),
-(103, 'assets/images/produk_3.png', 1, 0),
-(104, 'assets/images/produk_4.png', 1, 0),
-(105, 'assets/images/produk_5.png', 1, 0),
-(106, 'assets/images/produk_6.png', 1, 0)
+(101, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Produk_1.png', 1, 0),
+(102, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_2.png', 1, 0),
+(103, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_3.png', 1, 0),
+(104, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_4.png', 1, 0),
+(105, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_5.png', 1, 0),
+(106, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_6.png', 1, 0)
 ON DUPLICATE KEY UPDATE image_url=VALUES(image_url);
 
 -- Varian untuk Homepage Products
@@ -259,26 +259,26 @@ ON DUPLICATE KEY UPDATE name=VALUES(name), price=VALUES(price);
 
 -- Gambar Kemeja Wanita
 INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES
-(1, 'assets/images/kemeja_wanita/1.jpeg', 1, 0),
-(2, 'assets/images/kemeja_wanita/2.jpeg', 1, 0),
-(3, 'assets/images/kemeja_wanita/3.jpeg', 1, 0),
-(4, 'assets/images/kemeja_wanita/4.jpeg', 1, 0),
-(5, 'assets/images/kemeja_wanita/5.jpeg', 1, 0),
-(6, 'assets/images/kemeja_wanita/6.jpeg', 1, 0),
-(7, 'assets/images/kemeja_wanita/7.jpeg', 1, 0),
-(8, 'assets/images/kemeja_wanita/8.jpeg', 1, 0),
-(9, 'assets/images/kemeja_wanita/9.jpeg', 1, 0),
-(10, 'assets/images/kemeja_wanita/10.jpeg', 1, 0),
-(11, 'assets/images/kemeja_wanita/11.jpeg', 1, 0),
-(12, 'assets/images/kemeja_wanita/12.jpeg', 1, 0),
-(13, 'assets/images/kemeja_wanita/13.jpeg', 1, 0),
-(14, 'assets/images/kemeja_wanita/14.jpeg', 1, 0),
-(15, 'assets/images/kemeja_wanita/15.jpeg', 1, 0),
-(16, 'assets/images/kemeja_wanita/16.jpeg', 1, 0),
-(17, 'assets/images/kemeja_wanita/17.jpeg', 1, 0),
-(18, 'assets/images/kemeja_wanita/18.jpeg', 1, 0),
-(19, 'assets/images/kemeja_wanita/19.jpeg', 1, 0),
-(20, 'assets/images/kemeja_wanita/20.jpeg', 1, 0)
+(1, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/1.jpeg', 1, 0),
+(2, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/2.jpeg', 1, 0),
+(3, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/3.jpeg', 1, 0),
+(4, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/4.jpeg', 1, 0),
+(5, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/5.jpeg', 1, 0),
+(6, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/6.jpeg', 1, 0),
+(7, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/7.jpeg', 1, 0),
+(8, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/8.jpeg', 1, 0),
+(9, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/9.jpeg', 1, 0),
+(10, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/10.jpeg', 1, 0),
+(11, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/11.jpeg', 1, 0),
+(12, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/12.jpeg', 1, 0),
+(13, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/13.jpeg', 1, 0),
+(14, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/14.jpeg', 1, 0),
+(15, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/15.jpeg', 1, 0),
+(16, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/16.jpeg', 1, 0),
+(17, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/17.jpeg', 1, 0),
+(18, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/18.jpeg', 1, 0),
+(19, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/19.jpeg', 1, 0),
+(20, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_wanita/20.jpeg', 1, 0)
 ON DUPLICATE KEY UPDATE image_url=VALUES(image_url);
 
 
@@ -293,11 +293,11 @@ ON DUPLICATE KEY UPDATE name=VALUES(name), price=VALUES(price);
 
 -- Gambar Kemeja Pria
 INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES
-(21, 'assets/images/kemeja_pria/1.jpeg', 1, 0),
-(22, 'assets/images/kemeja_pria/2.jpeg', 1, 0),
-(23, 'assets/images/kemeja_pria/3.jpeg', 1, 0),
-(24, 'assets/images/kemeja_pria/4.jpeg', 1, 0),
-(25, 'assets/images/kemeja_pria/5.jpeg', 1, 0)
+(21, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_pria/1.jpeg', 1, 0),
+(22, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_pria/2.jpeg', 1, 0),
+(23, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_pria/3.jpeg', 1, 0),
+(24, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_pria/4.jpeg', 1, 0),
+(25, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/kemeja_pria/5.jpeg', 1, 0)
 ON DUPLICATE KEY UPDATE image_url=VALUES(image_url);
 
 
@@ -313,12 +313,12 @@ ON DUPLICATE KEY UPDATE name=VALUES(name), price=VALUES(price);
 
 -- Gambar Rok
 INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES
-(26, 'assets/images/Rok/1.jpeg', 1, 0),
-(27, 'assets/images/Rok/2.jpeg', 1, 0),
-(28, 'assets/images/Rok/3.jpeg', 1, 0),
-(29, 'assets/images/Rok/4.jpeg', 1, 0),
-(30, 'assets/images/Rok/5.jpeg', 1, 0),
-(31, 'assets/images/Rok/6.jpeg', 1, 0)
+(26, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Rok/1.jpeg', 1, 0),
+(27, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Rok/2.jpeg', 1, 0),
+(28, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Rok/3.jpeg', 1, 0),
+(29, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Rok/4.jpeg', 1, 0),
+(30, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Rok/5.jpeg', 1, 0),
+(31, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/Rok/6.jpeg', 1, 0)
 ON DUPLICATE KEY UPDATE image_url=VALUES(image_url);
 
 
@@ -333,11 +333,11 @@ ON DUPLICATE KEY UPDATE name=VALUES(name), price=VALUES(price);
 
 -- Gambar Celana
 INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES
-(32, 'assets/images/celana/cowo1.jpeg', 1, 0),
-(33, 'assets/images/celana/cowo2.jpeg', 1, 0),
-(34, 'assets/images/celana/cowo3.jpeg', 1, 0),
-(35, 'assets/images/celana/cowo4.jpeg', 1, 0),
-(36, 'assets/images/celana/cowo5.jpeg', 1, 0)
+(32, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/celana/cowo1.jpeg', 1, 0),
+(33, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/celana/cowo2.jpeg', 1, 0),
+(34, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/celana/cowo3.jpeg', 1, 0),
+(35, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/celana/cowo4.jpeg', 1, 0),
+(36, 'https://backend-ecommerce.synectra.xyz/storage/seed_images/celana/cowo5.jpeg', 1, 0)
 ON DUPLICATE KEY UPDATE image_url=VALUES(image_url);
 
 

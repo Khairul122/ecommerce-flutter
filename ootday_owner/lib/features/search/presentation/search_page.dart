@@ -90,6 +90,8 @@ class _SearchPageState extends State<SearchPage> {
               'price': product.price.toInt(),
               'image': product.primaryImageUrl,
               'category': _categoryNameFor(product, productProvider),
+              'description': product.description,
+              'variants': product.variants,
             },
           });
         }
@@ -290,6 +292,8 @@ class _SearchPageState extends State<SearchPage> {
               name: product['name'] as String,
               price: product['price'] as int,
               image: product['image'] as String,
+              description: product['description'] as String?,
+              variants: (product['variants'] as List<ProductVariantEntity>?) ?? const [],
             ),
           ),
         );

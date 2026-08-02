@@ -124,6 +124,7 @@ class _ProfilProdukState extends State<ProfilProduk> {
               price: product.price.round(),
               image: image,
               description: product.description,
+              variants: product.variants,
             ),
           ),
         );
