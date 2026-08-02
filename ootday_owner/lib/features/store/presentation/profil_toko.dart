@@ -40,9 +40,11 @@ class _ProfilTokoState extends State<ProfilToko>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _user = context.read<AuthProvider>().currentUser?.raw;
-    _refreshUserProfile();
-    _loadStats();
-    context.read<StoreProvider>().loadStore();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshUserProfile();
+      _loadStats();
+      context.read<StoreProvider>().loadStore();
+    });
   }
 
   @override
@@ -263,7 +265,7 @@ class _ProfilTokoState extends State<ProfilToko>
                         ),
                       ],
                       const SizedBox(height: 12),
-                      _ratingChip(),
+                      _roleChip(),
                     ],
                   );
                 },
@@ -275,7 +277,7 @@ class _ProfilTokoState extends State<ProfilToko>
     );
   }
 
-  Widget _ratingChip() {
+  Widget _roleChip() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
@@ -286,22 +288,6 @@ class _ProfilTokoState extends State<ProfilToko>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-          const SizedBox(width: 6),
-          Text(
-            '4.8',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.95),
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            width: 1,
-            height: 14,
-            color: Colors.white.withValues(alpha: 0.35),
-          ),
           Text(
             'Pemilik Toko',
             style: TextStyle(
@@ -496,18 +482,9 @@ class _ProfilTokoState extends State<ProfilToko>
             children: [
               Expanded(
                 child: _miniStatCard(
-                  icon: Icons.star_rounded,
-                  label: 'Rating',
-                  value: '4.8',
-                  color: Colors.amber.shade700,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _miniStatCard(
-                  icon: Icons.people_outline_rounded,
-                  label: 'Pengikut',
-                  value: '395',
+                  icon: Icons.shopping_bag_outlined,
+                  label: 'Pesanan',
+                  value: '${_stats?['total_pesanan'] ?? '-'}',
                   color: _redMain,
                 ),
               ),
@@ -594,40 +571,7 @@ class _ProfilTokoState extends State<ProfilToko>
                   store?.description ?? 'Belum ada deskripsi toko',
                   style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    _storeBadge(Icons.verified_outlined, 'Terverifikasi'),
-                    const SizedBox(width: 8),
-                    _storeBadge(Icons.local_shipping_outlined, 'Kirim Cepat'),
-                  ],
-                ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _storeBadge(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: _redMain.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: _redMain),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: _redMain,
             ),
           ),
         ],

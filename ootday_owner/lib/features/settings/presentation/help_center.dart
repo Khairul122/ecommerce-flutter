@@ -30,11 +30,23 @@ class HelpCenter extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _faqItem('Bagaimana cara ubah password?'),
+                  _faqItem(
+                    context,
+                    'Bagaimana cara ubah password?',
+                    'Buka Profil Toko > Pengaturan Akun, lalu isi password lama dan password baru pada bagian ubah password.',
+                  ),
                   const SizedBox(height: 16),
-                  _faqItem('Cara menambah produk?'),
+                  _faqItem(
+                    context,
+                    'Cara menambah produk?',
+                    'Ketuk tombol tambah (+) di navigasi bawah, lalu isi nama, kategori, harga, stok, dan foto produk.',
+                  ),
                   const SizedBox(height: 16),
-                  _faqItem('Cara hapus toko?'),
+                  _faqItem(
+                    context,
+                    'Cara hapus toko?',
+                    'Buka Profil Toko > Pengaturan Akun > Hapus Akun. Menghapus akun akan ikut menghapus seluruh data toko, produk, dan pesanan.',
+                  ),
                   
                   const SizedBox(height: 40),
                   
@@ -161,9 +173,8 @@ class HelpCenter extends StatelessWidget {
   }
 
   // ================= FAQ ITEM =================
-  Widget _faqItem(String question) {
+  Widget _faqItem(BuildContext context, String question, String answer) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
@@ -172,23 +183,32 @@ class HelpCenter extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              question,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black87,
-              ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          title: Text(
+            question,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
             ),
           ),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey.shade600,
-            size: 24,
-          ),
-        ],
+          iconColor: Colors.grey.shade600,
+          collapsedIconColor: Colors.grey.shade600,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  answer,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

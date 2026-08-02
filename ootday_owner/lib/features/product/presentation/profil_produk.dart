@@ -1,21 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'detail_produk.dart';
+import 'providers/product_provider.dart';
+import '../domain/entities/category_entity.dart';
+import '../domain/entities/product_entity.dart';
 
-class ProfilProduk extends StatelessWidget {
-  final String kategori;
+class ProfilProduk extends StatefulWidget {
+  final CategoryEntity kategori;
 
   const ProfilProduk({
     super.key,
     required this.kategori,
   });
 
+  @override
+  State<ProfilProduk> createState() => _ProfilProdukState();
+}
+
+class _ProfilProdukState extends State<ProfilProduk> {
   final Color redMain = const Color(0xFFB40001);
   final Color darkRed = const Color(0xFF7A0000);
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<ProductProvider>();
+      if (provider.products.isEmpty) provider.loadProducts();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Dummy products based on category
-    final products = _getProductsByCategory(kategori);
+    final products = context
+        .watch<ProductProvider>()
+        .products
+        .where((p) => p.categoryId == widget.kategori.id)
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -23,22 +44,23 @@ class ProfilProduk extends StatelessWidget {
         children: [
           _header(context),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 0.72,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return _produkCard(context, product);
-                },
-              ),
-            ),
+            child: products.isEmpty
+                ? const Center(child: Text('Belum ada produk di kategori ini'))
+                : Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 0.72,
+                      ),
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        return _produkCard(context, products[index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -76,7 +98,7 @@ class ProfilProduk extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                kategori,
+                widget.kategori.name,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -90,16 +112,18 @@ class ProfilProduk extends StatelessWidget {
     );
   }
 
-  Widget _produkCard(BuildContext context, Map<String, dynamic> product) {
+  Widget _produkCard(BuildContext context, ProductEntity product) {
+    final image = product.primaryImageUrl;
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => DetailProduk(
-              name: product['name'] as String,
-              price: product['price'] as int,
-              image: product['image'] as String,
+              name: product.name,
+              price: product.price.round(),
+              image: image,
+              description: product.description,
             ),
           ),
         );
@@ -134,22 +158,23 @@ class ProfilProduk extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(8),
                     ),
-                    child: Image.asset(
-                      product['image'] as String,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFF5F5F5),
-                        child: Center(
-                          child: Icon(
-                            Icons.image,
-                            size: 50,
-                            color: Colors.grey.shade400,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: image.isEmpty
+                        ? _imagePlaceholder()
+                        : (image.startsWith('http')
+                            ? Image.network(
+                                image,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                              )
+                            : Image.asset(
+                                image,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                              )),
                   ),
                 ),
               ),
@@ -161,7 +186,7 @@ class ProfilProduk extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      product['name'] as String,
+                      product.name,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -173,7 +198,7 @@ class ProfilProduk extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Rp ${_formatPrice(product['price'] as int)}',
+                      'Rp ${_formatPrice(product.price.round())}',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -190,19 +215,17 @@ class ProfilProduk extends StatelessWidget {
     );
   }
 
-  List<Map<String, dynamic>> _getProductsByCategory(String category) {
-    // Dummy products - in real app, this would come from API/database
-    final allProducts = [
-      {'name': 'Luna Cream Blouse', 'price': 150000, 'image': 'assets/produk.1.png', 'category': 'Baju Wanita'},
-      {'name': 'Eclipse Jacket', 'price': 200000, 'image': 'assets/produk.2.png', 'category': 'Baju Pria'},
-      {'name': 'Floral Pleated Skirt', 'price': 350000, 'image': 'assets/produk.3.png', 'category': 'Rok'},
-      {'name': 'Sky Blue Basic Jeans', 'price': 180000, 'image': 'assets/produk.4.png', 'category': 'Celana'},
-      {'name': 'Maroon Edge Jacket', 'price': 250000, 'image': 'assets/produk.5.png', 'category': 'Baju Wanita'},
-      {'name': 'Classic Khaki Chino Pants', 'price': 220000, 'image': 'assets/produk.6.png', 'category': 'Celana'},
-      {'name': 'Brown Blossom', 'price': 180000, 'image': 'assets/produk.7.png', 'category': 'Baju Pria'},
-    ];
-
-    return allProducts.where((p) => p['category'] == category).toList();
+  Widget _imagePlaceholder() {
+    return Container(
+      color: const Color(0xFFF5F5F5),
+      child: Center(
+        child: Icon(
+          Icons.image,
+          size: 50,
+          color: Colors.grey.shade400,
+        ),
+      ),
+    );
   }
 
   String _formatPrice(int price) {
@@ -212,4 +235,3 @@ class ProfilProduk extends StatelessWidget {
     );
   }
 }
-

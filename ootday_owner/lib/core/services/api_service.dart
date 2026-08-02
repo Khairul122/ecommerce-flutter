@@ -22,14 +22,7 @@ class ApiException implements Exception {
 }
 
 class ApiService {
-  /// GANTI dengan alamat IP LAN komputer Anda yang menjalankan backend
-  /// Laravel (cek dengan `ipconfig` di Windows / `ifconfig` di Mac-Linux).
-  /// Jalankan backend dengan:
-  ///   php artisan serve --host=0.0.0.0 --port=8000
-  /// supaya bisa diakses dari HP/emulator di jaringan yang sama.
-  /// Belum ada server produksi untuk proyek ini, jadi nilai ini WAJIB
-  /// disesuaikan secara manual sebelum menjalankan aplikasi.
-  static const String baseUrl = 'http://192.168.1.77:8000/api';
+  static const String baseUrl = 'https://backend-ecommerce.synectra.xyz/api';
 
   static const Duration _timeout = Duration(seconds: 15);
 

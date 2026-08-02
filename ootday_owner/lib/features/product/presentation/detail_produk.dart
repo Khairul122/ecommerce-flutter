@@ -4,12 +4,14 @@ class DetailProduk extends StatelessWidget {
   final String name;
   final int price;
   final String image;
+  final String? description;
 
   const DetailProduk({
     super.key,
     required this.name,
     required this.price,
     required this.image,
+    this.description,
   });
 
   final Color redMain = const Color(0xFFB40001);
@@ -82,7 +84,9 @@ class DetailProduk extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Produk berkualitas tinggi dengan bahan yang nyaman digunakan. Cocok untuk berbagai acara dan kegiatan sehari-hari.',
+                          (description == null || description!.trim().isEmpty)
+                              ? 'Belum ada deskripsi untuk produk ini.'
+                              : description!,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade700,

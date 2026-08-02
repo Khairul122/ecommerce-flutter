@@ -25,7 +25,7 @@ class _InformasiTokoState extends State<InformasiToko> {
   @override
   void initState() {
     super.initState();
-    _loadStore();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadStore());
   }
 
   @override

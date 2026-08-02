@@ -48,10 +48,9 @@ class ProductEntity {
 
   String get primaryImageUrl {
     if (images.isEmpty) return '';
-    final primary = images.firstWhere(
-      (img) => img.isPrimary,
-      orElse: () => images.first,
-    );
-    return primary.url;
+    for (final img in images) {
+      if (img.isPrimary) return img.url;
+    }
+    return images.first.url;
   }
 }

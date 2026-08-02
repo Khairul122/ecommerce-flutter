@@ -25,7 +25,7 @@ class _PengaturanAkunState extends State<PengaturanAkun> {
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
   }
 
   @override

@@ -19,7 +19,7 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
   @override
   void initState() {
     super.initState();
-    loadProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) => loadProducts());
   }
 
   Future<void> loadProducts() async {

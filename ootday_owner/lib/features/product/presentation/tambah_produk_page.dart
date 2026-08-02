@@ -39,7 +39,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadInitialData());
   }
 
   @override
