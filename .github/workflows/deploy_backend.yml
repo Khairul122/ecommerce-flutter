@@ -3,8 +3,8 @@ name: Deploy Laravel Backend to Rumahweb Hosting
 on:
   push:
     branches:
-      - '**' # Auto deploy di setiap commit pada branch mana pun
-  workflow_dispatch: # Mengizinkan trigger manual dari tab Actions di GitHub
+      - '**'
+  workflow_dispatch:
 
 jobs:
   web-deploy:
@@ -21,7 +21,7 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath, zip, gd
 
-      - name: 📦 Check or Build vendor.zip
+      - name: 📦 Build vendor.zip
         run: |
           if [ -d "backend_laravel" ]; then
             cd backend_laravel
@@ -38,36 +38,25 @@ jobs:
             cp .env.production .env
           fi
 
-      - name: 🚀 Sync Files via LFTP to Rumahweb
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME || 'synf6654' }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
-          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
-        run: |
-          sudo apt-get update && sudo apt-get install -y lftp
+      - name: 🚀 FTP Deploy to Rumahweb Hosting
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER || '202.10.43.74' }}
+          username: ${{ secrets.FTP_USERNAME || 'synf6654' }}
+          password: ${{ secrets.FTP_PASSWORD || 'CgsMHqwKHC9M21' }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          protocol: ftp
+          local-dir: ./backend_laravel/
+          server-dir: /public_html/backend-ecommerce/
+          state-name: .ftp-deploy-sync-state.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
+            **/tests/**
+            **/.env.example
 
-          TARGET_DIR="./"
-          if [ -d "backend_laravel" ]; then
-            TARGET_DIR="backend_laravel/"
-          fi
-
-          cat << EOF > deploy_script.lftp
-          set cmd:fail-exit yes;
-          set dns:order 'inet';
-          set ftp:passive-mode true;
-          set ftp:ssl-allow false;
-          set ftp:prefer-epsv false;
-          set net:timeout 120;
-          set net:max-retries 10;
-          set net:reconnect-interval-base 5;
-          open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER
-          mirror --reverse --only-newer --ignore-time --continue --parallel=2 --verbose --exclude .git/ --exclude .github/ --exclude node_modules/ --exclude vendor/ --exclude tests/ --exclude .env.example --exclude build_vendor.ps1 $TARGET_DIR /public_html/backend-ecommerce/
-          quit
-          EOF
-
-          lftp -f deploy_script.lftp
-
-      - name: ⚡ Trigger Server Unzip & Optimization Webhook
+      - name: ⚡ Trigger Server Unzip, Migration & Seeding Webhook
         run: |
           curl -s "http://synectra.xyz/backend-ecommerce/public/deploy_helper.php?token=ootday_deploy_secret_2026&migrate=true&seed=true"
