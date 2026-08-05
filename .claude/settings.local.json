@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm view *)",
+      "Bash(npm install *)",
+      "Bash(claude mcp *)",
+      "Bash(flutter devices *)",
+      "Bash(where flutter *)",
+      "Bash(grep -q \"is available at\" /tmp_flutter_run.log)",
+      "Bash(break)",
+      "Bash(grep -qiE \"error|exception|failed\" /tmp_flutter_run.log)",
+      "Bash(cat /tmp_flutter_run.log)",
+      "Bash(flutter run *)",
+      "Bash(curl -s https://backend-ecommerce.synectra.xyz/api/products)",
+      "Bash(curl -s https://backend-ecommerce.synectra.xyz/api/xendit/redirect/success)",
+      "WebSearch",
+      "Bash(curl *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh run *)",
+      "Bash(tasklist)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 25284)",
+      "Bash(flutter analyze *)",
+      "Bash(git commit *)",
+      "Bash(taskkill *)",
+      "Bash(git *)"
+    ]
+  }
+}
