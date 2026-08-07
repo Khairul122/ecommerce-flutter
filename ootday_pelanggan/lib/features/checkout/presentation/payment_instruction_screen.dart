@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/services/local_notification_service.dart';
 import 'payment_success_screen.dart';
 import '../../order/domain/entities/order_entity.dart';
 import '../../order/presentation/providers/order_provider.dart';
@@ -114,6 +115,14 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
     try {
       final orderId = widget.order.id.toString();
       final updatedOrder = await context.read<OrderProvider>().confirmPayment(orderId);
+      
+      // Tampilkan notifikasi pop-up lokal
+      await LocalNotificationService().show(
+        id: widget.order.id,
+        title: 'Konfirmasi Pembayaran Terkirim! 🎉',
+        body: 'Pesanan ${_orderCode} berhasil dikonfirmasi dan sedang diverifikasi oleh toko.',
+      );
+
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -121,6 +130,13 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
       );
     } catch (e) {
       if (mounted) {
+        if (e.toString().contains('tidak bisa diubah')) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PaymentSuccessScreen(order: widget.order)),
+          );
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal mengirim konfirmasi pembayaran: $e')),
         );

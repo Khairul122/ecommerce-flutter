@@ -22,10 +22,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.ootday_owner"
+        applicationId = "com.example.ootday_pelanggan"
 
         // FIX minSdk Firebase
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../auth/presentation/register_screen.dart';
-import '../../home/presentation/home_screen.dart';
 
 class OnboardingStep3 extends StatelessWidget {
   const OnboardingStep3({super.key});

@@ -422,11 +422,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryItem(BuildContext context, String label, String imagePath, Color color) {
+    final bool isNetwork = imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchResultScreen(searchQuery: label))).then((_) => _refreshCartCount()),
       child: Column(
         children: [
-          Container(height: 60, width: 60, padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color, shape: BoxShape.circle), child: Image.asset(imagePath, fit: BoxFit.contain)),
+          Container(
+            height: 60,
+            width: 60,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: isNetwork
+                ? Image.network(
+                    imagePath,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.category, color: Colors.white),
+                  )
+                : Image.asset(
+                    imagePath,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.category, color: Colors.white),
+                  ),
+          ),
           const SizedBox(height: 8),
           Text(label, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
         ],

@@ -229,6 +229,14 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak'], 403);
         }
 
+        if ($order->payment_status === 'menunggu_konfirmasi') {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Konfirmasi pembayaran sudah terkirim, menunggu verifikasi toko',
+                'data' => $order->fresh(),
+            ]);
+        }
+
         if ($order->payment_status !== 'unpaid') {
             return response()->json(['status' => 'error', 'message' => 'Status pembayaran tidak bisa diubah lagi'], 422);
         }
