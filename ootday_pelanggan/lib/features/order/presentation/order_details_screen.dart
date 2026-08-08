@@ -422,18 +422,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   Widget _buildTextRow(String label, String value, {IconData? icon, Color? iconColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(label, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13)),
         const SizedBox(width: 10),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 18, color: iconColor),
-              const SizedBox(width: 5),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: iconColor),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: Text(
+                  value,
+                  style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                ),
+              ),
             ],
-            Text(value, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500)),
-          ],
+          ),
         ),
       ],
     );
