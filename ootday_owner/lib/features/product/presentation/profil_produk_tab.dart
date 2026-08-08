@@ -264,9 +264,12 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
   }
 
   Widget _buildProductImage(String imageUrl) {
-    if (imageUrl.startsWith('http')) {
+    final trimmed = imageUrl.trim();
+    if (trimmed.isEmpty) return _placeholderImage();
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       return Image.network(
-        imageUrl,
+        trimmed,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
@@ -274,9 +277,29 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
       );
     }
 
-    if (imageUrl.isNotEmpty) {
+    if (trimmed.startsWith('assets/images/')) {
+      final fileName = trimmed.replaceFirst('assets/images/', '');
+      final serverUrl = 'https://backend-ecommerce.synectra.xyz/storage/seed_images/$fileName';
+      return Image.network(
+        serverUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) {
+          return Image.asset(
+            trimmed,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (_, __, ___) => _placeholderImage(),
+          );
+        },
+      );
+    }
+
+    if (trimmed.startsWith('assets/')) {
       return Image.asset(
-        imageUrl,
+        trimmed,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
@@ -284,7 +307,16 @@ class ProfilProdukTabState extends State<ProfilProdukTab> {
       );
     }
 
-    return _placeholderImage();
+    final cleanPath = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    final fullUrl = 'https://backend-ecommerce.synectra.xyz/$cleanPath';
+
+    return Image.network(
+      fullUrl,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => _placeholderImage(),
+    );
   }
 
   Widget _placeholderImage() {

@@ -538,7 +538,11 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(12),
               child: img.isNotEmpty
                   ? Image.network(
-                      img,
+                      img.startsWith('http')
+                          ? img
+                          : (img.startsWith('assets/images/')
+                              ? 'https://backend-ecommerce.synectra.xyz/storage/seed_images/${img.replaceFirst('assets/images/', '')}'
+                              : 'https://backend-ecommerce.synectra.xyz/${img.startsWith('/') ? img.substring(1) : img}'),
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,

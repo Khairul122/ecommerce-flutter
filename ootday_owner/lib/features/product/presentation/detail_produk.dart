@@ -65,19 +65,7 @@ class _DetailProdukState extends State<DetailProduk> {
                     ),
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
-                      child: _displayedImage.startsWith('http')
-                          ? Image.network(
-                              _displayedImage,
-                              key: ValueKey(_displayedImage),
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                            )
-                          : Image.asset(
-                              _displayedImage,
-                              key: ValueKey(_displayedImage),
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                            ),
+                      child: _buildProductImage(_displayedImage, key: ValueKey(_displayedImage)),
                     ),
                   ),
                   // Detail Produk
@@ -240,6 +228,57 @@ class _DetailProdukState extends State<DetailProduk> {
     return price.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]}.',
+    );
+  }
+
+  Widget _buildProductImage(String imageUrl, {Key? key}) {
+    final trimmed = imageUrl.trim();
+    if (trimmed.isEmpty) return _imagePlaceholder();
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return Image.network(
+        trimmed,
+        key: key,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+      );
+    }
+
+    if (trimmed.startsWith('assets/images/')) {
+      final fileName = trimmed.replaceFirst('assets/images/', '');
+      final serverUrl = 'https://backend-ecommerce.synectra.xyz/storage/seed_images/$fileName';
+      return Image.network(
+        serverUrl,
+        key: key,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) {
+          return Image.asset(
+            trimmed,
+            key: key,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => _imagePlaceholder(),
+          );
+        },
+      );
+    }
+
+    if (trimmed.startsWith('assets/')) {
+      return Image.asset(
+        trimmed,
+        key: key,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+      );
+    }
+
+    final cleanPath = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    final fullUrl = 'https://backend-ecommerce.synectra.xyz/$cleanPath';
+
+    return Image.network(
+      fullUrl,
+      key: key,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => _imagePlaceholder(),
     );
   }
 

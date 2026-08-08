@@ -159,23 +159,7 @@ class _ProfilProdukState extends State<ProfilProduk> {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(8),
                     ),
-                    child: image.isEmpty
-                        ? _imagePlaceholder()
-                        : (image.startsWith('http')
-                            ? Image.network(
-                                image,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                              )
-                            : Image.asset(
-                                image,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                              )),
+                    child: _buildProductImage(image),
                   ),
                 ),
               ),
@@ -213,6 +197,62 @@ class _ProfilProdukState extends State<ProfilProduk> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProductImage(String imageUrl) {
+    final trimmed = imageUrl.trim();
+    if (trimmed.isEmpty) return _imagePlaceholder();
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return Image.network(
+        trimmed,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+      );
+    }
+
+    if (trimmed.startsWith('assets/images/')) {
+      final fileName = trimmed.replaceFirst('assets/images/', '');
+      final serverUrl = 'https://backend-ecommerce.synectra.xyz/storage/seed_images/$fileName';
+      return Image.network(
+        serverUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) {
+          return Image.asset(
+            trimmed,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (_, __, ___) => _imagePlaceholder(),
+          );
+        },
+      );
+    }
+
+    if (trimmed.startsWith('assets/')) {
+      return Image.asset(
+        trimmed,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+      );
+    }
+
+    final cleanPath = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    final fullUrl = 'https://backend-ecommerce.synectra.xyz/$cleanPath';
+
+    return Image.network(
+      fullUrl,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => _imagePlaceholder(),
     );
   }
 
