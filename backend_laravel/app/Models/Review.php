@@ -10,11 +10,13 @@ class Review extends Model
     use HasFactory;
 
     protected $fillable = [
+        'order_item_id',
         'user_id',
         'order_id',
         'product_id',
         'rating',
         'comment',
+        'photo_url',
         'images',
     ];
 
@@ -22,6 +24,31 @@ class Review extends Model
         'images' => 'array',
         'rating' => 'integer',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($review) {
+            $review->updateProductRatingCache();
+        });
+
+        static::deleted(function ($review) {
+            $review->updateProductRatingCache();
+        });
+    }
+
+    public function updateProductRatingCache()
+    {
+        $product = Product::find($this->product_id);
+        if ($product) {
+            $avg = Review::where('product_id', $this->product_id)->avg('rating') ?: 0;
+            $count = Review::where('product_id', $this->product_id)->count();
+
+            $product->update([
+                'average_rating' => round($avg, 2),
+                'review_count' => $count,
+            ]);
+        }
+    }
 
     public function user()
     {
