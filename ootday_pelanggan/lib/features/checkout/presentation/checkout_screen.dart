@@ -498,8 +498,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.outfit(fontSize: isTotal ? 16 : 13, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal)),
-          Text(value, style: GoogleFonts.outfit(fontSize: isTotal ? 18 : 13, fontWeight: FontWeight.bold, color: isTotal ? const Color(0xFF5D1A1A) : Colors.black)),
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.outfit(fontSize: isTotal ? 16 : 13, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            value,
+            style: GoogleFonts.outfit(fontSize: isTotal ? 18 : 13, fontWeight: FontWeight.bold, color: isTotal ? const Color(0xFF5D1A1A) : Colors.black),
+          ),
         ],
       ),
     );
@@ -510,14 +521,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.black12))),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Total Pembayaran', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
-              Text(_formatRp(_totalPrice(items)), style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF5D1A1A))),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Total Pembayaran', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
+                Text(
+                  _formatRp(_totalPrice(items)),
+                  style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w900, color: const Color(0xFF5D1A1A)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
             ],
           ),
           ElevatedButton(

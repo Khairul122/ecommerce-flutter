@@ -45,12 +45,19 @@ Semua response berbentuk `{ "status": "success"|"error", "message"?: string, "da
 - `DELETE /cart/{id}`
 - `POST /cart/select-all` — `is_selected`
 
-## Pesanan — pelanggan (login diperlukan)
+## Pembayaran Otomatis (Xendit) & Pesanan — pelanggan (login diperlukan)
 - `GET /orders?status=` — status: menunggu_pembayaran|diproses|dikirim|selesai|dibatalkan
 - `GET /orders/{id}`
 - `POST /orders` — `address_id, shipping_method_id, payment_method_id` (memakai item keranjang yang `is_selected=true`)
-- `POST /orders/{id}/confirm-payment` — `payment_proof_url?`
+- `POST /orders/{id}/snap-token` → `{ snap_token, snap_redirect_url, payment_url }` (Invoice Xendit)
+- `POST /orders/{id}/qris` → `{ qr_string, account_number, ... }` (QRIS / Virtual Account Xendit)
+- `POST /orders/{id}/confirm-payment` — `payment_proof_url?` (Bukti transfer manual fallback)
 - `POST /orders/{id}/cancel` — `reason?`
+
+## Xendit Webhook Callback (Publik)
+- `POST /xendit/callback` — Webhook otomatis dari Xendit untuk memperbarui status pesanan menjadi `paid`.
+- `GET /xendit/redirect/success` — Halaman konfirmasi sukses setelah pembayaran invoice Xendit.
+- `GET /xendit/redirect/failure` — Halaman konfirmasi gagal setelah pembayaran invoice Xendit.
 
 ## Chat (login diperlukan, dipakai kedua aplikasi)
 - `GET /conversations`

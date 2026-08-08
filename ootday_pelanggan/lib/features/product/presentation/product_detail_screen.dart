@@ -797,23 +797,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       children: [
                         Text('Ukuran', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black)),
                         const SizedBox(height: 12),
-                        Row(
-                          children: _sizes.map((size) {
-                            bool isSelected = _selectedSize == size;
-                            return GestureDetector(
-                              onTap: () => setState(() => _selectedSize = size),
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 15),
-                                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: isSelected ? maroonColor.withOpacity(0.1) : lightBg,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: isSelected ? maroonColor : Colors.transparent),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: _sizes.map((size) {
+                              bool isSelected = _selectedSize == size;
+                              return GestureDetector(
+                                onTap: () => setState(() => _selectedSize = size),
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 12),
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? maroonColor.withOpacity(0.1) : lightBg,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: isSelected ? maroonColor : Colors.transparent),
+                                  ),
+                                  child: Text(size, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: isSelected ? maroonColor : Colors.black87)),
                                 ),
-                                child: Text(size, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: isSelected ? maroonColor : Colors.black87)),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ],
                     ),

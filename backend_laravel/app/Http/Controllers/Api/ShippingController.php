@@ -74,4 +74,12 @@ class ShippingController extends Controller
             'data' => $results,
         ]);
     }
+
+    /**
+     * Alias untuk calculateCost (sesuai route /shipping/cost & call dari Flutter app)
+     */
+    public function cost(Request $request)
+    {
+        return $this->calculateCost($request);
+    }
 }

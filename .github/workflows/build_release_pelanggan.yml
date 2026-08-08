@@ -1,0 +1,103 @@
+name: Build & Release Ootday Pelanggan App (APK)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'ootday_pelanggan/**'
+      - '.github/workflows/build_release_pelanggan.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release-pelanggan:
+    name: Build & Release Pelanggan APK
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ootday_pelanggan
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ☕ Setup Java 17 (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🦋 Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+
+      - name: ⚡ Cache Gradle & Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.pub-cache
+          key: ${{ runner.os }}-pelanggan-build-${{ hashFiles('ootday_pelanggan/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pelanggan-build-
+
+      - name: 📦 Install Flutter Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Static Analysis Gate
+        run: flutter analyze --no-fatal-infos
+
+      - name: 🧪 Run Unit Tests
+        run: |
+          if [ -d "test" ]; then
+            flutter test
+          else
+            echo "No test directory found, skipping unit tests."
+          fi
+
+      - name: 🏷️ Extract Version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | cut -d ' ' -f 2 | cut -d '+' -f 1)
+          BUILD_NUM=${{ github.run_number }}
+          TAG_NAME="pelanggan-v${VERSION}-build.${BUILD_NUM}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: 🛠️ Build Release APK
+        run: flutter build apk --release
+
+      - name: 📋 Prepare Artifact File
+        run: |
+          mkdir -p ../dist
+          cp build/app/outputs/flutter-apk/app-release.apk ../dist/Ootday-Pelanggan-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
+
+      - name: 🚀 Create GitHub Release & Upload APK Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.tag_name }}
+          name: "Ootday Pelanggan App v${{ steps.get_version.outputs.version }} (Build #${{ github.run_number }})"
+          body: |
+            ## 📱 Release Ootday Pelanggan App
+            - **Versi**: `${{ steps.get_version.outputs.version }}`
+            - **Build Number**: `${{ github.run_number }}`
+            - **Branch**: `${{ github.ref_name }}`
+            - **Commit**: `${{ github.sha }}`
+
+            ### 📦 Download APK
+            Unduh file `Ootday-Pelanggan-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk` di bagian Assets di bawah.
+          files: ../dist/Ootday-Pelanggan-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -287,6 +287,8 @@ class _CartScreenState extends State<CartScreen> {
                 Text(
                   item.name,
                   style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   item.desc,

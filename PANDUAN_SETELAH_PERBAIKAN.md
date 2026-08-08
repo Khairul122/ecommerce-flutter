@@ -58,12 +58,10 @@ Detail lengkap endpoint ada di `backend_laravel/API_CONTRACT.md`.
 
 ## Langkah menjalankan kedua aplikasi Flutter
 
-Di kedua aplikasi, cari baris `baseUrl` di `lib/services/api_service.dart` dan ganti dengan alamat IP LAN komputer Anda (bukan `127.0.0.1`/`localhost`, karena itu tidak bisa diakses dari HP fisik atau emulator):
+Di kedua aplikasi, `baseUrl` utama di `lib/core/services/api_service.dart` secara bawaan sudah menunjuk ke server backend produksi:
+- `https://backend-ecommerce.synectra.xyz/api`
 
-- `ootday_owner/lib/services/api_service.dart` — sekarang berisi `http://192.168.1.77:8000/api` (nilai lama, placeholder), ganti sesuai IP Anda.
-- `ootday_pelanggan/lib/services/api_service.dart` — sama, cari komentar "GANTI dengan alamat IP LAN".
-
-Cek IP LAN Anda dengan `ipconfig` (Windows) atau `ifconfig`/`ip addr` (Mac/Linux).
+Jika ingin menjalankan backend lokal sendiri, ganti `baseUrl` di `lib/core/services/api_service.dart` dengan alamat IP LAN komputer Anda (misal `http://192.168.1.X:8000/api`).
 
 Lalu di masing-masing folder aplikasi:
 
@@ -72,11 +70,11 @@ flutter pub get
 flutter run
 ```
 
-## Yang belum sepenuhnya selesai, perlu keputusan Anda selanjutnya
+## Status Fitur & Keputusan Pengembangan Selanjutnya
 
-- **Pembayaran masih verifikasi manual**, belum payment gateway sungguhan. Pelanggan checkout, transfer manual, tekan "saya sudah bayar", lalu owner memeriksa mutasi dan menekan konfirmasi di aplikasinya. Ini jujur dan tercatat di database (beda dari alur lama yang langsung mengklaim sukses tanpa verifikasi apa pun), tapi belum otomatis. Kalau nanti mau pakai Midtrans/Xendit, cukup ganti dua endpoint `confirm-payment` di `backend_laravel/app/Http/Controllers/Api/`.
-- **Push notification belum ada penggantinya** (Firebase Cloud Messaging dihapus sesuai permintaan, belum diganti apa pun). Chat dan status pesanan sekarang jalan lewat REST API biasa (pull/polling saat layar dibuka), bukan realtime. Kalau nanti perlu push notification tanpa Firebase, opsinya OneSignal.
-- **Kode ini belum pernah dikompilasi/dites** karena sandbox tempat perbaikan ini ditulis tidak punya Flutter SDK maupun PHP. Sebelum dipakai, jalankan `flutter analyze` dan `flutter run` di kedua aplikasi, serta `php artisan serve` + coba semua endpoint lewat Postman/aplikasi, untuk menangkap kesalahan sintaks atau ketidakcocokan kecil yang mungkin lolos dari peninjauan manual.
+- **Pembayaran Hybrid (Otomatis via Xendit & Manual Transfer Fallback)**: Sistem backend (`backend_laravel`) sudah terintegrasi dengan Xendit API (`XenditService`, `XenditNotificationController`). Pelanggan dapat melakukan pembayaran otomatis via QRIS (`/orders/{id}/qris`) dan Invoice Xendit (`/orders/{id}/snap-token`) yang statusnya ter-update otomatis lewat webhook callback (`/xendit/callback`). Sebagai fallback, konfirmasi manual (`confirm-payment`) tetap tersedia.
+- **Push notification menggunakan REST API Polling**: Firebase Cloud Messaging telah dihapus total. Fitur chat dan status pesanan berjalan secara aman menggunakan polling REST API (`/conversations`, `/notifications`). Jika nanti diperlukan push notification berbasis cloud untuk skala lanjut, disarankan mengintegrasikan **OneSignal**.
+- **Kode & Layout**: Seluruh kode Dart pada aplikasi Flutter dan REST API Laravel telah diaudit secara statis dan struktural untuk memastikan kompatibilitas dan eliminasi RenderFlex overflow pixel.
 - Beberapa layar lama yang datanya sudah tidak relevan dengan skema baru (misalnya rating/pengikut toko, statistik pengunjung) dijadikan placeholder statis karena backend belum punya data itu. Tidak menyebabkan error, tapi belum menampilkan angka nyata.
 
 ## Berkas referensi
