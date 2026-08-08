@@ -149,6 +149,24 @@ Route::get('/run-migration', function () {
             $log[] = "Auto-seeded products for store: {$st->store_name}";
         }
 
+        // Auto-seed shipping methods including JNE REG, POS REG, TIKI REG
+        $shippings = [
+            ['name' => 'JNE Reguler (JNE REG)', 'base_cost' => 15000],
+            ['name' => 'JNE Yakin Besok Sampai (JNE YES)', 'base_cost' => 25000],
+            ['name' => 'POS Kilat Khusus (POS REG)', 'base_cost' => 14000],
+            ['name' => 'TIKI Reguler (TIKI REG)', 'base_cost' => 15000],
+            ['name' => 'Hemat Kargo - SPX Hemat', 'base_cost' => 10000],
+            ['name' => 'Reguler - SPX Reguler', 'base_cost' => 15000],
+            ['name' => 'Express - J&T Express', 'base_cost' => 25000],
+        ];
+        foreach ($shippings as $s) {
+            \App\Models\ShippingMethod::firstOrCreate(
+                ['name' => $s['name']],
+                ['base_cost' => $s['base_cost'], 'is_active' => true]
+            );
+        }
+        $log[] = "Auto-seeded shipping methods (JNE REG, JNE YES, POS REG, TIKI REG, SPX).";
+
         $log[] = "Schema check complete.";
     } catch (\Throwable $e) {
         $log[] = "Schema Alter Error: " . $e->getMessage();
