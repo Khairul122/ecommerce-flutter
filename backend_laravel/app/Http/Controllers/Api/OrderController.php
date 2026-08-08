@@ -111,6 +111,7 @@ class OrderController extends Controller
         $shippingCost = $request->filled('shipping_cost') ? (float) $request->shipping_cost : ($shippingMethod->base_cost ?? 15000);
         $courier = $request->shipping_courier ?? ($shippingMethod->name ?? 'JNE');
         $service = $request->shipping_service ?? 'REG';
+        $etd = $request->shipping_etd ?? '2-3 hari';
         if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'tracking_number')) {
             \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
                 $table->string('tracking_number', 100)->nullable();
