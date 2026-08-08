@@ -144,6 +144,7 @@ class AppDependencies {
     final storeProvider = StoreProvider(
       getStoreUseCase: GetStoreUseCase(storeRepository),
       updateStoreUseCase: UpdateStoreUseCase(storeRepository),
+      searchDestinationsUseCase: SearchStoreDestinationsUseCase(storeRepository),
       uploadLogoUseCase: UploadLogoUseCase(storeRepository),
       removeLogoUseCase: RemoveLogoUseCase(storeRepository),
     );

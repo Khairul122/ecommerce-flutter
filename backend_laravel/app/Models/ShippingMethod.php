@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShippingMethod extends Model
 {
-    protected $fillable = ['name', 'base_cost', 'is_active'];
+    protected $fillable = ['name', 'courier_code', 'base_cost', 'is_active'];
 
     protected function casts(): array
     {

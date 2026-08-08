@@ -15,18 +15,22 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   Future<List<PaymentMethodEntity>> getPaymentMethods() => remote.getPaymentMethods();
 
   @override
-  Future<List<ShippingMethodEntity>> getShippingMethods() => remote.getShippingMethods();
+  Future<List<ShippingMethodEntity>> getShippingCost(String addressId) => remote.getShippingCost(addressId);
 
   @override
   Future<OrderEntity> createOrder({
     required String addressId,
     required int shippingMethodId,
     required int paymentMethodId,
+    num? shippingCost,
+    String? shippingService,
   }) {
     return remote.createOrder(
       addressId: addressId,
       shippingMethodId: shippingMethodId,
       paymentMethodId: paymentMethodId,
+      shippingCost: shippingCost,
+      shippingService: shippingService,
     );
   }
 }

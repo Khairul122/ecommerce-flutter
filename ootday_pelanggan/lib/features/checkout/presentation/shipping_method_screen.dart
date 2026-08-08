@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import '../domain/entities/shipping_method_entity.dart';
 import 'providers/checkout_provider.dart';
 
-/// Perbaikan audit: layar ini sebelumnya menampilkan 4 kurir hardcode dengan
-/// harga tetap. Sekarang memuat opsi asli dari GET /shipping-methods lewat
-/// CheckoutProvider.
+/// Ongkir dimuat live per kurir aktif dari RajaOngkir (POST /shipping/cost),
+/// dihitung dari toko asal ke district alamat [addressId] yang dipilih di
+/// checkout_screen.dart.
 class ShippingMethodScreen extends StatefulWidget {
-  const ShippingMethodScreen({super.key});
+  final String addressId;
+  const ShippingMethodScreen({super.key, required this.addressId});
 
   @override
   State<ShippingMethodScreen> createState() => _ShippingMethodScreenState();
@@ -19,8 +20,12 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CheckoutProvider>().loadShippingMethods();
+      context.read<CheckoutProvider>().loadShippingCost(widget.addressId);
     });
+  }
+
+  String _formatRp(num value) {
+    return 'Rp ${value.round().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
   }
 
   @override
@@ -57,28 +62,28 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
                       ),
                       const SizedBox(height: 10),
                       TextButton(
-                        onPressed: () => context.read<CheckoutProvider>().loadShippingMethods(),
+                        onPressed: () => context.read<CheckoutProvider>().loadShippingCost(widget.addressId),
                         child: const Text('Coba Lagi'),
                       ),
                     ],
                   ),
                 )
               : methods.isEmpty
-                  ? const Center(child: Text('Belum ada opsi pengiriman tersedia'))
+                  ? const Center(child: Text('Belum ada opsi pengiriman tersedia untuk alamat ini'))
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       itemCount: methods.length,
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final ShippingMethodEntity method = methods[index];
-                        final int price = method.baseCost.round();
-                        String priceStr = 'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+                        final label = [method.name, method.service].where((e) => e != null && e.isNotEmpty).join(' - ');
 
                         return ListTile(
                           onTap: () => Navigator.pop(context, method),
                           leading: const Icon(Icons.local_shipping_outlined, color: maroonColor),
-                          title: Text(method.name, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
-                          trailing: Text(priceStr, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
+                          title: Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
+                          subtitle: method.etd != null ? Text('Estimasi ${method.etd} hari', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)) : null,
+                          trailing: Text(_formatRp(method.cost), style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
                         );
                       },
                     ),

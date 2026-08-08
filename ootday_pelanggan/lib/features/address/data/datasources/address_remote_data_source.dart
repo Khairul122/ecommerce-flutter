@@ -20,12 +20,22 @@ class AddressRemoteDataSource {
     required String phone,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) {
     return _api.post('/addresses', {
       'receiver_name': name,
       'phone': phone,
       'full_address': fullAddress,
       'is_main': isMain,
+      if (districtId != null) 'district_id': districtId,
+      if (districtName != null) 'district_name': districtName,
+      if (cityName != null) 'city_name': cityName,
+      if (provinceName != null) 'province_name': provinceName,
+      if (postalCode != null) 'postal_code': postalCode,
     });
   }
 
@@ -35,11 +45,21 @@ class AddressRemoteDataSource {
     required String phone,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) async {
     await _api.put('/addresses/$id', {
       'receiver_name': name,
       'phone': phone,
       'full_address': fullAddress,
+      if (districtId != null) 'district_id': districtId,
+      if (districtName != null) 'district_name': districtName,
+      if (cityName != null) 'city_name': cityName,
+      if (provinceName != null) 'province_name': provinceName,
+      if (postalCode != null) 'postal_code': postalCode,
     });
     if (isMain) {
       await _api.post('/addresses/$id/set-main', {});
@@ -49,4 +69,11 @@ class AddressRemoteDataSource {
   Future<void> deleteAddress(String id) => _api.delete('/addresses/$id');
 
   Future<void> setMain(String id) => _api.post('/addresses/$id/set-main', {});
+
+  /// Autocomplete kecamatan/kota (RajaOngkir) dipakai form alamat.
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword) async {
+    final result = await _api.get('/shipping/destinations?search=${Uri.encodeQueryComponent(keyword)}');
+    final List raw = result['data'] ?? [];
+    return raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
 }

@@ -5,6 +5,11 @@ class StoreEntity {
   final String? address;
   final String? phone;
   final String? logoUrl;
+  final int? districtId;
+  final String? districtName;
+  final String? cityName;
+  final String? provinceName;
+  final String? postalCode;
 
   const StoreEntity({
     this.storeName,
@@ -12,5 +17,10 @@ class StoreEntity {
     this.address,
     this.phone,
     this.logoUrl,
+    this.districtId,
+    this.districtName,
+    this.cityName,
+    this.provinceName,
+    this.postalCode,
   });
 }

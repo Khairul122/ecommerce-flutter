@@ -10,6 +10,11 @@ abstract class AddressRepository {
     required String phone,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   });
 
   Future<void> updateAddress({
@@ -18,9 +23,16 @@ abstract class AddressRepository {
     required String phone,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   });
 
   Future<void> deleteAddress(String id);
 
   Future<void> setMain(String id);
+
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword);
 }

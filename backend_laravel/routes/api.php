@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OwnerOrderController;
 use App\Http\Controllers\Api\PaymentShippingMethodController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ShippingController;
 use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/addresses/{id}', [AddressController::class, 'update']);
     Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
     Route::post('/addresses/{id}/set-main', [AddressController::class, 'setMain']);
+
+    Route::get('/shipping/destinations', [ShippingController::class, 'destinations']);
+    Route::post('/shipping/cost', [ShippingController::class, 'cost']);
 
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);

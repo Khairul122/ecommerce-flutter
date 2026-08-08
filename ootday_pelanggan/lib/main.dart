@@ -141,6 +141,7 @@ class AppDependencies {
       updateAddressUseCase: UpdateAddressUseCase(addressRepository),
       deleteAddressUseCase: DeleteAddressUseCase(addressRepository),
       setMainAddressUseCase: SetMainAddressUseCase(addressRepository),
+      searchDestinationsUseCase: SearchDestinationsUseCase(addressRepository),
     );
 
     final orderRemote = OrderRemoteDataSource(apiService);
@@ -174,7 +175,7 @@ class AppDependencies {
     final checkoutRepository = CheckoutRepositoryImpl(remote: checkoutRemote);
     final checkoutProvider = CheckoutProvider(
       getPaymentMethodsUseCase: GetPaymentMethodsUseCase(checkoutRepository),
-      getShippingMethodsUseCase: GetShippingMethodsUseCase(checkoutRepository),
+      getShippingCostUseCase: GetShippingCostUseCase(checkoutRepository),
       createOrderUseCase: CreateOrderUseCase(checkoutRepository),
     );
 

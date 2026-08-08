@@ -9,11 +9,13 @@ import '../entities/shipping_method_entity.dart';
 abstract class CheckoutRepository {
   Future<List<PaymentMethodEntity>> getPaymentMethods();
 
-  Future<List<ShippingMethodEntity>> getShippingMethods();
+  Future<List<ShippingMethodEntity>> getShippingCost(String addressId);
 
   Future<OrderEntity> createOrder({
     required String addressId,
     required int shippingMethodId,
     required int paymentMethodId,
+    num? shippingCost,
+    String? shippingService,
   });
 }

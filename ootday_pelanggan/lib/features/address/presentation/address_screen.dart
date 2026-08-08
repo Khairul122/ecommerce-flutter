@@ -35,6 +35,11 @@ class _AddressScreenState extends State<AddressScreen> {
         'phone': addr.phone,
         'fullAddress': addr.fullAddress,
         'isMain': addr.isMain,
+        'districtId': addr.districtId,
+        'districtName': addr.districtName,
+        'cityName': addr.cityName,
+        'provinceName': addr.provinceName,
+        'postalCode': addr.postalCode,
       };
 
   @override

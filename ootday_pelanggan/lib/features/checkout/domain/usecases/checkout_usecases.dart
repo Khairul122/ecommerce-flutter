@@ -13,23 +13,26 @@ class GetPaymentMethodsUseCase extends UseCase<List<PaymentMethodEntity>, NoPara
       repository.getPaymentMethods();
 }
 
-class GetShippingMethodsUseCase extends UseCase<List<ShippingMethodEntity>, NoParams> {
+class GetShippingCostUseCase extends UseCase<List<ShippingMethodEntity>, String> {
   final CheckoutRepository repository;
-  GetShippingMethodsUseCase(this.repository);
+  GetShippingCostUseCase(this.repository);
 
   @override
-  Future<List<ShippingMethodEntity>> call(NoParams params) =>
-      repository.getShippingMethods();
+  Future<List<ShippingMethodEntity>> call(String addressId) => repository.getShippingCost(addressId);
 }
 
 class CreateOrderParams {
   final String addressId;
   final int shippingMethodId;
   final int paymentMethodId;
+  final num? shippingCost;
+  final String? shippingService;
   const CreateOrderParams({
     required this.addressId,
     required this.shippingMethodId,
     required this.paymentMethodId,
+    this.shippingCost,
+    this.shippingService,
   });
 }
 
@@ -42,5 +45,7 @@ class CreateOrderUseCase extends UseCase<OrderEntity, CreateOrderParams> {
         addressId: params.addressId,
         shippingMethodId: params.shippingMethodId,
         paymentMethodId: params.paymentMethodId,
+        shippingCost: params.shippingCost,
+        shippingService: params.shippingService,
       );
 }

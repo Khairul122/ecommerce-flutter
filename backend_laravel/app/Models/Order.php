@@ -9,7 +9,7 @@ class Order extends Model
     protected $fillable = [
         'order_code', 'user_id', 'store_id', 'payment_method_id', 'shipping_method_id',
         'receiver_name', 'receiver_phone', 'shipping_address',
-        'subtotal', 'shipping_cost', 'total_price',
+        'subtotal', 'shipping_cost', 'shipping_service', 'total_price',
         'status', 'payment_status', 'payment_proof_url', 'cancel_reason', 'ordered_at',
         'snap_token', 'snap_redirect_url', 'payment_type',
     ];

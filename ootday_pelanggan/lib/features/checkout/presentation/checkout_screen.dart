@@ -18,9 +18,9 @@ import 'providers/checkout_provider.dart';
 /// - Alamat yang benar-benar dipilih pelanggan sekarang dipakai (sebelumnya
 ///   selalu hardcode "Vanya | ..." dan hasil AddressScreen dibuang begitu
 ///   saja).
-/// - Opsi pengiriman & metode pembayaran dimuat dari GET /shipping-methods
-///   dan GET /payment-methods (data asli dari database), bukan daftar
-///   hardcode di shipping_method_screen.dart/payment_method_screen.dart.
+/// - Opsi pengiriman dimuat live per alamat dari POST /shipping/cost
+///   (RajaOngkir), metode pembayaran dari GET /payment-methods -- bukan
+///   daftar hardcode di shipping_method_screen.dart/payment_method_screen.dart.
 /// - Pesanan dibuat lewat POST /orders, yang memvalidasi stok dan mengambil
 ///   item dari keranjang yang is_selected=true di server -- keranjang TIDAK
 ///   dikosongkan dari klien lagi (server yang menghapus item yang sudah
@@ -69,7 +69,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       await Future.wait([
         cartProvider.loadCart(),
         addressProvider.loadAddresses(),
-        checkoutProvider.loadCheckoutMethods(),
+        checkoutProvider.loadPaymentMethods(),
       ]);
 
       if (addressProvider.error != null) {
@@ -91,8 +91,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         mainAddress ??= addresses.first;
       }
 
-      final shippingList = checkoutProvider.shippingMethods;
       final paymentList = checkoutProvider.paymentMethods;
+
+      if (mainAddress != null) {
+        await checkoutProvider.loadShippingCost(mainAddress.id);
+      }
+      final shippingList = checkoutProvider.shippingMethods;
 
       if (mounted) {
         setState(() {
@@ -126,7 +130,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   int get _shippingCost {
     if (_selectedShippingMethod == null) return 0;
-    return _selectedShippingMethod!.baseCost.round();
+    return _selectedShippingMethod!.cost.round();
   }
 
   int _totalPrice(List<CartItemEntity> items) => _subtotal(items) + _shippingCost;
@@ -141,14 +145,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       MaterialPageRoute(builder: (context) => const AddressScreen(selectMode: true)),
     );
     if (result != null && mounted) {
-      setState(() => _selectedAddress = _addressFromMap(Map<String, dynamic>.from(result)));
+      final newAddress = _addressFromMap(Map<String, dynamic>.from(result));
+      // Ongkir tergantung district tujuan, jadi opsi pengiriman lama tidak
+      // valid lagi begitu alamat berubah -- harus dipilih ulang.
+      setState(() {
+        _selectedAddress = newAddress;
+        _selectedShippingMethod = null;
+      });
+      try {
+        await context.read<CheckoutProvider>().loadShippingCost(newAddress.id);
+      } catch (_) {}
     }
   }
 
   Future<void> _pickShippingMethod() async {
+    if (_selectedAddress == null) return;
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ShippingMethodScreen()),
+      MaterialPageRoute(builder: (context) => ShippingMethodScreen(addressId: _selectedAddress!.id)),
     );
     if (result != null && mounted) {
       setState(() => _selectedShippingMethod = result as ShippingMethodEntity);
@@ -193,6 +207,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             addressId: _selectedAddress!.id,
             shippingMethodId: _selectedShippingMethod!.id,
             paymentMethodId: _selectedPaymentMethod!.id,
+            shippingCost: _selectedShippingMethod!.cost,
+            shippingService: _selectedShippingMethod!.service,
           );
 
       if (!mounted) return;

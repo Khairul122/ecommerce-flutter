@@ -12,7 +12,15 @@ abstract class StoreRepository {
     String? address,
     String? phone,
     String? logoUrl,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   });
+
+  /// Autocomplete kecamatan/kota (RajaOngkir) dipakai form profil toko.
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword);
 
   /// Upload file ke `POST /upload` lalu simpan URL-nya sebagai `logo_url`
   /// toko lewat `PUT /owner/store`. Return URL logo baru.

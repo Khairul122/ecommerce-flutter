@@ -11,6 +11,7 @@ class Store extends Model
 
     protected $fillable = [
         'user_id', 'store_name', 'description', 'address', 'phone', 'status', 'logo_url',
+        'district_id', 'district_name', 'city_name', 'province_name', 'postal_code',
     ];
 
     public function owner()

@@ -64,6 +64,11 @@ class OrderController extends Controller
             'address_id' => ['required', 'exists:addresses,id'],
             'shipping_method_id' => ['required', 'exists:shipping_methods,id'],
             'payment_method_id' => ['required', 'exists:payment_methods,id'],
+            // Hasil pilihan pengguna dari POST /shipping/cost (RajaOngkir), bukan
+            // base_cost statis lagi. Opsional untuk kompatibilitas mundur: kalau
+            // tidak dikirim, fallback ke base_cost milik shipping_method.
+            'shipping_cost' => ['nullable', 'numeric', 'min:0'],
+            'shipping_service' => ['nullable', 'string', 'max:50'],
         ]);
 
         if ($validator->fails()) {
@@ -102,9 +107,10 @@ class OrderController extends Controller
         }
 
         $shippingMethod = \App\Models\ShippingMethod::findOrFail($request->shipping_method_id);
+        $shippingCost = $request->filled('shipping_cost') ? (float) $request->shipping_cost : (float) $shippingMethod->base_cost;
         $subtotal = $cartItems->sum(fn ($i) => (float) ($i->variant->price ?? $i->variant->product->price) * $i->quantity);
 
-        $order = DB::transaction(function () use ($cartItems, $address, $shippingMethod, $request, $user, $subtotal, $storeIds) {
+        $order = DB::transaction(function () use ($cartItems, $address, $shippingMethod, $shippingCost, $request, $user, $subtotal, $storeIds) {
             $order = \App\Models\Order::create([
                 'order_code' => 'OD'.now()->format('ymd').Str::upper(Str::random(6)),
                 'user_id' => $user->id,
@@ -115,8 +121,9 @@ class OrderController extends Controller
                 'receiver_phone' => $address->phone,
                 'shipping_address' => $address->full_address,
                 'subtotal' => $subtotal,
-                'shipping_cost' => $shippingMethod->base_cost,
-                'total_price' => $subtotal + $shippingMethod->base_cost,
+                'shipping_cost' => $shippingCost,
+                'shipping_service' => $request->input('shipping_service'),
+                'total_price' => $subtotal + $shippingCost,
                 'status' => 'menunggu_pembayaran',
                 'payment_status' => 'unpaid',
             ]);

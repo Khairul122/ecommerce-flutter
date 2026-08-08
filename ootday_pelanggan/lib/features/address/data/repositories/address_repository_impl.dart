@@ -18,12 +18,22 @@ class AddressRepositoryImpl implements AddressRepository {
     required String phone,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) {
     return remote.addAddress(
       name: name,
       phone: phone,
       fullAddress: fullAddress,
       isMain: isMain,
+      districtId: districtId,
+      districtName: districtName,
+      cityName: cityName,
+      provinceName: provinceName,
+      postalCode: postalCode,
     );
   }
 
@@ -34,6 +44,11 @@ class AddressRepositoryImpl implements AddressRepository {
     required String phone,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) {
     return remote.updateAddress(
       id: id,
@@ -41,6 +56,11 @@ class AddressRepositoryImpl implements AddressRepository {
       phone: phone,
       fullAddress: fullAddress,
       isMain: isMain,
+      districtId: districtId,
+      districtName: districtName,
+      cityName: cityName,
+      provinceName: provinceName,
+      postalCode: postalCode,
     );
   }
 
@@ -49,4 +69,7 @@ class AddressRepositoryImpl implements AddressRepository {
 
   @override
   Future<void> setMain(String id) => remote.setMain(id);
+
+  @override
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword) => remote.searchDestinations(keyword);
 }

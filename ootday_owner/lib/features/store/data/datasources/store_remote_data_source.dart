@@ -22,4 +22,11 @@ class StoreRemoteDataSource {
     final res = await _api.uploadFile('/upload', file);
     return (res['data'] as Map<String, dynamic>)['url'] as String;
   }
+
+  /// Autocomplete kecamatan/kota (RajaOngkir) dipakai form profil toko.
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword) async {
+    final result = await _api.get('/shipping/destinations?search=${Uri.encodeQueryComponent(keyword)}');
+    final List raw = result['data'] ?? [];
+    return raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
 }

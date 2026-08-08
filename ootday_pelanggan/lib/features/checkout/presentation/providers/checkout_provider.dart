@@ -12,12 +12,12 @@ import '../../domain/usecases/checkout_usecases.dart';
 /// payment_method_screen.dart.
 class CheckoutProvider extends ChangeNotifier {
   final GetPaymentMethodsUseCase getPaymentMethodsUseCase;
-  final GetShippingMethodsUseCase getShippingMethodsUseCase;
+  final GetShippingCostUseCase getShippingCostUseCase;
   final CreateOrderUseCase createOrderUseCase;
 
   CheckoutProvider({
     required this.getPaymentMethodsUseCase,
-    required this.getShippingMethodsUseCase,
+    required this.getShippingCostUseCase,
     required this.createOrderUseCase,
   });
 
@@ -33,43 +33,8 @@ class CheckoutProvider extends ChangeNotifier {
   String? get error => _error;
   bool get isPlacingOrder => _isPlacingOrder;
 
-  /// Dipakai checkout_screen.dart: memuat opsi pengiriman & metode
-  /// pembayaran sekaligus.
-  Future<void> loadCheckoutMethods() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-    try {
-      final results = await Future.wait([
-        getShippingMethodsUseCase(const NoParams()),
-        getPaymentMethodsUseCase(const NoParams()),
-      ]);
-      _shippingMethods = results[0] as List<ShippingMethodEntity>;
-      _paymentMethods = results[1] as List<PaymentMethodEntity>;
-    } catch (e) {
-      _error = 'Gagal memuat data checkout: $e';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  /// Dipakai shipping_method_screen.dart.
-  Future<void> loadShippingMethods() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-    try {
-      _shippingMethods = await getShippingMethodsUseCase(const NoParams());
-    } catch (e) {
-      _error = 'Gagal memuat opsi pengiriman: $e';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  /// Dipakai payment_method_screen.dart.
+  /// Dipakai checkout_screen.dart: memuat metode pembayaran. Ongkir tidak
+  /// dimuat di sini karena butuh alamat tujuan -- lihat [loadShippingCost].
   Future<void> loadPaymentMethods() async {
     _isLoading = true;
     _error = null;
@@ -84,10 +49,28 @@ class CheckoutProvider extends ChangeNotifier {
     }
   }
 
+  /// Dipakai checkout_screen.dart & shipping_method_screen.dart: ongkir live
+  /// RajaOngkir dari toko ke district alamat [addressId].
+  Future<void> loadShippingCost(String addressId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _shippingMethods = await getShippingCostUseCase(addressId);
+    } catch (e) {
+      _error = 'Gagal memuat opsi pengiriman: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<OrderEntity> createOrder({
     required String addressId,
     required int shippingMethodId,
     required int paymentMethodId,
+    num? shippingCost,
+    String? shippingService,
   }) async {
     _isPlacingOrder = true;
     notifyListeners();
@@ -96,6 +79,8 @@ class CheckoutProvider extends ChangeNotifier {
         addressId: addressId,
         shippingMethodId: shippingMethodId,
         paymentMethodId: paymentMethodId,
+        shippingCost: shippingCost,
+        shippingService: shippingService,
       ));
     } finally {
       _isPlacingOrder = false;

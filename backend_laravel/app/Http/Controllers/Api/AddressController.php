@@ -22,6 +22,11 @@ class AddressController extends Controller
             'phone' => ['required', 'string', 'max:20'],
             'full_address' => ['required', 'string'],
             'is_main' => ['nullable', 'boolean'],
+            'district_id' => ['nullable', 'integer'],
+            'district_name' => ['nullable', 'string', 'max:150'],
+            'city_name' => ['nullable', 'string', 'max:150'],
+            'province_name' => ['nullable', 'string', 'max:150'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
         ]);
 
         if ($validator->fails()) {
@@ -49,6 +54,11 @@ class AddressController extends Controller
             'receiver_name' => ['sometimes', 'required', 'string', 'max:100'],
             'phone' => ['sometimes', 'required', 'string', 'max:20'],
             'full_address' => ['sometimes', 'required', 'string'],
+            'district_id' => ['nullable', 'integer'],
+            'district_name' => ['nullable', 'string', 'max:150'],
+            'city_name' => ['nullable', 'string', 'max:150'],
+            'province_name' => ['nullable', 'string', 'max:150'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
         ]);
 
         if ($validator->fails()) {

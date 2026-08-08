@@ -38,6 +38,11 @@ class StoreController extends Controller
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],
             'logo_url' => ['nullable', 'string'],
+            'district_id' => ['nullable', 'integer'],
+            'district_name' => ['nullable', 'string', 'max:150'],
+            'city_name' => ['nullable', 'string', 'max:150'],
+            'province_name' => ['nullable', 'string', 'max:150'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
         ]);
 
         if ($validator->fails()) {
