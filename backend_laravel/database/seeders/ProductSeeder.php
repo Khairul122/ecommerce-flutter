@@ -237,14 +237,14 @@ class ProductSeeder extends Seeder
             // Seed Gambar Utama
             ProductImage::updateOrCreate(
                 ['product_id' => $product->id, 'sort_order' => 0],
-                ['image_url' => $p['primary_image'], 'is_primary' => true]
+                ['image_url' => $this->formatUrl($p['primary_image']), 'is_primary' => true]
             );
 
             // Seed Gambar Sekunder
             foreach ($p['extra_images'] as $order => $extraImg) {
                 ProductImage::updateOrCreate(
                     ['product_id' => $product->id, 'sort_order' => $order + 1],
-                    ['image_url' => $extraImg, 'is_primary' => false]
+                    ['image_url' => $this->formatUrl($extraImg), 'is_primary' => false]
                 );
             }
 
@@ -261,5 +261,17 @@ class ProductSeeder extends Seeder
                 }
             }
         }
+    }
+
+    private function formatUrl(string $path): string
+    {
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        if (str_starts_with($path, 'assets/images/')) {
+            $fileName = str_replace('assets/images/', '', $path);
+            return 'https://backend-ecommerce.synectra.xyz/storage/seed_images/' . $fileName;
+        }
+        return 'https://backend-ecommerce.synectra.xyz/' . ltrim($path, '/');
     }
 }

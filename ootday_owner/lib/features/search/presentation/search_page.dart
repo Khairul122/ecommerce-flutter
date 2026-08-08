@@ -457,39 +457,65 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildImage(String image) {
-    if (image.isEmpty) {
-      return Container(
-        width: 80,
-        height: 80,
-        color: Colors.grey[300],
-        child: const Icon(Icons.image, size: 30),
-      );
-    }
-    if (image.startsWith('http')) {
-      return Image.network(
-        image,
-        width: 80,
-        height: 80,
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => Container(
+    Widget fallback() => Container(
           width: 80,
           height: 80,
           color: Colors.grey[300],
           child: const Icon(Icons.image, size: 30),
-        ),
+        );
+
+    final trimmed = image.trim();
+    if (trimmed.isEmpty) return fallback();
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return Image.network(
+        trimmed,
+        width: 80,
+        height: 80,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => fallback(),
       );
     }
-    return Image.asset(
-      image,
+
+    if (trimmed.startsWith('assets/images/')) {
+      final fileName = trimmed.replaceFirst('assets/images/', '');
+      final serverUrl = 'https://backend-ecommerce.synectra.xyz/storage/seed_images/$fileName';
+      return Image.network(
+        serverUrl,
+        width: 80,
+        height: 80,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) {
+          return Image.asset(
+            trimmed,
+            width: 80,
+            height: 80,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => fallback(),
+          );
+        },
+      );
+    }
+
+    if (trimmed.startsWith('assets/')) {
+      return Image.asset(
+        trimmed,
+        width: 80,
+        height: 80,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => fallback(),
+      );
+    }
+
+    final cleanPath = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    final fullUrl = 'https://backend-ecommerce.synectra.xyz/$cleanPath';
+
+    return Image.network(
+      fullUrl,
       width: 80,
       height: 80,
       fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => Container(
-        width: 80,
-        height: 80,
-        color: Colors.grey[300],
-        child: const Icon(Icons.image, size: 30),
-      ),
+      errorBuilder: (_, __, ___) => fallback(),
     );
   }
 
