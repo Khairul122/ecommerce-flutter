@@ -347,7 +347,7 @@ BLADE;
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [Admin\AuthController::class, 'showLogin'])->name('login')->middleware('guest:web');
     Route::post('login', [Admin\AuthController::class, 'login'])->middleware('guest:web');
-    Route::post('logout', [Admin\AuthController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], 'logout', [Admin\AuthController::class, 'logout'])->name('logout');
 
     Route::middleware('admin')->group(function () {
         Route::get('dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
