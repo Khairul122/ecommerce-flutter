@@ -53,8 +53,6 @@ class AddressProvider extends ChangeNotifier {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   }) async {
     await addAddressUseCase(AddAddressParams(
@@ -68,8 +66,6 @@ class AddressProvider extends ChangeNotifier {
       isMain: isMain,
       districtId: districtId,
       districtName: districtName,
-      cityName: cityName,
-      provinceName: provinceName,
       postalCode: postalCode,
     ));
     await loadAddresses();
@@ -87,8 +83,6 @@ class AddressProvider extends ChangeNotifier {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   }) async {
     await updateAddressUseCase(UpdateAddressParams(
@@ -103,8 +97,6 @@ class AddressProvider extends ChangeNotifier {
       isMain: isMain,
       districtId: districtId,
       districtName: districtName,
-      cityName: cityName,
-      provinceName: provinceName,
       postalCode: postalCode,
     ));
     await loadAddresses();

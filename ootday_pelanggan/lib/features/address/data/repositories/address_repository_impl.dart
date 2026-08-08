@@ -29,8 +29,6 @@ class AddressRepositoryImpl implements AddressRepository {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   }) {
     return remote.addAddress(
@@ -44,8 +42,6 @@ class AddressRepositoryImpl implements AddressRepository {
       isMain: isMain,
       districtId: districtId,
       districtName: districtName,
-      cityName: cityName,
-      provinceName: provinceName,
       postalCode: postalCode,
     );
   }
@@ -63,8 +59,6 @@ class AddressRepositoryImpl implements AddressRepository {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   }) {
     return remote.updateAddress(
@@ -79,8 +73,6 @@ class AddressRepositoryImpl implements AddressRepository {
       isMain: isMain,
       districtId: districtId,
       districtName: districtName,
-      cityName: cityName,
-      provinceName: provinceName,
       postalCode: postalCode,
     );
   }

@@ -41,8 +41,6 @@ class AddressRemoteDataSource {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   }) {
     return _api.post('/addresses', {
@@ -56,8 +54,6 @@ class AddressRemoteDataSource {
       'is_main': isMain,
       if (districtId != null) 'district_id': districtId,
       if (districtName != null) 'district_name': districtName,
-      if (cityName != null) 'city_name': cityName,
-      if (provinceName != null) 'province_name': provinceName,
       if (postalCode != null) 'postal_code': postalCode,
     });
   }
@@ -74,8 +70,6 @@ class AddressRemoteDataSource {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   }) async {
     await _api.put('/addresses/$id', {
@@ -88,8 +82,6 @@ class AddressRemoteDataSource {
       'full_address': fullAddress,
       if (districtId != null) 'district_id': districtId,
       if (districtName != null) 'district_name': districtName,
-      if (cityName != null) 'city_name': cityName,
-      if (provinceName != null) 'province_name': provinceName,
       if (postalCode != null) 'postal_code': postalCode,
     });
     if (isMain) {

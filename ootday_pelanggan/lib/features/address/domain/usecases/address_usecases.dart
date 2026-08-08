@@ -38,8 +38,6 @@ class AddAddressParams {
   final bool isMain;
   final int? districtId;
   final String? districtName;
-  final String? cityName;
-  final String? provinceName;
   final String? postalCode;
   const AddAddressParams({
     required this.name,
@@ -52,8 +50,6 @@ class AddAddressParams {
     required this.isMain,
     this.districtId,
     this.districtName,
-    this.cityName,
-    this.provinceName,
     this.postalCode,
   });
 }
@@ -74,8 +70,6 @@ class AddAddressUseCase extends UseCase<void, AddAddressParams> {
         isMain: params.isMain,
         districtId: params.districtId,
         districtName: params.districtName,
-        cityName: params.cityName,
-        provinceName: params.provinceName,
         postalCode: params.postalCode,
       );
 }
@@ -92,8 +86,6 @@ class UpdateAddressParams {
   final bool isMain;
   final int? districtId;
   final String? districtName;
-  final String? cityName;
-  final String? provinceName;
   final String? postalCode;
   const UpdateAddressParams({
     required this.id,
@@ -107,8 +99,6 @@ class UpdateAddressParams {
     required this.isMain,
     this.districtId,
     this.districtName,
-    this.cityName,
-    this.provinceName,
     this.postalCode,
   });
 }
@@ -130,8 +120,6 @@ class UpdateAddressUseCase extends UseCase<void, UpdateAddressParams> {
         isMain: params.isMain,
         districtId: params.districtId,
         districtName: params.districtName,
-        cityName: params.cityName,
-        provinceName: params.provinceName,
         postalCode: params.postalCode,
       );
 }

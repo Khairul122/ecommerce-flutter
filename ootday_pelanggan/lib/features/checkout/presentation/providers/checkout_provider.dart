@@ -143,7 +143,7 @@ class CheckoutProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _shippingMethods = await getShippingCostUseCase(addressId);
+      _shippingMethods = await getShippingMethodsUseCase(const NoParams());
     } catch (e) {
       _error = 'Gagal memuat opsi pengiriman: $e';
     } finally {

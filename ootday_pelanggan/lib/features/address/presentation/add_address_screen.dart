@@ -21,6 +21,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _streetController;
   late TextEditingController _detailController;
+  late TextEditingController _zipController;
+  late TextEditingController _districtSearchController;
 
   List<ProvinceEntity> _provinces = [];
   List<CityEntity> _cities = [];
@@ -41,6 +43,14 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   List<Map<String, dynamic>> _districtResults = [];
   bool _searchingDistrict = false;
 
+  String? _districtLabel() {
+    if (_districtName == null) return null;
+    final parts = [_districtName!];
+    if (_cityName != null) parts.add(_cityName!);
+    if (_provinceName != null) parts.add(_provinceName!);
+    return parts.join(', ');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +58,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     _phoneController = TextEditingController(text: widget.address?['phone'] ?? '');
     _streetController = TextEditingController(text: widget.address?['fullAddress'] ?? '');
     _detailController = TextEditingController();
+    _zipController = TextEditingController(text: widget.address?['postalCode'] ?? '');
+    _districtSearchController = TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadProvinces());
   }
@@ -173,16 +185,14 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           id: widget.address!['id'].toString(),
           name: name,
           phone: phone,
-          provinceId: _selectedProvince?.id,
-          provinceName: _selectedProvince?.name,
+          provinceId: _selectedProvince?.id ?? (_provinceName != null ? null : null),
+          provinceName: _selectedProvince?.name ?? _provinceName,
           cityId: _selectedCity?.id,
-          cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : null,
+          cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : _cityName,
           fullAddress: fullAddr,
           isMain: isMain,
           districtId: _districtId,
           districtName: _districtName,
-          cityName: _cityName,
-          provinceName: _provinceName,
           postalCode: _zipController.text.isEmpty ? null : _zipController.text,
         );
       } else {
@@ -190,15 +200,13 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           name: name,
           phone: phone,
           provinceId: _selectedProvince?.id,
-          provinceName: _selectedProvince?.name,
+          provinceName: _selectedProvince?.name ?? _provinceName,
           cityId: _selectedCity?.id,
-          cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : null,
+          cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : _cityName,
           fullAddress: fullAddr,
           isMain: isMain,
           districtId: _districtId,
           districtName: _districtName,
-          cityName: _cityName,
-          provinceName: _provinceName,
           postalCode: _zipController.text.isEmpty ? null : _zipController.text,
         );
       }

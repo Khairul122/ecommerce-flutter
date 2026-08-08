@@ -162,13 +162,11 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final ShippingMethodEntity method = staticMethods[index];
-                        final int price = method.baseCost.round();
-                        String priceStr = 'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
                         return ListTile(
                           onTap: () => Navigator.pop(context, method),
                           leading: const Icon(Icons.local_shipping_outlined, color: maroonColor),
-                          title: Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
+                          title: Text(method.name, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
                           subtitle: method.etd != null ? Text('Estimasi ${method.etd} hari', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)) : null,
                           trailing: Text(_formatRp(method.cost), style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
                         );

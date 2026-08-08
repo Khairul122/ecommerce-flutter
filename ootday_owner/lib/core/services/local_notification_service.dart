@@ -23,7 +23,7 @@ class LocalNotificationService {
     );
 
     await _plugin.initialize(
-      settings: const InitializationSettings(android: androidSettings, iOS: iosSettings),
+      const InitializationSettings(android: androidSettings, iOS: iosSettings),
     );
 
     await _plugin
@@ -44,10 +44,10 @@ class LocalNotificationService {
     const iosDetails = DarwinNotificationDetails();
 
     await _plugin.show(
-      id: id,
-      title: title,
-      body: body,
-      notificationDetails: const NotificationDetails(android: androidDetails, iOS: iosDetails),
+      id,
+      title,
+      body,
+      const NotificationDetails(android: androidDetails, iOS: iosDetails),
     );
   }
 }
