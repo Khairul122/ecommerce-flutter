@@ -22,6 +22,7 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   String _selectedSize = 'M';
   String _selectedColor = 'Default';
+  // ignore: unused_field
   int _selectedColorIndex = 0;
   int _currentPage = 0;
   int _quantity = 1;
