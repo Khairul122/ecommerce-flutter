@@ -10,8 +10,10 @@ return new class extends Migration {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('conversation_id')->constrained('conversations')->cascadeOnDelete();
-            $table->enum('sender_type', ['user', 'store']);
+            $table->enum('sender_type', ['user', 'store'])->default('user');
             $table->unsignedBigInteger('sender_user_id')->nullable();
+            $table->unsignedBigInteger('sender_id')->nullable();
+            $table->string('sender_role', 50)->nullable();
             $table->text('message');
             $table->boolean('is_read')->default(false);
             $table->timestamps();

@@ -38,6 +38,7 @@ class CartController extends Controller
 
         if ($item) {
             $item->increment('quantity', $quantity);
+            $item->update(['is_selected' => true]);
         } else {
             $item = $user->cartItems()->create([
                 'variant_id' => $variant->id,

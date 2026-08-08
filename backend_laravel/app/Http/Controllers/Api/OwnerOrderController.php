@@ -50,6 +50,7 @@ class OwnerOrderController extends Controller
         $validator = Validator::make($request->all(), [
             'status' => ['required', Rule::in(['diproses', 'dikirim', 'selesai', 'dibatalkan'])],
             'cancel_reason' => ['required_if:status,dibatalkan', 'nullable', 'string'],
+            'tracking_number' => ['nullable', 'string', 'max:100'],
         ]);
 
         if ($validator->fails()) {
@@ -67,6 +68,7 @@ class OwnerOrderController extends Controller
         $order->update([
             'status' => $request->status,
             'cancel_reason' => $request->status === 'dibatalkan' ? $request->cancel_reason : $order->cancel_reason,
+            'tracking_number' => $request->filled('tracking_number') ? $request->tracking_number : $order->tracking_number,
         ]);
 
         \App\Services\NotificationService::notify(

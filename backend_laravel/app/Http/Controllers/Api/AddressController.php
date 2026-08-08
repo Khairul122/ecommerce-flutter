@@ -21,6 +21,10 @@ class AddressController extends Controller
             'receiver_name' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'full_address' => ['required', 'string'],
+            'province_id' => ['nullable', 'integer'],
+            'province_name' => ['nullable', 'string', 'max:100'],
+            'city_id' => ['nullable', 'integer'],
+            'city_name' => ['nullable', 'string', 'max:100'],
             'is_main' => ['nullable', 'boolean'],
         ]);
 
@@ -49,6 +53,10 @@ class AddressController extends Controller
             'receiver_name' => ['sometimes', 'required', 'string', 'max:100'],
             'phone' => ['sometimes', 'required', 'string', 'max:20'],
             'full_address' => ['sometimes', 'required', 'string'],
+            'province_id' => ['nullable', 'integer'],
+            'province_name' => ['nullable', 'string', 'max:100'],
+            'city_id' => ['nullable', 'integer'],
+            'city_name' => ['nullable', 'string', 'max:100'],
         ]);
 
         if ($validator->fails()) {

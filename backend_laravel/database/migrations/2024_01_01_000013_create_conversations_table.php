@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
+            $table->timestamp('last_message_at')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'store_id']);

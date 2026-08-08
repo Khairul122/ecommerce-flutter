@@ -62,8 +62,12 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'address_id' => ['required', 'exists:addresses,id'],
-            'shipping_method_id' => ['required', 'exists:shipping_methods,id'],
+            'shipping_method_id' => ['nullable'],
             'payment_method_id' => ['required', 'exists:payment_methods,id'],
+            'shipping_courier' => ['nullable', 'string'],
+            'shipping_service' => ['nullable', 'string'],
+            'shipping_cost' => ['nullable', 'numeric'],
+            'shipping_etd' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -101,22 +105,31 @@ class OrderController extends Controller
             }
         }
 
-        $shippingMethod = \App\Models\ShippingMethod::findOrFail($request->shipping_method_id);
+        $shippingMethod = $request->shipping_method_id ? \App\Models\ShippingMethod::find($request->shipping_method_id) : null;
         $subtotal = $cartItems->sum(fn ($i) => (float) ($i->variant->price ?? $i->variant->product->price) * $i->quantity);
+        $totalWeight = $cartItems->sum(fn ($i) => (int) ($i->variant->product->weight ?? 500) * $i->quantity);
+        $shippingCost = $request->filled('shipping_cost') ? (float) $request->shipping_cost : ($shippingMethod->base_cost ?? 15000);
+        $courier = $request->shipping_courier ?? ($shippingMethod->name ?? 'JNE');
+        $service = $request->shipping_service ?? 'REG';
+        $etd = $request->shipping_etd ?? '2-3 hari';
 
-        $order = DB::transaction(function () use ($cartItems, $address, $shippingMethod, $request, $user, $subtotal, $storeIds) {
+        $order = DB::transaction(function () use ($cartItems, $address, $shippingMethod, $request, $user, $subtotal, $totalWeight, $shippingCost, $courier, $service, $etd, $storeIds) {
             $order = \App\Models\Order::create([
                 'order_code' => 'OD'.now()->format('ymd').Str::upper(Str::random(6)),
                 'user_id' => $user->id,
                 'store_id' => $storeIds->first(),
                 'payment_method_id' => $request->payment_method_id,
-                'shipping_method_id' => $shippingMethod->id,
+                'shipping_method_id' => $shippingMethod?->id,
                 'receiver_name' => $address->receiver_name,
                 'receiver_phone' => $address->phone,
-                'shipping_address' => $address->full_address,
+                'shipping_address' => $address->full_address.($address->city_name ? ", {$address->city_name}, {$address->province_name}" : ''),
                 'subtotal' => $subtotal,
-                'shipping_cost' => $shippingMethod->base_cost,
-                'total_price' => $subtotal + $shippingMethod->base_cost,
+                'shipping_cost' => $shippingCost,
+                'shipping_courier' => $courier,
+                'shipping_service' => $service,
+                'shipping_weight' => $totalWeight,
+                'shipping_etd' => $etd,
+                'total_price' => $subtotal + $shippingCost,
                 'status' => 'menunggu_pembayaran',
                 'payment_status' => 'unpaid',
             ]);
@@ -151,7 +164,7 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Pesanan berhasil dibuat',
-            'data' => $order->load(['items', 'paymentMethod', 'shippingMethod']),
+            'data' => $order->load(['items', 'paymentMethod', 'shippingMethod', 'store']),
         ], 201);
     }
 

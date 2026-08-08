@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OwnerOrderController;
 use App\Http\Controllers\Api\PaymentShippingMethodController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ShippingController;
 use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,10 @@ Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/payment-methods', [PaymentShippingMethodController::class, 'paymentMethods']);
 Route::get('/shipping-methods', [PaymentShippingMethodController::class, 'shippingMethods']);
+
+Route::get('/shipping/provinces', [ShippingController::class, 'provinces']);
+Route::get('/shipping/cities', [ShippingController::class, 'cities']);
+Route::post('/shipping/cost', [ShippingController::class, 'calculateCost']);
 
 // Xendit Webhook Callback Notification (Public)
 Route::post('/xendit/callback', [XenditNotificationController::class, 'handle']);

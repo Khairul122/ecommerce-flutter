@@ -44,6 +44,36 @@ Route::get('/run-migration', function () {
             });
             $log[] = "Added column payment_type manually.";
         }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_courier')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_courier', 50)->nullable();
+            });
+            $log[] = "Added column shipping_courier manually.";
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_service')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_service', 50)->nullable();
+            });
+            $log[] = "Added column shipping_service manually.";
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_weight')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->integer('shipping_weight')->default(0);
+            });
+            $log[] = "Added column shipping_weight manually.";
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_etd')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_etd', 50)->nullable();
+            });
+            $log[] = "Added column shipping_etd manually.";
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('orders', 'tracking_number')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('tracking_number', 100)->nullable();
+            });
+            $log[] = "Added column tracking_number manually.";
+        }
         $log[] = "Schema check complete.";
     } catch (\Throwable $e) {
         $log[] = "Schema Alter Error: " . $e->getMessage();

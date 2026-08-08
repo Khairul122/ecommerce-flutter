@@ -10,6 +10,7 @@ class Order extends Model
         'order_code', 'user_id', 'store_id', 'payment_method_id', 'shipping_method_id',
         'receiver_name', 'receiver_phone', 'shipping_address',
         'subtotal', 'shipping_cost', 'total_price',
+        'shipping_courier', 'shipping_service', 'shipping_weight', 'shipping_etd', 'tracking_number',
         'status', 'payment_status', 'payment_proof_url', 'cancel_reason', 'ordered_at',
         'snap_token', 'snap_redirect_url', 'payment_type',
     ];
