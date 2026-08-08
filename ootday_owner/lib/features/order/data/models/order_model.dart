@@ -34,6 +34,12 @@ class OrderModel extends OrderEntity {
     super.totalPrice,
     super.cancelReason,
     required super.items,
+    super.shippingCourier,
+    super.shippingService,
+    super.shippingCost,
+    super.shippingWeight,
+    super.shippingEtd,
+    super.trackingNumber,
     required super.raw,
   });
 
@@ -48,6 +54,12 @@ class OrderModel extends OrderEntity {
       paymentStatus: json['payment_status']?.toString(),
       totalPrice: json['total_price'],
       cancelReason: json['cancel_reason']?.toString(),
+      shippingCourier: json['shipping_courier']?.toString(),
+      shippingService: json['shipping_service']?.toString(),
+      shippingCost: json['shipping_cost'],
+      shippingWeight: json['shipping_weight'] != null ? int.tryParse(json['shipping_weight'].toString()) : null,
+      shippingEtd: json['shipping_etd']?.toString(),
+      trackingNumber: json['tracking_number']?.toString(),
       items: itemsJson
           .cast<Map<String, dynamic>>()
           .map(OrderItemModel.fromJson)

@@ -11,6 +11,7 @@ abstract class OrderRepository {
     int id, {
     required String status,
     String? cancelReason,
+    String? trackingNumber,
   });
 
   Future<void> confirmPayment(int id);

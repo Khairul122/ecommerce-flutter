@@ -9,9 +9,13 @@ class OrderEntity {
   final String? cancelReason;
   final List<OrderItemEntity> items;
 
-  /// JSON mentah dari server, dipertahankan supaya layar yang belum
-  /// sepenuhnya dirapikan masih bisa membaca field yang belum dimodelkan
-  /// di sini (mis. alamat pengiriman, data pembeli).
+  final String? shippingCourier;
+  final String? shippingService;
+  final dynamic shippingCost;
+  final int? shippingWeight;
+  final String? shippingEtd;
+  final String? trackingNumber;
+
   final Map<String, dynamic> raw;
 
   const OrderEntity({
@@ -22,6 +26,20 @@ class OrderEntity {
     this.totalPrice,
     this.cancelReason,
     required this.items,
+    this.shippingCourier,
+    this.shippingService,
+    this.shippingCost,
+    this.shippingWeight,
+    this.shippingEtd,
+    this.trackingNumber,
     required this.raw,
   });
+
+  String get courierDisplay {
+    if (shippingCourier != null && shippingCourier!.isNotEmpty) {
+      final service = shippingService != null ? ' $shippingService' : '';
+      return '${shippingCourier!.toUpperCase()}$service';
+    }
+    return raw['shipping_method']?['name']?.toString() ?? 'JNE REG';
+  }
 }

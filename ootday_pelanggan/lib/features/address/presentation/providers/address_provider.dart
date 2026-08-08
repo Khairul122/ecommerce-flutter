@@ -3,9 +3,6 @@ import '../../../../core/usecase.dart';
 import '../../domain/entities/address_entity.dart';
 import '../../domain/usecases/address_usecases.dart';
 
-/// State daftar alamat untuk seluruh aplikasi, dibaca lewat
-/// `context.watch<AddressProvider>()` / `context.read<AddressProvider>()`.
-/// Menggantikan pemanggilan `AddressData` statis langsung dari widget.
 class AddressProvider extends ChangeNotifier {
   final GetAddressesUseCase getAddressesUseCase;
   final AddAddressUseCase addAddressUseCase;
@@ -46,12 +43,20 @@ class AddressProvider extends ChangeNotifier {
   Future<void> addAddress({
     required String name,
     required String phone,
+    int? provinceId,
+    String? provinceName,
+    int? cityId,
+    String? cityName,
     required String fullAddress,
     required bool isMain,
   }) async {
     await addAddressUseCase(AddAddressParams(
       name: name,
       phone: phone,
+      provinceId: provinceId,
+      provinceName: provinceName,
+      cityId: cityId,
+      cityName: cityName,
       fullAddress: fullAddress,
       isMain: isMain,
     ));
@@ -62,6 +67,10 @@ class AddressProvider extends ChangeNotifier {
     required String id,
     required String name,
     required String phone,
+    int? provinceId,
+    String? provinceName,
+    int? cityId,
+    String? cityName,
     required String fullAddress,
     required bool isMain,
   }) async {
@@ -69,6 +78,10 @@ class AddressProvider extends ChangeNotifier {
       id: id,
       name: name,
       phone: phone,
+      provinceId: provinceId,
+      provinceName: provinceName,
+      cityId: cityId,
+      cityName: cityName,
       fullAddress: fullAddress,
       isMain: isMain,
     ));

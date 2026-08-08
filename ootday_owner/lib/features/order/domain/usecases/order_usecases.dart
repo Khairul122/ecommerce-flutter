@@ -28,10 +28,12 @@ class UpdateOrderStatusParams {
   final int id;
   final String status;
   final String? cancelReason;
+  final String? trackingNumber;
   const UpdateOrderStatusParams({
     required this.id,
     required this.status,
     this.cancelReason,
+    this.trackingNumber,
   });
 }
 
@@ -44,6 +46,7 @@ class UpdateOrderStatusUseCase extends UseCase<void, UpdateOrderStatusParams> {
         params.id,
         status: params.status,
         cancelReason: params.cancelReason,
+        trackingNumber: params.trackingNumber,
       );
 }
 

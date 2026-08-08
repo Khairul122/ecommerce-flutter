@@ -1,11 +1,10 @@
 import '../../../order/domain/entities/order_entity.dart';
 import '../../domain/entities/payment_method_entity.dart';
+import '../../domain/entities/rajaongkir_cost_entity.dart';
 import '../../domain/entities/shipping_method_entity.dart';
 import '../../domain/repositories/checkout_repository.dart';
 import '../datasources/checkout_remote_data_source.dart';
 
-/// Implementasi [CheckoutRepository]: murni delegasi ke remote data source
-/// (REST API). Tidak ada cache lokal.
 class CheckoutRepositoryImpl implements CheckoutRepository {
   final CheckoutRemoteDataSource remote;
 
@@ -18,15 +17,36 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   Future<List<ShippingMethodEntity>> getShippingMethods() => remote.getShippingMethods();
 
   @override
+  Future<List<RajaOngkirCourierEntity>> checkShippingCost({
+    required int destinationCityId,
+    required int totalWeightGram,
+    required String courier,
+  }) {
+    return remote.checkShippingCost(
+      destinationCityId: destinationCityId,
+      totalWeightGram: totalWeightGram,
+      courier: courier,
+    );
+  }
+
+  @override
   Future<OrderEntity> createOrder({
     required String addressId,
-    required int shippingMethodId,
+    int? shippingMethodId,
     required int paymentMethodId,
+    String? shippingCourier,
+    String? shippingService,
+    int? shippingCost,
+    String? shippingEtd,
   }) {
     return remote.createOrder(
       addressId: addressId,
       shippingMethodId: shippingMethodId,
       paymentMethodId: paymentMethodId,
+      shippingCourier: shippingCourier,
+      shippingService: shippingService,
+      shippingCost: shippingCost,
+      shippingEtd: shippingEtd,
     );
   }
 }

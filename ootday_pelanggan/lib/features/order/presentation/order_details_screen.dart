@@ -9,6 +9,7 @@ import '../../../core/services/api_service.dart';
 import '../domain/entities/order_entity.dart';
 import '../domain/entities/order_item_entity.dart';
 import 'providers/order_provider.dart';
+import 'tracking_screen.dart';
 
 /// Perbaikan audit: layar ini sebelumnya adalah StatelessWidget TANPA
 /// parameter apa pun, jadi setiap pesanan (apapun statusnya) menampilkan
@@ -201,13 +202,47 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Info Pengiriman', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Info Pengiriman', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => TrackingScreen(order: order)),
+                      ),
+                      icon: const Icon(Icons.local_shipping, size: 16, color: Colors.white),
+                      label: Text('Lacak Pengiriman', style: GoogleFonts.outfit(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: maroonColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 15),
                 Row(
                   children: [
-                    Icon(Icons.inventory_2, color: maroonColor, size: 30),
+                    Icon(Icons.inventory_2, color: maroonColor, size: 28),
                     const SizedBox(width: 15),
-                    Text(order.shippingMethodName ?? '-', style: GoogleFonts.outfit(fontSize: 14)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(order.courierDisplay, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(
+                            'Resi: ${order.trackingNumber ?? 'Belum Diinput'}',
+                            style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey.shade700),
+                          ),
+                          if (order.shippingEtd != null)
+                            Text(
+                              'Estimasi Tiba: ${order.shippingEtd}',
+                              style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey.shade600),
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ],

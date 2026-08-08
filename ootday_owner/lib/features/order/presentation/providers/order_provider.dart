@@ -55,11 +55,13 @@ class OrderProvider extends ChangeNotifier {
     int id, {
     required String status,
     String? cancelReason,
+    String? trackingNumber,
   }) {
     return updateOrderStatusUseCase(UpdateOrderStatusParams(
       id: id,
       status: status,
       cancelReason: cancelReason,
+      trackingNumber: trackingNumber,
     ));
   }
 

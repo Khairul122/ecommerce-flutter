@@ -24,8 +24,9 @@ class OrderRepositoryImpl implements OrderRepository {
     int id, {
     required String status,
     String? cancelReason,
+    String? trackingNumber,
   }) {
-    return remote.updateStatus(id, status: status, cancelReason: cancelReason);
+    return remote.updateStatus(id, status: status, cancelReason: cancelReason, trackingNumber: trackingNumber);
   }
 
   @override

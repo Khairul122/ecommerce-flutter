@@ -60,8 +60,10 @@ class CartProvider extends ChangeNotifier {
     return addToCartUseCase(AddToCartParams(variantId: variantId, quantity: quantity));
   }
 
-  Future<String> buyNow({required int variantId, int quantity = 1}) {
-    return buyNowUseCase(BuyNowParams(variantId: variantId, quantity: quantity));
+  Future<String> buyNow({required int variantId, int quantity = 1}) async {
+    final newItemId = await buyNowUseCase(BuyNowParams(variantId: variantId, quantity: quantity));
+    await loadCart();
+    return newItemId;
   }
 
   Future<void> toggleSelectAll(bool isSelected) async {

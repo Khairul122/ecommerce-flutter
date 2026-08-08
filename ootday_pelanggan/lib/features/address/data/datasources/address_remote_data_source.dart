@@ -1,8 +1,7 @@
 import '../../../../core/services/api_service.dart';
 import '../models/address_model.dart';
+import '../models/region_model.dart';
 
-/// Sumber data remote (REST API Laravel) untuk fitur alamat. Tidak menyimpan
-/// state apa pun — murni pemanggilan endpoint dan parsing response.
 class AddressRemoteDataSource {
   final ApiService _api;
   AddressRemoteDataSource(this._api);
@@ -15,15 +14,39 @@ class AddressRemoteDataSource {
         .toList();
   }
 
+  Future<List<ProvinceModel>> getProvinces() async {
+    final result = await _api.get('/shipping/provinces');
+    final List rawList = result['data'] ?? [];
+    return rawList
+        .map((p) => ProvinceModel.fromJson(p as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<CityModel>> getCities(int provinceId) async {
+    final result = await _api.get('/shipping/cities?province_id=$provinceId');
+    final List rawList = result['data'] ?? [];
+    return rawList
+        .map((c) => CityModel.fromJson(c as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<void> addAddress({
     required String name,
     required String phone,
+    int? provinceId,
+    String? provinceName,
+    int? cityId,
+    String? cityName,
     required String fullAddress,
     required bool isMain,
   }) {
     return _api.post('/addresses', {
       'receiver_name': name,
       'phone': phone,
+      'province_id': provinceId,
+      'province_name': provinceName,
+      'city_id': cityId,
+      'city_name': cityName,
       'full_address': fullAddress,
       'is_main': isMain,
     });
@@ -33,12 +56,20 @@ class AddressRemoteDataSource {
     required String id,
     required String name,
     required String phone,
+    int? provinceId,
+    String? provinceName,
+    int? cityId,
+    String? cityName,
     required String fullAddress,
     required bool isMain,
   }) async {
     await _api.put('/addresses/$id', {
       'receiver_name': name,
       'phone': phone,
+      'province_id': provinceId,
+      'province_name': provinceName,
+      'city_id': cityId,
+      'city_name': cityName,
       'full_address': fullAddress,
     });
     if (isMain) {

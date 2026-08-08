@@ -52,6 +52,7 @@ class ProductEntity {
   final int? categoryId;
   final String name;
   final double price;
+  final int weight;
   final int stock;
   final String status;
   final String? description;
@@ -67,6 +68,7 @@ class ProductEntity {
     this.categoryId,
     required this.name,
     required this.price,
+    this.weight = 500,
     required this.stock,
     this.status = 'active',
     this.description,

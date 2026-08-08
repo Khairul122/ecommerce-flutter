@@ -113,7 +113,7 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
     final bool confirm = await AppDialog.showConfirm(
       context,
       title: 'Ubah Status Pesanan',
-      message: 'Apakah Anda yakin ingin mengubah status pesanan ini menjadi "${newStatus}"?',
+      message: 'Apakah Anda yakin ingin mengubah status pesanan ini menjadi "$newStatus"?',
       confirmText: 'Ya, Ubah',
       cancelText: 'Batal',
     );
@@ -128,7 +128,7 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
       await AppDialog.showSuccess(
         context,
         title: 'Berhasil',
-        message: 'Status pesanan berhasil diperbarui menjadi ${newStatus}.',
+        message: 'Status pesanan berhasil diperbarui menjadi $newStatus.',
         onOk: _loadOrders,
       );
     } catch (e) {
@@ -138,6 +138,64 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
         title: 'Gagal Memperbarui',
         message: e.toString(),
       );
+    }
+  }
+
+  Future<void> _showShipOrderDialog(OrderEntity order) async {
+    final resiController = TextEditingController(text: order.trackingNumber ?? 'JNE${DateTime.now().millisecondsSinceEpoch.toString().substring(3)}');
+    final courierDisplay = order.courierDisplay;
+
+    final String? resi = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Proses Pengiriman & Input Resi'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Ekspedisi: $courierDisplay', style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('Masukkan nomor resi pengiriman untuk pembeli:'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: resiController,
+              decoration: const InputDecoration(
+                labelText: 'Nomor Resi / AWB',
+                hintText: 'Contoh: JNE1234567890',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, resiController.text.trim()),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB40001), foregroundColor: Colors.white),
+            child: const Text('SIMPAN RESI & KIRIM'),
+          ),
+        ],
+      ),
+    );
+
+    if (resi == null || resi.isEmpty) return;
+
+    try {
+      await context.read<OrderProvider>().updateStatus(
+            order.id,
+            status: 'dikirim',
+            trackingNumber: resi,
+          );
+      if (!mounted) return;
+      await AppDialog.showSuccess(
+        context,
+        title: 'Pesanan Dikirim',
+        message: 'Nomor resi $resi berhasil disimpan dan status pesanan berubah menjadi dikirim.',
+        onOk: _loadOrders,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppDialog.showError(context, title: 'Gagal', message: e.toString());
     }
   }
 
@@ -469,9 +527,9 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
       ));
     } else if (status == 'diproses') {
       actions.add(_actionButton(
-        label: 'Tandai Dikirim',
+        label: 'Input Resi & Kirim',
         color: Colors.blue,
-        onTap: () => _updateStatus(id, 'dikirim'),
+        onTap: () => _showShipOrderDialog(order),
       ));
     } else if (status == 'dikirim') {
       actions.add(_actionButton(

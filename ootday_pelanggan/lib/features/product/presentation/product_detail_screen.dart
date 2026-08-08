@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../cart/presentation/cart_screen.dart';
+import '../../cart/presentation/providers/cart_provider.dart';
 import '../../checkout/presentation/checkout_screen.dart';
 import '../../cart/data/cart_data.dart';
 import '../../chat/presentation/chat_list_screen.dart';
@@ -206,18 +207,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   /// Cari id varian server yang cocok dengan ukuran & warna yang sedang
   /// dipilih user. Dipakai supaya "Tambah ke Keranjang"/"Beli Sekarang"
   /// mengirim variant_id yang valid ke POST /api/cart.
-  int? _resolveSelectedVariantId() {
+  Map<String, dynamic>? _resolveSelectedVariant() {
     if (_variants.isEmpty) return null;
-    final match = _variants.firstWhere(
-      (v) => (v['size']?.toString() == _selectedSize) && (v['color']?.toString() == _selectedColor),
-      orElse: () => _variants.first,
-    );
-    final id = match['id'];
+    try {
+      return _variants.firstWhere(
+        (v) => (v['size']?.toString() == _selectedSize) && (v['color']?.toString() == _selectedColor),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  int? _resolveSelectedVariantId() {
+    final v = _resolveSelectedVariant();
+    if (v == null) {
+      if (_variants.isNotEmpty) {
+        final id = _variants.first['id'];
+        return id is int ? id : int.tryParse(id.toString());
+      }
+      return null;
+    }
+    final id = v['id'];
     if (id == null) return null;
     return id is int ? id : int.tryParse(id.toString());
   }
 
+  int _getSelectedVariantStock() {
+    final v = _resolveSelectedVariant();
+    if (v != null && v['stock'] != null) {
+      return int.tryParse(v['stock'].toString()) ?? 0;
+    }
+    final pStock = widget.product['stock'];
+    return pStock != null ? (int.tryParse(pStock.toString()) ?? 100) : 100;
+  }
+
   void _showVariantSheet({required String buttonText}) {
+    bool isSubmitting = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -225,8 +251,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            const Color maroonColor = Color(0xFFB01D1D);
+            const Color maroonColor = Color(0xFF5D1A1A);
             const Color lightBg = Color(0xFFF8F3F3);
+
+            final currentStock = _getSelectedVariantStock();
 
             return Container(
               height: MediaQuery.of(context).size.height * 0.75,
@@ -243,8 +271,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 90,
+                          height: 90,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
                             image: DecorationImage(
@@ -264,7 +292,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   Text(
                                     'Rp ${widget.product['price']}',
                                     style: GoogleFonts.outfit(
-                                      fontSize: 22,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.w900,
                                       color: Colors.black,
                                     ),
@@ -277,10 +305,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 4),
                               Text(
-                                'Stok: ${widget.product['stock'] ?? '100'}',
+                                'Stok: $currentStock',
                                 style: GoogleFonts.outfit(
-                                  color: Colors.black54, 
+                                  color: currentStock > 0 ? Colors.green.shade700 : Colors.red, 
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -341,7 +370,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         decoration: BoxDecoration(
                                           color: colorValue,
                                           shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+                                          border: Border.all(color: Colors.grey.withValues(alpha: 0.3), width: 1),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
@@ -429,13 +458,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.remove, size: 18, color: Colors.black),
-                                      onPressed: () {
-                                        if (_quantity > 1) {
-                                          setModalState(() {
-                                            _quantity--;
-                                          });
-                                        }
-                                      },
+                                      onPressed: _quantity > 1
+                                          ? () => setModalState(() => _quantity--)
+                                          : null,
                                     ),
                                     Text(
                                       '$_quantity', 
@@ -448,9 +473,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     IconButton(
                                       icon: const Icon(Icons.add, size: 18, color: Colors.black),
                                       onPressed: () {
-                                        setModalState(() {
-                                          _quantity++;
-                                        });
+                                        if (_quantity < currentStock) {
+                                          setModalState(() => _quantity++);
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Jumlah tidak boleh melebihi sisa stok ($currentStock)')),
+                                          );
+                                        }
                                       },
                                     ),
                                   ],
@@ -464,56 +493,74 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
 
-                  // 3. Confirm Button (Dynamic Text)
+                  // 3. Confirm Button (Dynamic Action)
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: ElevatedButton(
-                      onPressed: () async {
-                        final variantId = _resolveSelectedVariantId();
-                        Navigator.pop(context);
-                        if (variantId == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Varian produk tidak tersedia')),
-                          );
-                          return;
-                        }
+                      onPressed: (isSubmitting || currentStock <= 0)
+                          ? null
+                          : () async {
+                              final selectedVar = _resolveSelectedVariant();
+                              if (_variants.isNotEmpty && selectedVar == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Silakan pilih varian terlebih dahulu')),
+                                );
+                                return;
+                              }
 
-                        if (buttonText == 'Beli Sekarang') {
-                          try {
-                            // POST /orders di server hanya memproses item
-                            // keranjang yang is_selected=true, jadi "Beli
-                            // Sekarang" harus melalui keranjang juga.
-                            await CartData.buyNow(variantId: variantId, quantity: _quantity);
-                            if (!mounted) return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const CheckoutScreen()),
-                            );
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Gagal memproses: $e')),
-                              );
-                            }
-                          }
-                        } else {
-                          try {
-                            await CartData.addItem(variantId: variantId, quantity: _quantity);
-                            await _refreshCartCount();
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Berhasil ditambahkan ke keranjang')),
-                              );
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Gagal menambahkan ke keranjang: $e')),
-                              );
-                            }
-                          }
-                        }
-                      },
+                              final variantId = _resolveSelectedVariantId();
+                              if (variantId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Varian produk tidak tersedia')),
+                                );
+                                return;
+                              }
+
+                              if (currentStock <= 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Stok produk habis')),
+                                );
+                                return;
+                              }
+
+                              if (_quantity > currentStock) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Jumlah melebihi stok yang tersedia (Sisa: $currentStock)')),
+                                );
+                                return;
+                              }
+
+                              setModalState(() => isSubmitting = true);
+                              try {
+                                if (buttonText == 'Beli Sekarang') {
+                                  await context.read<CartProvider>().buyNow(variantId: variantId, quantity: _quantity);
+                                  if (!context.mounted) return;
+                                  Navigator.pop(context); // Pop sheet
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+                                  );
+                                } else {
+                                  await context.read<CartProvider>().addItem(variantId: variantId, quantity: _quantity);
+                                  await _refreshCartCount();
+                                  if (!context.mounted) return;
+                                  Navigator.pop(context); // Pop sheet
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Berhasil ditambahkan ke keranjang')),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Gagal memproses: $e')),
+                                  );
+                                }
+                              } finally {
+                                if (context.mounted) {
+                                  setModalState(() => isSubmitting = false);
+                                }
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: maroonColor,
                         foregroundColor: Colors.white,
@@ -523,13 +570,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: Text(
-                        buttonText == 'Beli Sekarang' ? 'Beli Sekarang' : 'Konfirmasi',
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              currentStock <= 0 ? 'Stok Habis' : (buttonText == 'Beli Sekarang' ? 'Beli Sekarang' : 'Tambah ke Keranjang'),
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -797,45 +846,58 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
         bottomSheet: _isLoading ? null : Container(
           height: 85,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(color: lightBg, borderRadius: const BorderRadius.vertical(top: Radius.circular(30)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))]),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: lightBg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5)),
+            ],
+          ),
           child: Row(
             children: [
               GestureDetector(
                 onTap: _contactSeller,
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(10),
                   child: Image.asset(
                     'assets/images/icons msg.png',
-                    width: 28,
-                    height: 28,
+                    width: 26,
+                    height: 26,
                     color: const Color(0xFF5D1A1A),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Container(width: 1, height: 30, color: Colors.grey.withOpacity(0.3)),
-              const SizedBox(width: 10),
-              GestureDetector(
-                onTap: () => _showVariantSheet(buttonText: 'masukkan keranjang'),
-                child: _buildActionIcon(Icons.add_shopping_cart),
+              const SizedBox(width: 6),
+              Container(width: 1, height: 28, color: Colors.grey.withValues(alpha: 0.3)),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: () => _showVariantSheet(buttonText: 'Tambah ke Keranjang'),
+                icon: const Icon(Icons.add_shopping_cart, size: 18, color: Color(0xFF5D1A1A)),
+                label: Text('Keranjang', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF5D1A1A))),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF5D1A1A), width: 1.5),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 10),
               Expanded(
-                child: GestureDetector(
-                  onTap: () => _showVariantSheet(buttonText: 'Beli Sekarang'),
-                  child: Container(
-                    height: 55,
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey.withOpacity(0.2))),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Beli Dengan Harga', style: GoogleFonts.outfit(fontSize: 12, color: Colors.black)),
-                          Text(formattedPrice, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-                        ],
-                      ),
-                    ),
+                child: ElevatedButton(
+                  onPressed: () => _showVariantSheet(buttonText: 'Beli Sekarang'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF5D1A1A),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Beli Sekarang', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text(formattedPrice, style: GoogleFonts.outfit(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w600)),
+                    ],
                   ),
                 ),
               ),
@@ -847,10 +909,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildCircleButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(onTap: onTap, child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), shape: BoxShape.circle), child: Icon(icon, color: Colors.white, size: 20)));
-  }
-
-  Widget _buildActionIcon(IconData icon) {
-    return Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: const Color(0xFF5D1A1A), size: 28));
+    return GestureDetector(onTap: onTap, child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.3), shape: BoxShape.circle), child: Icon(icon, color: Colors.white, size: 20)));
   }
 }

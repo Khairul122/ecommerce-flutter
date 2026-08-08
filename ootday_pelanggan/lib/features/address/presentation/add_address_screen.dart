@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../domain/entities/region_entity.dart';
+import '../domain/usecases/address_usecases.dart';
 import 'providers/address_provider.dart';
+import '../../../../core/usecase.dart';
 
 class AddAddressScreen extends StatefulWidget {
   final Map<String, dynamic>? address;
@@ -14,10 +17,17 @@ class AddAddressScreen extends StatefulWidget {
 class _AddAddressScreenState extends State<AddAddressScreen> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
-  late TextEditingController _provinceController;
-  late TextEditingController _zipController;
   late TextEditingController _streetController;
   late TextEditingController _detailController;
+
+  List<ProvinceEntity> _provinces = [];
+  List<CityEntity> _cities = [];
+
+  ProvinceEntity? _selectedProvince;
+  CityEntity? _selectedCity;
+
+  bool _isLoadingRegions = false;
+  bool _isLoadingCities = false;
   bool _isSaving = false;
 
   @override
@@ -25,35 +35,59 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.address?['name'] ?? '');
     _phoneController = TextEditingController(text: widget.address?['phone'] ?? '');
-    
-    // Parsing fullAddress (format tulis: "jalan\nprovinsi kodepos\ndetail")
-    // untuk mengembalikan ke field masing-masing saat mode edit.
-    String full = widget.address?['fullAddress'] ?? '';
-    List<String> lines = full.split('\n');
-    _streetController = TextEditingController(text: lines.isNotEmpty ? lines[0] : '');
+    _streetController = TextEditingController(text: widget.address?['fullAddress'] ?? '');
+    _detailController = TextEditingController();
 
-    String province = '';
-    String zip = '';
-    if (lines.length > 1) {
-      final lastSpace = lines[1].lastIndexOf(' ');
-      if (lastSpace != -1) {
-        province = lines[1].substring(0, lastSpace);
-        zip = lines[1].substring(lastSpace + 1);
-      } else {
-        province = lines[1];
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadProvinces());
+  }
+
+  Future<void> _loadProvinces() async {
+    setState(() => _isLoadingRegions = true);
+    try {
+      final getProvincesUseCase = context.read<GetProvincesUseCase>();
+      final result = await getProvincesUseCase(const NoParams());
+      if (mounted) {
+        setState(() {
+          _provinces = result;
+          _isLoadingRegions = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingRegions = false);
       }
     }
-    _provinceController = TextEditingController(text: province);
-    _zipController = TextEditingController(text: zip);
-    _detailController = TextEditingController(text: lines.length > 2 ? lines.sublist(2).join('\n') : '');
+  }
+
+  Future<void> _onProvinceChanged(ProvinceEntity? prov) async {
+    if (prov == null) return;
+    setState(() {
+      _selectedProvince = prov;
+      _selectedCity = null;
+      _cities = [];
+      _isLoadingCities = true;
+    });
+
+    try {
+      final getCitiesUseCase = context.read<GetCitiesUseCase>();
+      final result = await getCitiesUseCase(prov.id);
+      if (mounted) {
+        setState(() {
+          _cities = result;
+          _isLoadingCities = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingCities = false);
+      }
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _provinceController.dispose();
-    _zipController.dispose();
     _streetController.dispose();
     _detailController.dispose();
     super.dispose();
@@ -61,27 +95,47 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   Future<void> _saveAddress(bool isMain) async {
     if (_isSaving) return;
+
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama penerima wajib diisi')));
+      return;
+    }
+    if (_phoneController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor handphone wajib diisi')));
+      return;
+    }
+    if (_streetController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alamat lengkap wajib diisi')));
+      return;
+    }
+
     setState(() => _isSaving = true);
-    String fullAddr = '${_streetController.text}\n${_provinceController.text} ${_zipController.text}\n${_detailController.text}';
-    final name = _nameController.text;
-    final phone = _phoneController.text;
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final fullAddr = _streetController.text.trim();
 
     try {
       final provider = context.read<AddressProvider>();
       if (widget.address != null && widget.address!['id'] != null) {
-        // Update existing
         await provider.updateAddress(
           id: widget.address!['id'].toString(),
           name: name,
           phone: phone,
+          provinceId: _selectedProvince?.id,
+          provinceName: _selectedProvince?.name,
+          cityId: _selectedCity?.id,
+          cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : null,
           fullAddress: fullAddr,
           isMain: isMain,
         );
       } else {
-        // Add new
         await provider.addAddress(
           name: name,
           phone: phone,
+          provinceId: _selectedProvince?.id,
+          provinceName: _selectedProvince?.name,
+          cityId: _selectedCity?.id,
+          cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : null,
           fullAddress: fullAddr,
           isMain: isMain,
         );
@@ -125,20 +179,78 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SECTION: INFORMASI PENERIMA
             _buildSectionTitle('Informasi Penerima', maroonColor),
             _buildInputField('*Nama', _nameController, maroonColor),
-            _buildInputField('*No.Handphone', _phoneController, maroonColor),
-            
+            _buildInputField('*No. Handphone', _phoneController, maroonColor),
+
             const SizedBox(height: 10),
+
+            _buildSectionTitle('Wilayah Pengiriman (RajaOngkir)', maroonColor),
             
-            // SECTION: ALAMAT PENERIMA
-            _buildSectionTitle('Alamat Penerima', maroonColor),
-            _buildInputField('*Provinsi, Kota/Kabupaten & Kecamatan', _provinceController, maroonColor),
-            _buildInputField('*Kode Pos', _zipController, maroonColor),
-            _buildInputField('*Nama jalan', _streetController, maroonColor),
-            _buildInputField('*Detail', _detailController, maroonColor),
-            
+            // Dropdown Provinsi
+            Text('*Provinsi', style: GoogleFonts.outfit(color: maroonColor, fontSize: 13, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 5),
+            _isLoadingRegions
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: maroonColor),
+                  )
+                : DropdownButtonFormField<ProvinceEntity>(
+                    value: _selectedProvince,
+                    isExpanded: true,
+                    hint: Text('Pilih Provinsi', style: GoogleFonts.outfit(fontSize: 14)),
+                    items: _provinces
+                        .map((p) => DropdownMenuItem(
+                              value: p,
+                              child: Text(p.name, style: GoogleFonts.outfit(fontSize: 14)),
+                            ))
+                        .toList(),
+                    onChanged: _onProvinceChanged,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+
+            const SizedBox(height: 15),
+
+            // Dropdown Kota/Kabupaten
+            Text('*Kota / Kabupaten', style: GoogleFonts.outfit(color: maroonColor, fontSize: 13, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 5),
+            _isLoadingCities
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: maroonColor),
+                  )
+                : DropdownButtonFormField<CityEntity>(
+                    value: _selectedCity,
+                    isExpanded: true,
+                    hint: Text(
+                      _selectedProvince == null ? 'Pilih Provinsi Terlebih Dahulu' : 'Pilih Kota / Kabupaten',
+                      style: GoogleFonts.outfit(fontSize: 14),
+                    ),
+                    items: _cities
+                        .map((c) => DropdownMenuItem(
+                              value: c,
+                              child: Text(c.fullCityName, style: GoogleFonts.outfit(fontSize: 14)),
+                            ))
+                        .toList(),
+                    onChanged: _selectedProvince == null
+                        ? null
+                        : (city) {
+                            setState(() => _selectedCity = city);
+                          },
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+
+            const SizedBox(height: 15),
+
+            _buildSectionTitle('Detail Alamat', maroonColor),
+            _buildInputField('*Alamat Lengkap (Jalan, RT/RW, No. Rumah)', _streetController, maroonColor, maxLines: 3),
+
             const SizedBox(height: 100),
           ],
         ),
@@ -148,11 +260,11 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         child: Row(
           children: [
             Expanded(
-              child: _buildBottomButton('Simpan', accentMaroon, () => _saveAddress(false)),
+              child: _buildBottomButton(_isSaving ? 'Menyimpan...' : 'Simpan', accentMaroon, () => _saveAddress(false)),
             ),
             const SizedBox(width: 15),
             Expanded(
-              child: _buildBottomButton('Simpan sebagai alamat utama', accentMaroon, () => _saveAddress(true)),
+              child: _buildBottomButton(_isSaving ? 'Menyimpan...' : 'Simpan sebagai utama', accentMaroon, () => _saveAddress(true)),
             ),
           ],
         ),
@@ -165,12 +277,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       padding: const EdgeInsets.symmetric(vertical: 15),
       child: Text(
         title,
-        style: GoogleFonts.outfit(color: color, fontSize: 18, fontWeight: FontWeight.bold),
+        style: GoogleFonts.outfit(color: color, fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller, Color color) {
+  Widget _buildInputField(String label, TextEditingController controller, Color color, {int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -182,6 +294,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           ),
           TextField(
             controller: controller,
+            maxLines: maxLines,
             style: GoogleFonts.outfit(fontSize: 14, color: Colors.black87),
             decoration: InputDecoration(
               isDense: true,

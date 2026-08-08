@@ -120,7 +120,7 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
       await LocalNotificationService().show(
         id: widget.order.id,
         title: 'Konfirmasi Pembayaran Terkirim! 🎉',
-        body: 'Pesanan ${_orderCode} berhasil dikonfirmasi dan sedang diverifikasi oleh toko.',
+        body: 'Pesanan $_orderCode berhasil dikonfirmasi dan sedang diverifikasi oleh toko.',
       );
 
       if (!mounted) return;

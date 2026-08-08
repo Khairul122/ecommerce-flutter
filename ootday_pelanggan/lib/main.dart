@@ -24,6 +24,7 @@ import 'features/cart/presentation/providers/cart_provider.dart';
 
 import 'features/address/data/datasources/address_remote_data_source.dart';
 import 'features/address/data/repositories/address_repository_impl.dart';
+import 'features/address/domain/repositories/address_repository.dart';
 import 'features/address/domain/usecases/address_usecases.dart';
 import 'features/address/presentation/providers/address_provider.dart';
 
@@ -68,6 +69,7 @@ void main() async {
 /// aplikasi: core service -> data source -> repository -> use case ->
 /// provider. Provider baru untuk fitur lain ditambahkan di sini juga.
 class AppDependencies {
+  final AddressRepository addressRepository;
   final AuthProvider authProvider;
   final ProductProvider productProvider;
   final CartProvider cartProvider;
@@ -78,6 +80,7 @@ class AppDependencies {
   final CheckoutProvider checkoutProvider;
 
   AppDependencies._({
+    required this.addressRepository,
     required this.authProvider,
     required this.productProvider,
     required this.cartProvider,
@@ -175,10 +178,12 @@ class AppDependencies {
     final checkoutProvider = CheckoutProvider(
       getPaymentMethodsUseCase: GetPaymentMethodsUseCase(checkoutRepository),
       getShippingMethodsUseCase: GetShippingMethodsUseCase(checkoutRepository),
+      checkShippingCostUseCase: CheckShippingCostUseCase(checkoutRepository),
       createOrderUseCase: CreateOrderUseCase(checkoutRepository),
     );
 
     return AppDependencies._(
+      addressRepository: addressRepository,
       authProvider: authProvider,
       productProvider: productProvider,
       cartProvider: cartProvider,
@@ -199,6 +204,8 @@ class OotdayApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<GetProvincesUseCase>(create: (_) => GetProvincesUseCase(deps.addressRepository)),
+        Provider<GetCitiesUseCase>(create: (_) => GetCitiesUseCase(deps.addressRepository)),
         ChangeNotifierProvider.value(value: deps.authProvider),
         ChangeNotifierProvider.value(value: deps.productProvider),
         ChangeNotifierProvider.value(value: deps.cartProvider),

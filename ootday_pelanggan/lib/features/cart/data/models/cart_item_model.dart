@@ -8,6 +8,7 @@ class CartItemModel extends CartItemEntity {
     required super.name,
     required super.desc,
     required super.price,
+    super.weight,
     required super.quantity,
     required super.selected,
     required super.image,
@@ -31,6 +32,8 @@ class CartItemModel extends CartItemEntity {
 
     final double priceVal =
         double.tryParse((variant['price'] ?? product['price'] ?? 0).toString()) ?? 0;
+    final int weightVal =
+        int.tryParse((product['weight'] ?? 500).toString()) ?? 500;
     final dynamic qtyRaw = item['quantity'];
     final int quantity = qtyRaw is int ? qtyRaw : int.tryParse(qtyRaw.toString()) ?? 1;
 
@@ -41,6 +44,7 @@ class CartItemModel extends CartItemEntity {
       name: product['name']?.toString() ?? '',
       desc: 'Warna: ${variant['color'] ?? 'Default'}, Ukuran: ${variant['size'] ?? 'M'}',
       price: priceVal.round(),
+      weight: weightVal,
       quantity: quantity,
       selected: item['is_selected'] == true || item['is_selected'] == 1,
       image: image,

@@ -22,10 +22,12 @@ class OrderRemoteDataSource {
     int id, {
     required String status,
     String? cancelReason,
+    String? trackingNumber,
   }) {
     return _api.put('/owner/orders/$id/status', {
       'status': status,
       if (cancelReason != null && cancelReason.isNotEmpty) 'cancel_reason': cancelReason,
+      if (trackingNumber != null && trackingNumber.isNotEmpty) 'tracking_number': trackingNumber,
     });
   }
 

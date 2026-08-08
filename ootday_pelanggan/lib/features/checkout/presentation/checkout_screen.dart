@@ -125,8 +125,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   int get _shippingCost {
+    if (_rajaCost != null) return _rajaCost!;
     if (_selectedShippingMethod == null) return 0;
     return _selectedShippingMethod!.baseCost.round();
+  }
+
+  String get _shippingLabel {
+    if (_rajaCourier != null && _rajaService != null) {
+      final etd = _rajaEtd != null ? ' (Estimasi $_rajaEtd)' : '';
+      return '$_rajaCourier $_rajaService$etd';
+    }
+    return _selectedShippingMethod?.name ?? 'Pilih opsi pengiriman';
   }
 
   int _totalPrice(List<CartItemEntity> items) => _subtotal(items) + _shippingCost;
@@ -145,13 +154,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
+  String? _rajaCourier;
+  String? _rajaService;
+  int? _rajaCost;
+  String? _rajaEtd;
+
   Future<void> _pickShippingMethod() async {
+    final items = context.read<CartProvider>().items.where((e) => e.selected).toList();
+    final totalWeightGram = items.fold<int>(0, (sum, i) => sum + i.weight * i.quantity);
+    final cityId = _selectedAddress?.cityId ?? 153;
+
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ShippingMethodScreen()),
+      MaterialPageRoute(
+        builder: (context) => ShippingMethodScreen(
+          destinationCityId: cityId,
+          totalWeightGram: totalWeightGram > 0 ? totalWeightGram : 500,
+        ),
+      ),
     );
     if (result != null && mounted) {
-      setState(() => _selectedShippingMethod = result as ShippingMethodEntity);
+      if (result is Map) {
+        setState(() {
+          _rajaCourier = result['courier']?.toString();
+          _rajaService = result['service']?.toString();
+          _rajaCost = result['cost'] as int?;
+          _rajaEtd = result['etd']?.toString();
+        });
+      } else if (result is ShippingMethodEntity) {
+        setState(() => _selectedShippingMethod = result);
+      }
     }
   }
 
@@ -180,7 +212,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
       return;
     }
-    if (_selectedShippingMethod == null || _selectedPaymentMethod == null) {
+    if ((_rajaCost == null && _selectedShippingMethod == null) || _selectedPaymentMethod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pilih opsi pengiriman dan metode pembayaran terlebih dahulu')),
       );
@@ -191,8 +223,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final order = await context.read<CheckoutProvider>().createOrder(
             addressId: _selectedAddress!.id,
-            shippingMethodId: _selectedShippingMethod!.id,
+            shippingMethodId: _selectedShippingMethod?.id,
             paymentMethodId: _selectedPaymentMethod!.id,
+            shippingCourier: _rajaCourier,
+            shippingService: _rajaService,
+            shippingCost: _rajaCost,
+            shippingEtd: _rajaEtd,
           );
 
       if (!mounted) return;
@@ -335,7 +371,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    _selectedShippingMethod?.name ?? 'Pilih opsi pengiriman',
+                                    _shippingLabel,
                                     style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
                                 ),
