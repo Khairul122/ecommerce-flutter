@@ -205,7 +205,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Info Pengiriman', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)),
+                    Expanded(
+                      child: Text(
+                        'Info Pengiriman',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     ElevatedButton.icon(
                       onPressed: () => Navigator.push(
                         context,
@@ -299,7 +307,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   children: [
                     const Icon(Icons.storefront_outlined, size: 20, color: Colors.black),
                     const SizedBox(width: 10),
-                    Text(order.storeName ?? 'Toko', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13)),
+                    Expanded(
+                      child: Text(
+                        order.storeName ?? 'Toko',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 15),
@@ -340,12 +355,25 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.productName, style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w500), maxLines: 2),
+                Text(
+                  item.productName,
+                  style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w500),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(item.variantLabel ?? '', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey)),
+                    Expanded(
+                      child: Text(
+                        item.variantLabel ?? '',
+                        style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Text('x${item.quantity}', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
                   ],
                 ),

@@ -225,14 +225,29 @@ class _StatusOrdersTabState extends State<_StatusOrdersTab> with AutomaticKeepAl
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.storefront_outlined, size: 20, color: Colors.black),
-                    const SizedBox(width: 10),
-                    Text(storeName, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.storefront_outlined, size: 20, color: Colors.black),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          storeName,
+                          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Text(order.orderCode, style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey)),
+                const SizedBox(width: 8),
+                Text(
+                  order.orderCode,
+                  style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
             const Divider(height: 25),
@@ -261,7 +276,15 @@ class _StatusOrdersTabState extends State<_StatusOrdersTab> with AutomaticKeepAl
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(firstItem?.variantLabel ?? '', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey)),
+                          Expanded(
+                            child: Text(
+                              firstItem?.variantLabel ?? '',
+                              style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Text('${items.length} produk', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
                         ],
                       ),

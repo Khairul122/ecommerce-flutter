@@ -127,7 +127,16 @@ class TrackingScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: GoogleFonts.outfit(color: Colors.grey.shade600, fontSize: 13)),
-        Text(value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: isCopyable ? darkRed : Colors.black87)),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            value,
+            style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: isCopyable ? darkRed : Colors.black87),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }

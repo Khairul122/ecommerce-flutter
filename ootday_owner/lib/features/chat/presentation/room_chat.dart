@@ -109,6 +109,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         title: Text(
           widget.name ?? "Pembeli",
           style: const TextStyle(fontWeight: FontWeight.bold),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
       body: Column(

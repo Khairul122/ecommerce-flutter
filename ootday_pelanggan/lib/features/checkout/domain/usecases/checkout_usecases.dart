@@ -14,12 +14,12 @@ class GetPaymentMethodsUseCase extends UseCase<List<PaymentMethodEntity>, NoPara
       repository.getPaymentMethods();
 }
 
-class GetShippingCostUseCase extends UseCase<List<ShippingMethodEntity>, String> {
+class GetShippingMethodsUseCase extends UseCase<List<ShippingMethodEntity>, NoParams> {
   final CheckoutRepository repository;
-  GetShippingCostUseCase(this.repository);
+  GetShippingMethodsUseCase(this.repository);
 
   @override
-  Future<List<ShippingMethodEntity>> call(String addressId) => repository.getShippingCost(addressId);
+  Future<List<ShippingMethodEntity>> call(NoParams params) => repository.getShippingCost('');
 }
 
 class CheckShippingCostParams {

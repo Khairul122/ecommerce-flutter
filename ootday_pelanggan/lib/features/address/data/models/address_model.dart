@@ -13,8 +13,6 @@ class AddressModel extends AddressEntity {
     required super.isMain,
     super.districtId,
     super.districtName,
-    super.cityName,
-    super.provinceName,
     super.postalCode,
   });
 
@@ -31,8 +29,6 @@ class AddressModel extends AddressEntity {
       isMain: json['is_main'] == true || json['is_main'] == 1,
       districtId: json['district_id'] == null ? null : int.tryParse(json['district_id'].toString()),
       districtName: json['district_name']?.toString(),
-      cityName: json['city_name']?.toString(),
-      provinceName: json['province_name']?.toString(),
       postalCode: json['postal_code']?.toString(),
     );
   }

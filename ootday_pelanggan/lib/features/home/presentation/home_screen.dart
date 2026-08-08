@@ -350,16 +350,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 )
                           : productProvider.categories.isEmpty
                               ? const Center(child: Text('Kategori tidak tersedia'))
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: productProvider.categories.map((cat) {
-                                    return _buildCategoryItem(
-                                      context,
-                                      cat.name,
-                                      cat.iconUrl ?? 'assets/images/wanita_icons.png',
-                                      const Color(0xFF7F0909),
-                                    );
-                                  }).toList(),
+                              : SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: productProvider.categories.map((cat) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(right: 16),
+                                        child: _buildCategoryItem(
+                                          context,
+                                          cat.name,
+                                          cat.iconUrl ?? 'assets/images/wanita_icons.png',
+                                          const Color(0xFF7F0909),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                     ],
                   ),
@@ -446,7 +451,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
           ),
           const SizedBox(height: 8),
-          Text(label, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
+          SizedBox(
+            width: 70,
+            child: Text(
+              label,
+              style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: color),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );

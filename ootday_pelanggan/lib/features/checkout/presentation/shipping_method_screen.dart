@@ -162,8 +162,6 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final ShippingMethodEntity method = staticMethods[index];
-                        final int price = method.baseCost.round();
-                        String priceStr = 'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
                         return ListTile(
                           onTap: () => Navigator.pop(context, method),

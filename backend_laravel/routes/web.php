@@ -347,10 +347,11 @@ BLADE;
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [Admin\AuthController::class, 'showLogin'])->name('login')->middleware('guest:web');
     Route::post('login', [Admin\AuthController::class, 'login'])->middleware('guest:web');
-    Route::post('logout', [Admin\AuthController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], 'logout', [Admin\AuthController::class, 'logout'])->name('logout');
 
     Route::middleware('admin')->group(function () {
-        Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', fn () => redirect()->route('admin.dashboard'));
 
         Route::resource('users', Admin\UserController::class)->except(['show']);
         Route::resource('stores', Admin\StoreController::class)->except(['create', 'show']);

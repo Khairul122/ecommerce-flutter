@@ -19,8 +19,6 @@ abstract class AddressRepository {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   });
 
@@ -36,8 +34,6 @@ abstract class AddressRepository {
     required bool isMain,
     int? districtId,
     String? districtName,
-    String? cityName,
-    String? provinceName,
     String? postalCode,
   });
 

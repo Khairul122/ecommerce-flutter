@@ -10,8 +10,6 @@ class AddressEntity {
   final bool isMain;
   final int? districtId;
   final String? districtName;
-  final String? cityName;
-  final String? provinceName;
   final String? postalCode;
 
   const AddressEntity({
@@ -26,8 +24,6 @@ class AddressEntity {
     required this.isMain,
     this.districtId,
     this.districtName,
-    this.cityName,
-    this.provinceName,
     this.postalCode,
   });
 
