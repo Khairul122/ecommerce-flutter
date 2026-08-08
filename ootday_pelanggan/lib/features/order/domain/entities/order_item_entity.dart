@@ -1,4 +1,5 @@
 class OrderItemEntity {
+  final int productId;
   final String productName;
   final String? variantLabel;
   final String imageUrl;
@@ -6,6 +7,7 @@ class OrderItemEntity {
   final int quantity;
 
   const OrderItemEntity({
+    this.productId = 0,
     required this.productName,
     this.variantLabel,
     required this.imageUrl,

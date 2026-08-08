@@ -15,6 +15,7 @@ import '../../order/presentation/my_orders_screen.dart';
 import '../../order/presentation/providers/order_provider.dart';
 import '../../cart/presentation/providers/cart_provider.dart';
 import '../../../core/widgets/custom_dialog.dart';
+import '../../wishlist/presentation/wishlist_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -230,11 +231,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Dompet', style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 18, color: maroonColor)),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(20)),
-                            child: Text('Wishlist', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
+                          Text('Akses Cepat', style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 18, color: maroonColor)),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistScreen()));
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(20)),
+                              child: Text('Wishlist Saya', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
+                            ),
                           ),
                         ],
                       ),

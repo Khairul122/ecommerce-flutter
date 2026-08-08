@@ -88,6 +88,7 @@ class ProductModel extends ProductEntity {
     super.status,
     super.description,
     super.soldCount,
+    super.rating,
     super.images,
     super.variants,
     super.category,
@@ -111,6 +112,7 @@ class ProductModel extends ProductEntity {
       status: json['status']?.toString() ?? 'active',
       description: json['description']?.toString(),
       soldCount: _toInt(json['sold_count']),
+      rating: _toDouble(json['reviews_avg_rating'] ?? json['rating']),
       images: imagesJson
           .whereType<Map>()
           .map((e) => ProductImageModel.fromJson(Map<String, dynamic>.from(e)))

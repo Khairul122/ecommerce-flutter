@@ -8,6 +8,7 @@ import 'help_center.dart';
 import 'hapus_akun.dart';
 import '../../auth/presentation/logout.dart';
 import 'pengaturan_komunikasi.dart';
+import '../../banner/presentation/banner_management_screen.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -82,6 +83,19 @@ class _SettingPageState extends State<SettingPage> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const InformasiToko(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _settingItem(
+                    context: context,
+                    title: 'Banner Promosi Toko',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BannerManagementScreen(),
                         ),
                       );
                     },

@@ -18,7 +18,10 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with(['images', 'variants'])->where('status', 'active');
+        $query = Product::with(['images', 'variants'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->where('status', 'active');
 
         if ($request->filled('store_id')) {
             $query->where('store_id', $request->store_id);
@@ -39,7 +42,9 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load(['images', 'variants', 'category', 'store']);
+        $product->load(['images', 'variants', 'category', 'store'])
+            ->loadAvg('reviews', 'rating')
+            ->loadCount('reviews');
 
         return response()->json(['status' => 'success', 'data' => $product]);
     }

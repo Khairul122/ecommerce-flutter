@@ -48,6 +48,8 @@ import 'features/checkout/data/repositories/checkout_repository_impl.dart';
 import 'features/checkout/domain/usecases/checkout_usecases.dart';
 import 'features/checkout/presentation/providers/checkout_provider.dart';
 
+import 'features/wishlist/presentation/providers/wishlist_provider.dart';
+
 import 'features/onboarding/presentation/welcome_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 
@@ -78,6 +80,7 @@ class AppDependencies {
   final ChatProvider chatProvider;
   final NotificationProvider notificationProvider;
   final CheckoutProvider checkoutProvider;
+  final WishlistProvider wishlistProvider;
 
   AppDependencies._({
     required this.addressRepository,
@@ -89,6 +92,7 @@ class AppDependencies {
     required this.chatProvider,
     required this.notificationProvider,
     required this.checkoutProvider,
+    required this.wishlistProvider,
   });
 
   factory AppDependencies.build() {
@@ -183,6 +187,8 @@ class AppDependencies {
       createOrderUseCase: CreateOrderUseCase(checkoutRepository),
     );
 
+    final wishlistProvider = WishlistProvider(apiService);
+
     return AppDependencies._(
       addressRepository: addressRepository,
       authProvider: authProvider,
@@ -193,6 +199,7 @@ class AppDependencies {
       chatProvider: chatProvider,
       notificationProvider: notificationProvider,
       checkoutProvider: checkoutProvider,
+      wishlistProvider: wishlistProvider,
     );
   }
 }
@@ -215,6 +222,7 @@ class OotdayApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: deps.chatProvider),
         ChangeNotifierProvider.value(value: deps.notificationProvider),
         ChangeNotifierProvider.value(value: deps.checkoutProvider),
+        ChangeNotifierProvider.value(value: deps.wishlistProvider),
       ],
       child: MaterialApp(
         title: 'Ootday Pelanggan',

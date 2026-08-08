@@ -300,9 +300,11 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     final String name = product.name;
     final String imageUrl = _primaryImageUrl(product);
 
-    // Rating mock/generated or random between 4.5 and 5.0
     final int idNum = product.id;
-    final String rating = (4.5 + (idNum % 6) * 0.1).toStringAsFixed(1);
+    // Rating asli dari API backend
+    final String rating = (product.rating != null && product.rating! > 0)
+        ? product.rating!.toStringAsFixed(1)
+        : '5.0';
     final String sold = (30 + ((idNum * 23) % 150)).toString();
 
     final String priceStr = product.price.toStringAsFixed(0);

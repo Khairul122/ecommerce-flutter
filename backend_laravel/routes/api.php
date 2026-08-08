@@ -14,6 +14,9 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ShippingController;
 use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\UploadController;
+use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\BannerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,7 +33,9 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::get('/products/{product}/reviews', [ReviewController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/banners', [BannerController::class, 'index']);
 Route::get('/payment-methods', [PaymentShippingMethodController::class, 'paymentMethods']);
 Route::get('/shipping-methods', [PaymentShippingMethodController::class, 'shippingMethods']);
 
@@ -86,6 +91,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::get('/wishlist/ids', [WishlistController::class, 'ids']);
+    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle']);
+
+    Route::post('/reviews', [ReviewController::class, 'store']);
+
     // ---- Khusus role owner ----
     Route::middleware('role:owner')->prefix('owner')->group(function () {
         Route::get('/store', [StoreController::class, 'show']);
@@ -101,6 +112,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::put('/categories/{category}', [CategoryController::class, 'update']);
         Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+        Route::get('/banners', [BannerController::class, 'ownerIndex']);
+        Route::post('/banners', [BannerController::class, 'store']);
+        Route::put('/banners/{id}', [BannerController::class, 'update']);
+        Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
         Route::get('/orders', [OwnerOrderController::class, 'index']);
         Route::get('/orders/{order}', [OwnerOrderController::class, 'show']);

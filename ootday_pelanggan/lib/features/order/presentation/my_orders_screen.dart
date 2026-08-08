@@ -7,6 +7,7 @@ import '../../search/presentation/search_screen.dart';
 import 'order_details_screen.dart';
 import 'providers/order_provider.dart';
 import '../domain/entities/order_entity.dart';
+import '../../review/presentation/add_review_screen.dart';
 
 /// Perbaikan audit: sebelumnya hanya tab "Diproses" yang memuat data asli
 /// (lewat OrderData.getActiveOrders()), tab lain (Belum Bayar, Dikirim,
@@ -298,6 +299,34 @@ class _StatusOrdersTabState extends State<_StatusOrdersTab> with AutomaticKeepAl
               alignment: Alignment.centerRight,
               child: Text('Total: ${_formatRp(order.totalPrice)}', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
+            if (order.status == 'completed' && firstItem != null) ...[
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: maroonColor,
+                    side: BorderSide(color: maroonColor),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(Icons.star_outline, size: 16),
+                  label: Text('Beri Ulasan', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold)),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddReviewScreen(
+                          orderId: order.id,
+                          productId: firstItem.productId,
+                          productName: firstItem.productName,
+                          productImage: firstItem.imageUrl ?? '',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),

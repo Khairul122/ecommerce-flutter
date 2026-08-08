@@ -57,6 +57,7 @@ class ProductEntity {
   final String status;
   final String? description;
   final int soldCount;
+  final double? rating;
   final List<ProductImageEntity> images;
   final List<ProductVariantEntity> variants;
   final CategoryEntity? category;
@@ -73,6 +74,7 @@ class ProductEntity {
     this.status = 'active',
     this.description,
     this.soldCount = 0,
+    this.rating,
     this.images = const [],
     this.variants = const [],
     this.category,

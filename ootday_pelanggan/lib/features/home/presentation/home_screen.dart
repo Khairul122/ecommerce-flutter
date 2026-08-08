@@ -14,6 +14,7 @@ import '../../auth/presentation/providers/auth_provider.dart';
 import '../../product/presentation/providers/product_provider.dart';
 import '../../product/domain/entities/product_entity.dart';
 import '../../cart/presentation/providers/cart_provider.dart';
+import '../../../core/services/api_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -79,12 +80,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _fetchBanners() async {
+    try {
+      final apiService = context.read<ApiService>();
+      final response = await apiService.get('/banners');
+      if (response != null && response['success'] == true) {
+        final List list = response['data'] ?? [];
+        if (list.isNotEmpty && mounted) {
+          setState(() {
+            _banners.clear();
+            for (var b in list) {
+              _banners.add({
+                'title': b['title'] ?? 'Promosi Ootday',
+                'subtitle': 'Penawaran Spesial',
+                'color': const Color(0xFF5D1A1A),
+                'image': b['image_url'] ?? 'assets/images/iklan.png',
+              });
+            }
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching dynamic banners: $e');
+    }
+  }
+
   Future<void> _fetchData() async {
     final productProvider = context.read<ProductProvider>();
     try {
       await Future.wait([
         productProvider.fetchCategories(),
         productProvider.fetchProducts(perPage: 12),
+        _fetchBanners(),
       ]);
       try {
         await context.read<CartProvider>().loadCart();

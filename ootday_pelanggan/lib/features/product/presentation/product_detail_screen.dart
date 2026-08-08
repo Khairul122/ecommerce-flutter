@@ -10,6 +10,7 @@ import '../../chat/presentation/chat_list_screen.dart';
 import '../../chat/presentation/chat_detail_screen.dart';
 import '../../../core/services/api_service.dart';
 import 'providers/product_provider.dart';
+import '../../wishlist/presentation/providers/wishlist_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, String> product;
@@ -717,7 +718,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               children: [
                                 Text('${widget.product['sold'] ?? '120'} Terjual', style: GoogleFonts.outfit(color: Colors.grey, fontSize: 14)),
                                 const SizedBox(width: 10),
-                                const Icon(Icons.favorite_border, color: Colors.black, size: 24),
+                                Consumer<WishlistProvider>(
+                                  builder: (context, wishlistProvider, _) {
+                                    final int prodId = int.tryParse(widget.product['id'] ?? '0') ?? 0;
+                                    final bool isFav = wishlistProvider.isWishlist(prodId);
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        final added = await wishlistProvider.toggleWishlist(widget.product);
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(added ? 'Ditambahkan ke wishlist' : 'Dihapus dari wishlist'),
+                                              duration: const Duration(seconds: 2),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Icon(
+                                        isFav ? Icons.favorite : Icons.favorite_border,
+                                        color: isFav ? Colors.red : Colors.black,
+                                        size: 24,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ],
