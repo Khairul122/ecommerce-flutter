@@ -32,8 +32,9 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
   File? _imageFile;
   int? _selectedCategoryId;
   List<CategoryEntity> _categories = [];
-  final Set<String> _selectedSizes = {'S', 'M', 'L', 'XL'};
+  final Set<String> _selectedSizes = {};
   final Map<String, File> _variantImages = {};
+  final TextEditingController _customSizeController = TextEditingController();
   bool _isLoading = false;
   bool _isInitializing = true;
 
@@ -49,6 +50,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
     _priceController.dispose();
     _stockController.dispose();
     _descriptionController.dispose();
+    _customSizeController.dispose();
     super.dispose();
   }
 
@@ -460,7 +462,9 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
   }
 
   Widget _sizeSelector() {
-    const sizes = ['S', 'M', 'L', 'XL'];
+    const clothingSizes = ['S', 'M', 'L', 'XL', 'XXL', 'All Size'];
+    const shoeSizes = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -472,39 +476,117 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
             color: maroonColor,
           ),
         ),
+        const SizedBox(height: 4),
+        Text(
+          'Pilih ukuran sepatu (angka) atau pakaian (huruf):',
+          style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 10),
+
+        Text(
+          '👟 Ukuran Sepatu (Angka):',
+          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black80),
+        ),
+        const SizedBox(height: 6),
         Wrap(
-          spacing: 10,
+          spacing: 8,
           runSpacing: 8,
-          children: sizes.map((size) {
-            final selected = _selectedSizes.contains(size);
-            return FilterChip(
-              label: Text(size, style: GoogleFonts.outfit()),
-              selected: selected,
-              onSelected: (val) {
-                setState(() {
-                  if (val) {
-                    _selectedSizes.add(size);
-                  } else {
-                    _selectedSizes.remove(size);
-                  }
-                });
+          children: shoeSizes.map((size) => _sizeChip(size)).toList(),
+        ),
+
+        const SizedBox(height: 14),
+        Text(
+          '👕 Ukuran Pakaian (Huruf):',
+          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black80),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: clothingSizes.map((size) => _sizeChip(size)).toList(),
+        ),
+
+        if (_selectedSizes.any((s) => !clothingSizes.contains(s) && !shoeSizes.contains(s))) ...[
+          const SizedBox(height: 14),
+          Text(
+            '✨ Ukuran Kustom Tambahan:',
+            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black80),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _selectedSizes
+                .where((s) => !clothingSizes.contains(s) && !shoeSizes.contains(s))
+                .map((size) => _sizeChip(size))
+                .toList(),
+          ),
+        ],
+
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 42,
+                child: TextField(
+                  controller: _customSizeController,
+                  decoration: InputDecoration(
+                    hintText: 'Tambah ukuran kustom (misal: 37.5, 46)...',
+                    hintStyle: GoogleFonts.outfit(fontSize: 12, color: Colors.grey),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                final txt = _customSizeController.text.trim();
+                if (txt.isNotEmpty) {
+                  setState(() {
+                    _selectedSizes.add(txt);
+                    _customSizeController.clear();
+                  });
+                }
               },
-              selectedColor: maroonColor.withValues(alpha: 0.15),
-              checkmarkColor: maroonColor,
-              labelStyle: GoogleFonts.outfit(
-                color: selected ? maroonColor : Colors.grey.shade700,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: maroonColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              side: BorderSide(
-                color: selected
-                    ? maroonColor.withValues(alpha: 0.4)
-                    : Colors.grey.shade300,
-              ),
-            );
-          }).toList(),
+              child: Text('+ Tambah', style: GoogleFonts.outfit(fontSize: 13)),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _sizeChip(String size) {
+    final selected = _selectedSizes.contains(size);
+    return FilterChip(
+      label: Text(size, style: GoogleFonts.outfit()),
+      selected: selected,
+      onSelected: (val) {
+        setState(() {
+          if (val) {
+            _selectedSizes.add(size);
+          } else {
+            _selectedSizes.remove(size);
+          }
+        });
+      },
+      selectedColor: maroonColor.withValues(alpha: 0.15),
+      checkmarkColor: maroonColor,
+      labelStyle: GoogleFonts.outfit(
+        color: selected ? maroonColor : Colors.grey.shade700,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+      ),
+      side: BorderSide(
+        color: selected ? maroonColor.withValues(alpha: 0.4) : Colors.grey.shade300,
+      ),
     );
   }
 
