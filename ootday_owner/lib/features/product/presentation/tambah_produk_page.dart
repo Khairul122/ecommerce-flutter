@@ -485,7 +485,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
 
         Text(
           '👟 Ukuran Sepatu (Angka):',
-          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black80),
+          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
         ),
         const SizedBox(height: 6),
         Wrap(
@@ -497,7 +497,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
         const SizedBox(height: 14),
         Text(
           '👕 Ukuran Pakaian (Huruf):',
-          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black80),
+          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
         ),
         const SizedBox(height: 6),
         Wrap(
@@ -510,7 +510,7 @@ class _TambahProdukPageState extends State<TambahProdukPage> {
           const SizedBox(height: 14),
           Text(
             '✨ Ukuran Kustom Tambahan:',
-            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black80),
+            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
           ),
           const SizedBox(height: 6),
           Wrap(
