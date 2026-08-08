@@ -256,7 +256,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             const SizedBox(height: 10),
 
             _buildSectionTitle('Wilayah Pengiriman (RajaOngkir)', maroonColor),
-            
+            _buildDistrictField(maroonColor),
+
             // Dropdown Provinsi
             Text('*Provinsi', style: GoogleFonts.outfit(color: maroonColor, fontSize: 13, fontWeight: FontWeight.w500)),
             const SizedBox(height: 5),
