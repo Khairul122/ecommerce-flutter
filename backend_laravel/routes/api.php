@@ -60,6 +60,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
     Route::post('/addresses/{id}/set-main', [AddressController::class, 'setMain']);
 
+    Route::get('/shipping/destinations', [ShippingController::class, 'destinations']);
+    Route::post('/shipping/cost', [ShippingController::class, 'cost']);
+
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
     Route::put('/cart/{id}', [CartController::class, 'update']);

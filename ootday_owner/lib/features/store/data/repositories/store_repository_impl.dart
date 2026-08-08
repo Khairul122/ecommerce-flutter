@@ -21,6 +21,11 @@ class StoreRepositoryImpl implements StoreRepository {
     String? address,
     String? phone,
     String? logoUrl,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) {
     return remote.updateStore({
       if (storeName != null) 'store_name': storeName,
@@ -28,8 +33,16 @@ class StoreRepositoryImpl implements StoreRepository {
       if (address != null) 'address': address,
       if (phone != null) 'phone': phone,
       if (logoUrl != null) 'logo_url': logoUrl,
+      if (districtId != null) 'district_id': districtId,
+      if (districtName != null) 'district_name': districtName,
+      if (cityName != null) 'city_name': cityName,
+      if (provinceName != null) 'province_name': provinceName,
+      if (postalCode != null) 'postal_code': postalCode,
     });
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword) => remote.searchDestinations(keyword);
 
   @override
   Future<String> uploadLogo(File file) async {

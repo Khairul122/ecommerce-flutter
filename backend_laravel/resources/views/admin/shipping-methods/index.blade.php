@@ -13,7 +13,7 @@
                 <thead>
                     <tr>
                         <th>Nama</th>
-                        <th>Biaya Dasar</th>
+                        <th>Kurir</th>
                         <th>Status</th>
                         <th class="text-end">Aksi</th>
                     </tr>
@@ -22,7 +22,7 @@
                     @forelse ($shippingMethods as $method)
                         <tr>
                             <td>{{ $method->name }}</td>
-                            <td>Rp{{ number_format($method->base_cost, 0, ',', '.') }}</td>
+                            <td>{{ $couriers[$method->courier_code] ?? $method->courier_code ?? '-' }}</td>
                             <td>
                                 <span class="badge {{ $method->is_active ? 'text-bg-success' : 'text-bg-secondary' }}">
                                     {{ $method->is_active ? 'Aktif' : 'Nonaktif' }}
@@ -52,8 +52,12 @@
                                                 <input type="text" name="name" value="{{ $method->name }}" class="form-control" required>
                                             </div>
                                             <div class="mb-2">
-                                                <label class="form-label">Biaya Dasar</label>
-                                                <input type="number" step="0.01" name="base_cost" value="{{ $method->base_cost }}" class="form-control" required>
+                                                <label class="form-label">Kurir (RajaOngkir)</label>
+                                                <select name="courier_code" class="form-select" required>
+                                                    @foreach ($couriers as $code => $label)
+                                                        <option value="{{ $code }}" @selected($method->courier_code === $code)>{{ $label }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div class="form-check">
                                                 <input type="checkbox" name="is_active" value="1" class="form-check-input" id="active{{ $method->id }}" @checked($method->is_active)>
@@ -90,8 +94,12 @@
                             <input type="text" name="name" class="form-control" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Biaya Dasar</label>
-                            <input type="number" step="0.01" name="base_cost" class="form-control" required>
+                            <label class="form-label">Kurir (RajaOngkir)</label>
+                            <select name="courier_code" class="form-select" required>
+                                @foreach ($couriers as $code => $label)
+                                    <option value="{{ $code }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="form-check">
                             <input type="checkbox" name="is_active" value="1" class="form-check-input" id="activeNew" checked>

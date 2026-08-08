@@ -36,6 +36,11 @@ class AddAddressParams {
   final String? cityName;
   final String fullAddress;
   final bool isMain;
+  final int? districtId;
+  final String? districtName;
+  final String? cityName;
+  final String? provinceName;
+  final String? postalCode;
   const AddAddressParams({
     required this.name,
     required this.phone,
@@ -45,6 +50,11 @@ class AddAddressParams {
     this.cityName,
     required this.fullAddress,
     required this.isMain,
+    this.districtId,
+    this.districtName,
+    this.cityName,
+    this.provinceName,
+    this.postalCode,
   });
 }
 
@@ -62,6 +72,11 @@ class AddAddressUseCase extends UseCase<void, AddAddressParams> {
         cityName: params.cityName,
         fullAddress: params.fullAddress,
         isMain: params.isMain,
+        districtId: params.districtId,
+        districtName: params.districtName,
+        cityName: params.cityName,
+        provinceName: params.provinceName,
+        postalCode: params.postalCode,
       );
 }
 
@@ -75,6 +90,11 @@ class UpdateAddressParams {
   final String? cityName;
   final String fullAddress;
   final bool isMain;
+  final int? districtId;
+  final String? districtName;
+  final String? cityName;
+  final String? provinceName;
+  final String? postalCode;
   const UpdateAddressParams({
     required this.id,
     required this.name,
@@ -85,6 +105,11 @@ class UpdateAddressParams {
     this.cityName,
     required this.fullAddress,
     required this.isMain,
+    this.districtId,
+    this.districtName,
+    this.cityName,
+    this.provinceName,
+    this.postalCode,
   });
 }
 
@@ -103,6 +128,11 @@ class UpdateAddressUseCase extends UseCase<void, UpdateAddressParams> {
         cityName: params.cityName,
         fullAddress: params.fullAddress,
         isMain: params.isMain,
+        districtId: params.districtId,
+        districtName: params.districtName,
+        cityName: params.cityName,
+        provinceName: params.provinceName,
+        postalCode: params.postalCode,
       );
 }
 
@@ -120,4 +150,12 @@ class SetMainAddressUseCase extends UseCase<void, String> {
 
   @override
   Future<void> call(String id) => repository.setMain(id);
+}
+
+class SearchDestinationsUseCase extends UseCase<List<Map<String, dynamic>>, String> {
+  final AddressRepository repository;
+  SearchDestinationsUseCase(this.repository);
+
+  @override
+  Future<List<Map<String, dynamic>>> call(String keyword) => repository.searchDestinations(keyword);
 }

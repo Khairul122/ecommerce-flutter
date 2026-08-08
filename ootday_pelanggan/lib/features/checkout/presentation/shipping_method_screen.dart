@@ -35,6 +35,10 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
     });
   }
 
+  String _formatRp(num value) {
+    return 'Rp ${value.round().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color maroonColor = Color(0xFF5D1A1A);
@@ -164,8 +168,9 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
                         return ListTile(
                           onTap: () => Navigator.pop(context, method),
                           leading: const Icon(Icons.local_shipping_outlined, color: maroonColor),
-                          title: Text(method.name, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
-                          trailing: Text(priceStr, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
+                          title: Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
+                          subtitle: method.etd != null ? Text('Estimasi ${method.etd} hari', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)) : null,
+                          trailing: Text(_formatRp(method.cost), style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: maroonColor)),
                         );
                       },
                     ),

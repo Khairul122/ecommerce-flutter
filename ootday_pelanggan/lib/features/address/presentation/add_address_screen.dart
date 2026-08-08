@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +31,15 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   bool _isLoadingRegions = false;
   bool _isLoadingCities = false;
   bool _isSaving = false;
+
+  int? _districtId;
+  String? _districtName;
+  String? _cityName;
+  String? _provinceName;
+
+  Timer? _debounce;
+  List<Map<String, dynamic>> _districtResults = [];
+  bool _searchingDistrict = false;
 
   @override
   void initState() {
@@ -86,11 +97,52 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _nameController.dispose();
     _phoneController.dispose();
     _streetController.dispose();
     _detailController.dispose();
     super.dispose();
+  }
+
+  void _onDistrictSearchChanged(String keyword) {
+    _debounce?.cancel();
+    if (_districtName != null && keyword != _districtLabel()) {
+      // User mengetik ulang setelah sebelumnya memilih -> reset pilihan lama.
+      _districtId = null;
+      _districtName = null;
+      _cityName = null;
+      _provinceName = null;
+    }
+    if (keyword.trim().length < 3) {
+      setState(() => _districtResults = []);
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      setState(() => _searchingDistrict = true);
+      try {
+        final results = await context.read<AddressProvider>().searchDestinations(keyword.trim());
+        if (mounted) setState(() => _districtResults = results);
+      } catch (_) {
+        if (mounted) setState(() => _districtResults = []);
+      } finally {
+        if (mounted) setState(() => _searchingDistrict = false);
+      }
+    });
+  }
+
+  void _selectDistrict(Map<String, dynamic> item) {
+    setState(() {
+      _districtId = item['id'] is int ? item['id'] as int : int.tryParse(item['id'].toString());
+      _districtName = item['district_name']?.toString() ?? item['subdistrict_name']?.toString();
+      _cityName = item['city_name']?.toString();
+      _provinceName = item['province_name']?.toString();
+      _districtSearchController.text = _districtLabel() ?? '';
+      if ((item['zip_code'] ?? item['postal_code']) != null) {
+        _zipController.text = (item['zip_code'] ?? item['postal_code']).toString();
+      }
+      _districtResults = [];
+    });
   }
 
   Future<void> _saveAddress(bool isMain) async {
@@ -127,6 +179,11 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : null,
           fullAddress: fullAddr,
           isMain: isMain,
+          districtId: _districtId,
+          districtName: _districtName,
+          cityName: _cityName,
+          provinceName: _provinceName,
+          postalCode: _zipController.text.isEmpty ? null : _zipController.text,
         );
       } else {
         await provider.addAddress(
@@ -138,6 +195,11 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           cityName: _selectedCity != null ? '${_selectedCity!.type} ${_selectedCity!.name}' : null,
           fullAddress: fullAddr,
           isMain: isMain,
+          districtId: _districtId,
+          districtName: _districtName,
+          cityName: _cityName,
+          provinceName: _provinceName,
+          postalCode: _zipController.text.isEmpty ? null : _zipController.text,
         );
       }
       if (mounted) Navigator.pop(context);
@@ -268,6 +330,67 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDistrictField(Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '*Provinsi, Kota/Kabupaten & Kecamatan',
+            style: GoogleFonts.outfit(color: color, fontSize: 13, fontWeight: FontWeight.w500),
+          ),
+          TextField(
+            controller: _districtSearchController,
+            onChanged: _onDistrictSearchChanged,
+            style: GoogleFonts.outfit(fontSize: 14, color: Colors.black87),
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'Ketik nama kecamatan (min. 3 huruf)',
+              contentPadding: const EdgeInsets.symmetric(vertical: 8),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: color)),
+              suffixIcon: _searchingDistrict
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    )
+                  : null,
+            ),
+          ),
+          if (_districtResults.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.separated(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: _districtResults.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final item = _districtResults[index];
+                  final label = [
+                    item['district_name'] ?? item['subdistrict_name'],
+                    item['city_name'],
+                    item['province_name'],
+                  ].where((e) => e != null && e.toString().isNotEmpty).join(', ');
+                  return ListTile(
+                    dense: true,
+                    title: Text(label, style: GoogleFonts.outfit(fontSize: 13)),
+                    onTap: () => _selectDistrict(item),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -9,6 +9,7 @@ class AddressProvider extends ChangeNotifier {
   final UpdateAddressUseCase updateAddressUseCase;
   final DeleteAddressUseCase deleteAddressUseCase;
   final SetMainAddressUseCase setMainAddressUseCase;
+  final SearchDestinationsUseCase searchDestinationsUseCase;
 
   AddressProvider({
     required this.getAddressesUseCase,
@@ -16,6 +17,7 @@ class AddressProvider extends ChangeNotifier {
     required this.updateAddressUseCase,
     required this.deleteAddressUseCase,
     required this.setMainAddressUseCase,
+    required this.searchDestinationsUseCase,
   });
 
   List<AddressEntity> _addresses = [];
@@ -49,6 +51,11 @@ class AddressProvider extends ChangeNotifier {
     String? cityName,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) async {
     await addAddressUseCase(AddAddressParams(
       name: name,
@@ -59,6 +66,11 @@ class AddressProvider extends ChangeNotifier {
       cityName: cityName,
       fullAddress: fullAddress,
       isMain: isMain,
+      districtId: districtId,
+      districtName: districtName,
+      cityName: cityName,
+      provinceName: provinceName,
+      postalCode: postalCode,
     ));
     await loadAddresses();
   }
@@ -73,6 +85,11 @@ class AddressProvider extends ChangeNotifier {
     String? cityName,
     required String fullAddress,
     required bool isMain,
+    int? districtId,
+    String? districtName,
+    String? cityName,
+    String? provinceName,
+    String? postalCode,
   }) async {
     await updateAddressUseCase(UpdateAddressParams(
       id: id,
@@ -84,6 +101,11 @@ class AddressProvider extends ChangeNotifier {
       cityName: cityName,
       fullAddress: fullAddress,
       isMain: isMain,
+      districtId: districtId,
+      districtName: districtName,
+      cityName: cityName,
+      provinceName: provinceName,
+      postalCode: postalCode,
     ));
     await loadAddresses();
   }
@@ -96,5 +118,9 @@ class AddressProvider extends ChangeNotifier {
   Future<void> setMain(String id) async {
     await setMainAddressUseCase(id);
     await loadAddresses();
+  }
+
+  Future<List<Map<String, dynamic>>> searchDestinations(String keyword) {
+    return searchDestinationsUseCase(keyword);
   }
 }

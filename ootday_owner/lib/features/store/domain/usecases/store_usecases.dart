@@ -18,12 +18,22 @@ class UpdateStoreParams {
   final String? address;
   final String? phone;
   final String? logoUrl;
+  final int? districtId;
+  final String? districtName;
+  final String? cityName;
+  final String? provinceName;
+  final String? postalCode;
   const UpdateStoreParams({
     this.storeName,
     this.description,
     this.address,
     this.phone,
     this.logoUrl,
+    this.districtId,
+    this.districtName,
+    this.cityName,
+    this.provinceName,
+    this.postalCode,
   });
 }
 
@@ -38,7 +48,20 @@ class UpdateStoreUseCase extends UseCase<StoreEntity, UpdateStoreParams> {
         address: params.address,
         phone: params.phone,
         logoUrl: params.logoUrl,
+        districtId: params.districtId,
+        districtName: params.districtName,
+        cityName: params.cityName,
+        provinceName: params.provinceName,
+        postalCode: params.postalCode,
       );
+}
+
+class SearchStoreDestinationsUseCase extends UseCase<List<Map<String, dynamic>>, String> {
+  final StoreRepository repository;
+  SearchStoreDestinationsUseCase(this.repository);
+
+  @override
+  Future<List<Map<String, dynamic>>> call(String keyword) => repository.searchDestinations(keyword);
 }
 
 class UploadLogoUseCase extends UseCase<String, File> {

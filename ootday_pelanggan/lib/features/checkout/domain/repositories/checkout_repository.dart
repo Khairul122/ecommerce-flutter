@@ -6,7 +6,7 @@ import '../entities/shipping_method_entity.dart';
 abstract class CheckoutRepository {
   Future<List<PaymentMethodEntity>> getPaymentMethods();
 
-  Future<List<ShippingMethodEntity>> getShippingMethods();
+  Future<List<ShippingMethodEntity>> getShippingCost(String addressId);
 
   Future<List<RajaOngkirCourierEntity>> checkShippingCost({
     required int destinationCityId,

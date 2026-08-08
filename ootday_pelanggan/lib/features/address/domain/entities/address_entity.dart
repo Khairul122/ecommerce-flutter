@@ -8,6 +8,11 @@ class AddressEntity {
   final String? cityName;
   final String fullAddress;
   final bool isMain;
+  final int? districtId;
+  final String? districtName;
+  final String? cityName;
+  final String? provinceName;
+  final String? postalCode;
 
   const AddressEntity({
     required this.id,
@@ -19,6 +24,11 @@ class AddressEntity {
     this.cityName,
     required this.fullAddress,
     required this.isMain,
+    this.districtId,
+    this.districtName,
+    this.cityName,
+    this.provinceName,
+    this.postalCode,
   });
 
   String get completeAddress {

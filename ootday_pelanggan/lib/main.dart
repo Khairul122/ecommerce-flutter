@@ -144,6 +144,7 @@ class AppDependencies {
       updateAddressUseCase: UpdateAddressUseCase(addressRepository),
       deleteAddressUseCase: DeleteAddressUseCase(addressRepository),
       setMainAddressUseCase: SetMainAddressUseCase(addressRepository),
+      searchDestinationsUseCase: SearchDestinationsUseCase(addressRepository),
     );
 
     final orderRemote = OrderRemoteDataSource(apiService);

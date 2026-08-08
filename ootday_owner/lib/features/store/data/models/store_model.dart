@@ -7,6 +7,11 @@ class StoreModel extends StoreEntity {
     super.address,
     super.phone,
     super.logoUrl,
+    super.districtId,
+    super.districtName,
+    super.cityName,
+    super.provinceName,
+    super.postalCode,
   });
 
   factory StoreModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +23,11 @@ class StoreModel extends StoreEntity {
       logoUrl: (json['logo_url'] as String?)?.isEmpty ?? true
           ? null
           : json['logo_url'] as String,
+      districtId: json['district_id'] == null ? null : int.tryParse(json['district_id'].toString()),
+      districtName: json['district_name']?.toString(),
+      cityName: json['city_name']?.toString(),
+      provinceName: json['province_name']?.toString(),
+      postalCode: json['postal_code']?.toString(),
     );
   }
 }

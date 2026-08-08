@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,9 +20,20 @@ class _InformasiTokoState extends State<InformasiToko> {
   final TextEditingController _deskripsiController = TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
   final TextEditingController _whatsappController = TextEditingController();
+  final TextEditingController _districtSearchController = TextEditingController();
 
   bool _isLoading = true;
   bool _isSaving = false;
+
+  int? _districtId;
+  String? _districtName;
+  String? _cityName;
+  String? _provinceName;
+  String? _postalCode;
+
+  Timer? _debounce;
+  List<Map<String, dynamic>> _districtResults = [];
+  bool _searchingDistrict = false;
 
   @override
   void initState() {
@@ -30,11 +43,55 @@ class _InformasiTokoState extends State<InformasiToko> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _namaTokoController.dispose();
     _deskripsiController.dispose();
     _alamatController.dispose();
     _whatsappController.dispose();
+    _districtSearchController.dispose();
     super.dispose();
+  }
+
+  String? _districtLabel() {
+    if (_districtName == null) return null;
+    return [_districtName, _cityName, _provinceName].where((e) => e != null && e.isNotEmpty).join(', ');
+  }
+
+  void _onDistrictSearchChanged(String keyword) {
+    _debounce?.cancel();
+    if (_districtName != null && keyword != _districtLabel()) {
+      _districtId = null;
+      _districtName = null;
+      _cityName = null;
+      _provinceName = null;
+    }
+    if (keyword.trim().length < 3) {
+      setState(() => _districtResults = []);
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      setState(() => _searchingDistrict = true);
+      try {
+        final results = await context.read<StoreProvider>().searchDestinations(keyword.trim());
+        if (mounted) setState(() => _districtResults = results);
+      } catch (_) {
+        if (mounted) setState(() => _districtResults = []);
+      } finally {
+        if (mounted) setState(() => _searchingDistrict = false);
+      }
+    });
+  }
+
+  void _selectDistrict(Map<String, dynamic> item) {
+    setState(() {
+      _districtId = item['id'] is int ? item['id'] as int : int.tryParse(item['id'].toString());
+      _districtName = item['district_name']?.toString() ?? item['subdistrict_name']?.toString();
+      _cityName = item['city_name']?.toString();
+      _provinceName = item['province_name']?.toString();
+      _postalCode = (item['zip_code'] ?? item['postal_code'])?.toString() ?? _postalCode;
+      _districtSearchController.text = _districtLabel() ?? '';
+      _districtResults = [];
+    });
   }
 
   Future<void> _loadStore() async {
@@ -47,6 +104,12 @@ class _InformasiTokoState extends State<InformasiToko> {
       _deskripsiController.text = store?.description ?? '';
       _alamatController.text = store?.address ?? '';
       _whatsappController.text = store?.phone ?? '';
+      _districtId = store?.districtId;
+      _districtName = store?.districtName;
+      _cityName = store?.cityName;
+      _provinceName = store?.provinceName;
+      _postalCode = store?.postalCode;
+      _districtSearchController.text = _districtLabel() ?? '';
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -69,6 +132,11 @@ class _InformasiTokoState extends State<InformasiToko> {
             description: _deskripsiController.text.trim(),
             address: _alamatController.text.trim(),
             phone: _whatsappController.text.trim(),
+            districtId: _districtId,
+            districtName: _districtName,
+            cityName: _cityName,
+            provinceName: _provinceName,
+            postalCode: _postalCode,
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,6 +195,8 @@ class _InformasiTokoState extends State<InformasiToko> {
                             controller: _alamatController,
                           ),
                           const SizedBox(height: 16),
+                          _districtField(),
+                          const SizedBox(height: 16),
                           _inputField(
                             label: 'WhatsApp',
                             controller: _whatsappController,
@@ -184,6 +254,71 @@ class _InformasiTokoState extends State<InformasiToko> {
           ],
         ),
       ),
+    );
+  }
+
+  // ================= DISTRICT FIELD =================
+  Widget _districtField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Kecamatan Toko (untuk hitung ongkir)',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: redMain, width: 1),
+          ),
+          child: TextField(
+            controller: _districtSearchController,
+            onChanged: _onDistrictSearchChanged,
+            style: const TextStyle(fontSize: 16, color: Colors.black87),
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              border: InputBorder.none,
+              hintText: 'Ketik nama kecamatan (min. 3 huruf)',
+              suffixIcon: _searchingDistrict
+                  ? const Padding(
+                      padding: EdgeInsets.all(14),
+                      child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    )
+                  : null,
+            ),
+          ),
+        ),
+        if (_districtResults.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: ListView.separated(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              itemCount: _districtResults.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final item = _districtResults[index];
+                final label = [
+                  item['district_name'] ?? item['subdistrict_name'],
+                  item['city_name'],
+                  item['province_name'],
+                ].where((e) => e != null && e.toString().isNotEmpty).join(', ');
+                return ListTile(
+                  dense: true,
+                  title: Text(label, style: const TextStyle(fontSize: 13)),
+                  onTap: () => _selectDistrict(item),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 

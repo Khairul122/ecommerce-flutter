@@ -11,6 +11,11 @@ class AddressModel extends AddressEntity {
     super.cityName,
     required super.fullAddress,
     required super.isMain,
+    super.districtId,
+    super.districtName,
+    super.cityName,
+    super.provinceName,
+    super.postalCode,
   });
 
   factory AddressModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +29,11 @@ class AddressModel extends AddressEntity {
       cityName: json['city_name']?.toString(),
       fullAddress: json['full_address']?.toString() ?? '',
       isMain: json['is_main'] == true || json['is_main'] == 1,
+      districtId: json['district_id'] == null ? null : int.tryParse(json['district_id'].toString()),
+      districtName: json['district_name']?.toString(),
+      cityName: json['city_name']?.toString(),
+      provinceName: json['province_name']?.toString(),
+      postalCode: json['postal_code']?.toString(),
     );
   }
 }

@@ -16,11 +16,15 @@ class CheckoutRemoteDataSource {
         .toList();
   }
 
-  Future<List<ShippingMethodModel>> getShippingMethods() async {
-    final result = await _api.get('/shipping-methods');
+  /// Ongkir live per kurir aktif dari RajaOngkir, dihitung dari toko asal ke
+  /// district alamat tujuan (ShippingController::cost).
+  Future<List<ShippingMethodModel>> getShippingCost(String addressId) async {
+    final result = await _api.post('/shipping/cost', {
+      'address_id': int.tryParse(addressId) ?? addressId,
+    });
     final List raw = result['data'] ?? [];
     return raw
-        .map((e) => ShippingMethodModel.fromJson(Map<String, dynamic>.from(e as Map)))
+        .map((e) => ShippingMethodModel.fromShippingCostJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 

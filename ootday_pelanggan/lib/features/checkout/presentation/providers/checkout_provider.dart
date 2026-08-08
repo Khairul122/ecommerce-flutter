@@ -136,6 +136,22 @@ class CheckoutProvider extends ChangeNotifier {
     }
   }
 
+  /// Dipakai checkout_screen.dart & shipping_method_screen.dart: ongkir live
+  /// RajaOngkir dari toko ke district alamat [addressId].
+  Future<void> loadShippingCost(String addressId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _shippingMethods = await getShippingCostUseCase(addressId);
+    } catch (e) {
+      _error = 'Gagal memuat opsi pengiriman: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<OrderEntity> createOrder({
     required String addressId,
     int? shippingMethodId,

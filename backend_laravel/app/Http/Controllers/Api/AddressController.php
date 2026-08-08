@@ -26,6 +26,11 @@ class AddressController extends Controller
             'city_id' => ['nullable', 'integer'],
             'city_name' => ['nullable', 'string', 'max:100'],
             'is_main' => ['nullable', 'boolean'],
+            'district_id' => ['nullable', 'integer'],
+            'district_name' => ['nullable', 'string', 'max:150'],
+            'city_name' => ['nullable', 'string', 'max:150'],
+            'province_name' => ['nullable', 'string', 'max:150'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
         ]);
 
         if ($validator->fails()) {
