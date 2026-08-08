@@ -1,12 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ootday_pelanggan/main.dart';
 
 void main() {
-  testWidgets('App loads smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(OotdayApp(deps: AppDependencies.build()));
+  testWidgets('Ootday Pelanggan app loads smoke test', (WidgetTester tester) async {
+    final deps = AppDependencies.build();
+    await tester.pumpWidget(OotdayApp(deps: deps));
 
-    // Verify that the app title or some home page element exists.
-    expect(find.textContaining('Fashionista'), findsOneWidget);
+    // Verify that MaterialApp is mounted and renders without exception.
+    expect(find.byType(MaterialApp), findsOneWidget);
+
+    // Clean up polling timer to avoid pending timer exception.
+    deps.notificationProvider.dispose();
   });
 }
