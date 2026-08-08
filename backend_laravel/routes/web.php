@@ -76,6 +76,79 @@ Route::get('/run-migration', function () {
         }
         \App\Models\Order::where('status', 'menunggu_pembayaran')->update(['status' => 'diproses', 'payment_status' => 'paid']);
         $log[] = "Updated existing pending orders to diproses and paid.";
+
+        // Auto-seed sample products for stores that currently have 0 products (e.g. Toko Sepatu)
+        $storesWithoutProducts = \App\Models\Store::doesntHave('products')->get();
+        foreach ($storesWithoutProducts as $st) {
+            $isShoe = str_contains(strtolower($st->store_name), 'sepatu') || str_contains(strtolower($st->description ?? ''), 'sepatu');
+            $sampleProducts = $isShoe ? [
+                [
+                    'name' => 'Sepatu Sneakers Casual Canvas White Classic',
+                    'price' => 185000,
+                    'stock' => 100,
+                    'description' => 'Sepatu sneakers kasual dari bahan kanvas premium yang ringan, adem, dan fleksibel untuk dipakai sehari-hari.',
+                    'image' => 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_5.png',
+                    'color' => 'Putih',
+                    'sizes' => ['39', '40', '41', '42', '43'],
+                ],
+                [
+                    'name' => 'Sepatu Running Sport Lightweight Performance',
+                    'price' => 245000,
+                    'stock' => 80,
+                    'description' => 'Sepatu olahraga lari sporty dengan insole empuk dan outsole anti-slip untuk mendukung performa maksimal.',
+                    'image' => 'https://backend-ecommerce.synectra.xyz/storage/seed_images/cowo1.jpeg',
+                    'color' => 'Hitam',
+                    'sizes' => ['39', '40', '41', '42', '43'],
+                ],
+                [
+                    'name' => 'Sepatu Pantofel Executive Leather Black Formal',
+                    'price' => 295000,
+                    'stock' => 60,
+                    'description' => 'Sepatu pantofel pria kulit sintetis premium dengan desain elegan untuk acara kantor dan formal.',
+                    'image' => 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_5.png',
+                    'color' => 'Hitam',
+                    'sizes' => ['39', '40', '41', '42', '43'],
+                ],
+            ] : [
+                [
+                    'name' => "Kemeja Exclusive Store {$st->store_name}",
+                    'price' => 150000,
+                    'stock' => 100,
+                    'description' => "Produk eksklusif koleksi terbaru dari toko {$st->store_name}.",
+                    'image' => 'https://backend-ecommerce.synectra.xyz/storage/seed_images/produk_2.png',
+                    'color' => 'Putih',
+                    'sizes' => ['M', 'L', 'XL'],
+                ],
+            ];
+
+            foreach ($sampleProducts as $sp) {
+                $p = \App\Models\Product::create([
+                    'store_id' => $st->id,
+                    'category_id' => 1,
+                    'name' => $sp['name'],
+                    'price' => $sp['price'],
+                    'stock' => $sp['stock'],
+                    'status' => 'active',
+                    'description' => $sp['description'],
+                    'sold_count' => rand(5, 20),
+                ]);
+                $p->images()->create([
+                    'image_url' => $sp['image'],
+                    'is_primary' => true,
+                    'sort_order' => 0,
+                ]);
+                foreach ($sp['sizes'] as $sz) {
+                    $p->variants()->create([
+                        'size' => $sz,
+                        'color' => $sp['color'],
+                        'stock' => 20,
+                        'price' => $sp['price'],
+                    ]);
+                }
+            }
+            $log[] = "Auto-seeded products for store: {$st->store_name}";
+        }
+
         $log[] = "Schema check complete.";
     } catch (\Throwable $e) {
         $log[] = "Schema Alter Error: " . $e->getMessage();
