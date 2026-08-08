@@ -91,11 +91,16 @@ class OwnerOrderController extends Controller
             }
         }
 
-        $order->update([
+        $updateData = [
             'status' => $request->status,
             'cancel_reason' => $request->status === 'dibatalkan' ? $request->cancel_reason : $order->cancel_reason,
             'tracking_number' => $request->filled('tracking_number') ? $request->tracking_number : $order->tracking_number,
-        ]);
+        ];
+        if (in_array($request->status, ['diproses', 'dikirim', 'selesai'])) {
+            $updateData['payment_status'] = 'paid';
+        }
+
+        $order->update($updateData);
 
         \App\Services\NotificationService::notify(
             $order->user_id,

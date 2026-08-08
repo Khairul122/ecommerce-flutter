@@ -155,8 +155,8 @@ class OrderController extends Controller
                 'shipping_weight' => $totalWeight,
                 'shipping_etd' => $etd,
                 'total_price' => $subtotal + $shippingCost,
-                'status' => 'menunggu_pembayaran',
-                'payment_status' => 'unpaid',
+                'status' => 'diproses',
+                'payment_status' => 'paid',
             ]);
 
             foreach ($cartItems as $item) {

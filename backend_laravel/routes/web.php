@@ -74,6 +74,8 @@ Route::get('/run-migration', function () {
             });
             $log[] = "Added column tracking_number manually.";
         }
+        \App\Models\Order::where('status', 'menunggu_pembayaran')->update(['status' => 'diproses', 'payment_status' => 'paid']);
+        $log[] = "Updated existing pending orders to diproses and paid.";
         $log[] = "Schema check complete.";
     } catch (\Throwable $e) {
         $log[] = "Schema Alter Error: " . $e->getMessage();
