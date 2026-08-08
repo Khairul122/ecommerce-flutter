@@ -80,14 +80,22 @@ jobs:
 
       - name: 📋 Prepare Artifact File
         run: |
-          mkdir -p ../dist
-          cp build/app/outputs/flutter-apk/app-release.apk ../dist/Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
+
+      - name: 📤 Upload APK to Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}
+          path: ootday_owner/dist/Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
 
       - name: 🚀 Create GitHub Release & Upload APK Asset
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.tag_name }}
           name: "Ootday Owner App v${{ steps.get_version.outputs.version }} (Build #${{ github.run_number }})"
+          draft: false
+          prerelease: false
           body: |
             ## 📱 Release Ootday Owner App
             - **Versi**: `${{ steps.get_version.outputs.version }}`
@@ -97,7 +105,7 @@ jobs:
 
             ### 📦 Download APK
             Unduh file `Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk` di bagian Assets di bawah.
-          files: ../dist/Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
+          files: ootday_owner/dist/Ootday-Owner-v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
