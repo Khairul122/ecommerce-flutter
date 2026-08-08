@@ -8,6 +8,7 @@ import 'order_details_screen.dart';
 import 'providers/order_provider.dart';
 import '../domain/entities/order_entity.dart';
 import '../../review/presentation/add_review_screen.dart';
+import '../../../core/theme/app_spacing.dart';
 
 /// Perbaikan audit: sebelumnya hanya tab "Diproses" yang memuat data asli
 /// (lewat OrderData.getActiveOrders()), tab lain (Belum Bayar, Dikirim,
@@ -273,7 +274,7 @@ class _StatusOrdersTabState extends State<_StatusOrdersTab> with AutomaticKeepAl
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.sm),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

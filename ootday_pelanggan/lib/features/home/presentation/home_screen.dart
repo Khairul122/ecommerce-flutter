@@ -15,6 +15,7 @@ import '../../product/presentation/providers/product_provider.dart';
 import '../../product/domain/entities/product_entity.dart';
 import '../../cart/presentation/providers/cart_provider.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -412,7 +413,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               : GridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.75),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: AppSpacing.sm,
+                                    mainAxisSpacing: AppSpacing.sm,
+                                    childAspectRatio: 0.68,
+                                  ),
                                   itemCount: productProvider.products.length,
                                   itemBuilder: (context, index) => _buildProductItem(productProvider.products, index),
                                 ),
