@@ -376,12 +376,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        c, 
-                                        style: GoogleFonts.outfit(
-                                          color: isSel ? maroonColor : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
+                                      Flexible(
+                                        child: Text(
+                                          c, 
+                                          style: GoogleFonts.outfit(
+                                            color: isSel ? maroonColor : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                         ),
                                       ),
                                     ],
@@ -414,13 +418,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Row(
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
                             children: _sizes.map((s) {
                               bool isSel = _selectedSize == s;
                               return GestureDetector(
                                 onTap: () => setModalState(() => _selectedSize = s),
                                 child: Container(
-                                  margin: const EdgeInsets.only(right: 12),
                                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: isSel ? maroonColor : Colors.grey[400]!, width: 1.5),
@@ -713,7 +718,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(formattedPrice, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
+                            Expanded(
+                              child: Text(
+                                formattedPrice,
+                                style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
                             Row(
                               children: [
                                 Text('${widget.product['sold'] ?? '120'} Terjual', style: GoogleFonts.outfit(color: Colors.grey, fontSize: 14)),
@@ -801,6 +814,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       color, 
                                       style: GoogleFonts.outfit(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                                       overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ),
                                 ),

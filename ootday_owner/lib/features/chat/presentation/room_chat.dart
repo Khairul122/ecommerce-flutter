@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/chat_provider.dart';
+import '../../../core/theme/app_spacing.dart';
 
 /// Perbaikan audit: sebelumnya pesan cuma array lokal di memori (hilang saat
 /// layar ditutup, tidak pernah benar-benar terkirim). Sekarang memakai
@@ -229,7 +230,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         children: [
           Flexible(
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
                 color: const Color(0xFFE0E0E0),
                 borderRadius: BorderRadius.circular(16),
@@ -242,7 +243,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     style:
                         const TextStyle(fontSize: 14, color: Colors.red),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.xs),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -251,11 +252,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                         size: 14,
                         color: isRead ? Colors.red : Colors.grey,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                            fontSize: 11, color: Colors.black54),
+                      const SizedBox(width: AppSpacing.xs),
+                      Flexible(
+                        child: Text(
+                          time,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.black54),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
                     ],
                   ),

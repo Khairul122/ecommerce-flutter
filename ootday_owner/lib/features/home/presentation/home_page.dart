@@ -577,11 +577,15 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      code,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: redMain,
+                    Expanded(
+                      child: Text(
+                        code,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: redMain,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                   ],

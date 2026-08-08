@@ -169,9 +169,12 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
             children: [
               Icon(_vaNumber != null ? Icons.account_balance : Icons.qr_code_2, color: const Color(0xFF00BFA5), size: 30),
               const SizedBox(width: 8),
-              Text(
-                _vaNumber != null ? 'Virtual Account ${_bankCode ?? ''}' : 'Pembayaran Digital',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+              Flexible(
+                child: Text(
+                  _vaNumber != null ? 'Virtual Account ${_bankCode ?? ''}' : 'Pembayaran Digital',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -410,10 +413,13 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          _orderCode,
-                          style: GoogleFonts.outfit(color: maroonColor, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                        Expanded(
+                          child: SelectableText(
+                            _orderCode,
+                            style: GoogleFonts.outfit(color: maroonColor, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () {
                             Clipboard.setData(ClipboardData(text: _orderCode));
@@ -427,7 +433,10 @@ class _PaymentInstructionScreenState extends State<PaymentInstructionScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Total Pembayaran', style: GoogleFonts.outfit(color: Colors.black54, fontSize: 13)),
+                        Expanded(
+                          child: Text('Total Pembayaran', style: GoogleFonts.outfit(color: Colors.black54, fontSize: 13), overflow: TextOverflow.ellipsis),
+                        ),
+                        const SizedBox(width: 8),
                         Text(_formatRp(totalPrice), style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
                       ],
                     ),

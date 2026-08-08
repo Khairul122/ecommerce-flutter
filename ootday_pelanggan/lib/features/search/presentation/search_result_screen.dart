@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../product/presentation/product_detail_screen.dart';
 import '../../product/presentation/providers/product_provider.dart';
 import '../../product/domain/entities/product_entity.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class SearchResultScreen extends StatefulWidget {
   final String searchQuery;
@@ -184,9 +185,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 30),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.65,
+                            crossAxisSpacing: AppSpacing.md,
+                            mainAxisSpacing: AppSpacing.md,
+                            childAspectRatio: 0.63,
                           ),
                           itemCount: _results.length,
                           itemBuilder: (context, index) {
@@ -249,13 +250,18 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       child: Column(
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                label,
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
-                  color: isActive ? maroonColor : Colors.grey,
+              Flexible(
+                child: Text(
+                  label,
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
+                    color: isActive ? maroonColor : Colors.grey,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
               if (isPrice) ...[
@@ -401,9 +407,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         color: Colors.grey.withOpacity(0.5),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        '$sold Terjual',
-                        style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey),
+                      Expanded(
+                        child: Text(
+                          '$sold Terjual',
+                          style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

@@ -70,6 +70,15 @@ Semua response berbentuk `{ "status": "success"|"error", "message"?: string, "da
 - `GET /notifications/unread-count` — `{ count }`
 - `POST /notifications/{id}/read` — tandai satu notifikasi sebagai terbaca
 
+## Wishlist (login diperlukan)
+- `GET /wishlist` — list produk favorit user login
+- `GET /wishlist/ids` — list ID produk yang ada di wishlist
+- `POST /wishlist/toggle/{productId}` — tambah/hapus dari wishlist (returns `is_wishlist: true|false`)
+
+## Review Produk (publik & berlogin)
+- `GET /products/{productId}/reviews` — list ulasan produk (paginated, returns `avg_rating`, `total_reviews`, `data`)
+- `POST /reviews` — body: `order_id, product_id, rating(1-5), comment?` (tambah ulasan dari pesanan selesai)
+
 ## Khusus owner (login + role owner), prefix `/owner`
 - `GET /owner/store` / `PUT /owner/store` — `store_name?, description?, address?, phone?, logo_url?`
 - `PUT /owner/profile` — `name?, phone?`

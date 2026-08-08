@@ -214,7 +214,9 @@ class OrderSuccessScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(product['rating']!, style: GoogleFonts.outfit(fontSize: 10, color: Colors.grey)),
                       const SizedBox(width: 8),
-                      Text(product['sold']!, style: GoogleFonts.outfit(fontSize: 10, color: Colors.grey)),
+                      Expanded(
+                        child: Text(product['sold']!, style: GoogleFonts.outfit(fontSize: 10, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
                     ],
                   ),
                 ],

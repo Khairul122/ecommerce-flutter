@@ -120,9 +120,13 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
                                     children: [
                                       const Icon(Icons.local_shipping, color: maroonColor, size: 20),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        courier.name,
-                                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15, color: maroonColor),
+                                      Expanded(
+                                        child: Text(
+                                          courier.name,
+                                          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15, color: maroonColor),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ],
                                   ),

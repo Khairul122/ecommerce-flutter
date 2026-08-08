@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -140,34 +141,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     _buildLabel('Username'),
                     _buildRoundedField('Nama', controller: _nameController),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacing.lg),
 
                     _buildLabel('Bio'),
                     _buildRoundedField('Isi bio'),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacing.lg),
 
                     _buildLabel('Jenis kelamin'),
                     Row(
                       children: [
                         _buildRadioOption('Perempuan'),
-                        const SizedBox(width: 40),
+                        const SizedBox(width: AppSpacing.xxl),
                         _buildRadioOption('Laki laki'),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacing.lg),
 
                     _buildLabel('Tanggal Lahir'),
                     _buildUnderlineField('Tgl/Bln/Thn'),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacing.lg),
 
                     _buildLabel('No. Handphone'),
                     _buildUnderlineField('No. handphone', controller: _phoneController),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacing.lg),
 
                     _buildLabel('Email'),
                     _buildUnderlineField('Email', enabled: false, initialText: user?.email ?? ''),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: AppSpacing.xxl),
                     // SIMPAN BUTTON
                     Center(
                       child: SizedBox(
@@ -264,6 +265,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return GestureDetector(
       onTap: () => setState(() => _gender = value),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 12,
@@ -274,11 +276,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            value,
-            style: GoogleFonts.outfit(
-              color: _gender == value ? const Color(0xFF5D1A1A).withOpacity(0.5) : Colors.black38,
-              fontSize: 14,
+          Flexible(
+            child: Text(
+              value,
+              style: GoogleFonts.outfit(
+                color: _gender == value ? const Color(0xFF5D1A1A).withOpacity(0.5) : Colors.black38,
+                fontSize: 14,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],

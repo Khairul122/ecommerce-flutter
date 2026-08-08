@@ -480,7 +480,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(priceStr, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: const Color(0xFF5D1A1A))),
+                    Expanded(
+                      child: Text(priceStr, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: const Color(0xFF5D1A1A)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
+                    const SizedBox(width: 8),
                     Text('x${item.quantity}', style: GoogleFonts.outfit(color: Colors.grey)),
                   ],
                 ),

@@ -74,8 +74,9 @@ flutter run
 
 - **Pembayaran Hybrid (Otomatis via Xendit & Manual Transfer Fallback)**: Sistem backend (`backend_laravel`) sudah terintegrasi dengan Xendit API (`XenditService`, `XenditNotificationController`). Pelanggan dapat melakukan pembayaran otomatis via QRIS (`/orders/{id}/qris`) dan Invoice Xendit (`/orders/{id}/snap-token`) yang statusnya ter-update otomatis lewat webhook callback (`/xendit/callback`). Sebagai fallback, konfirmasi manual (`confirm-payment`) tetap tersedia.
 - **Push notification menggunakan REST API Polling**: Firebase Cloud Messaging telah dihapus total. Fitur chat dan status pesanan berjalan secara aman menggunakan polling REST API (`/conversations`, `/notifications`). Jika nanti diperlukan push notification berbasis cloud untuk skala lanjut, disarankan mengintegrasikan **OneSignal**.
-- **Kode & Layout**: Seluruh kode Dart pada aplikasi Flutter dan REST API Laravel telah diaudit secara statis dan struktural untuk memastikan kompatibilitas dan eliminasi RenderFlex overflow pixel.
-- Beberapa layar lama yang datanya sudah tidak relevan dengan skema baru (misalnya rating/pengikut toko, statistik pengunjung) dijadikan placeholder statis karena backend belum punya data itu. Tidak menyebabkan error, tapi belum menampilkan angka nyata.
+- **Rating & Review Pembeli Asli**: Seluruh rumus rating acak/mock telah dihapus total. Sistem rating produk dihitung secara agregat otomatis dari ulasan pembeli asli di tabel `reviews`. Pelanggan dapat memberikan ulasan bintang 1-5 dan komentar pada pesanan berstatus Selesai via `POST /reviews`.
+- **Fitur Wishlist / Favorit Fungsional**: Fitur Wishlist yang sebelumnya dekoratif telah diaktifkan penuh dengan tabel `wishlists`, provider `WishlistProvider`, dan terhubung langsung ke ikon favorit di detail produk serta halaman Wishlist dari profil pelanggan.
+- **Banner Promosi Dinamis**: Slider banner di beranda pelanggan dimuat secara dinamis dari endpoint `GET /api/banners`, dan dapat dikelola langsung oleh pemilik toko lewat halaman Manajemen Banner di aplikasi owner (`GET/POST/DELETE /api/owner/banners`).
 
 ## Berkas referensi
 

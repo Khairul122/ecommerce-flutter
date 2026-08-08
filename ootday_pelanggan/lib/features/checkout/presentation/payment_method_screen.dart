@@ -161,7 +161,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             child: Icon(icon, color: Colors.black, size: 20),
           ),
           const SizedBox(width: 15),
-          Text(title, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(title, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ),
     );

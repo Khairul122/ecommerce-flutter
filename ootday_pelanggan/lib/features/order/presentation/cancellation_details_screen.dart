@@ -184,16 +184,29 @@ class CancellationDetailsScreen extends StatelessWidget {
   Widget _buildDetailRow(String label, String value, {IconData? trailingIcon, Color? iconColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.outfit(color: Colors.black54, fontSize: 13)),
-        Row(
-          children: [
-            if (trailingIcon != null) ...[
-              Icon(trailingIcon, size: 18, color: iconColor),
-              const SizedBox(width: 5),
+        Expanded(
+          child: Text(label, style: GoogleFonts.outfit(color: Colors.black54, fontSize: 13)),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (trailingIcon != null) ...[
+                Icon(trailingIcon, size: 18, color: iconColor),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: Text(
+                  value,
+                  style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.end,
+                ),
+              ),
             ],
-            Text(value, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500)),
-          ],
+          ),
         ),
       ],
     );

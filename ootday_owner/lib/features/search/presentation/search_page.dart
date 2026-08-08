@@ -423,12 +423,16 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      order['code'] as String,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: redMain,
-                        fontWeight: FontWeight.w600,
+                    Expanded(
+                      child: Text(
+                        order['code'] as String,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: redMain,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                   ],

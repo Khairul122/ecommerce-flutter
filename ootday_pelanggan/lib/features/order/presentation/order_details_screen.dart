@@ -455,22 +455,31 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13)),
-        Row(
-          children: [
-            Text(value, style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500)),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: value));
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label disalin!')));
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(20)),
-                child: Text('Salin', style: GoogleFonts.outfit(fontSize: 10)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: SelectableText(
+                  value,
+                  style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: value));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label disalin!')));
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(20)),
+                  child: Text('Salin', style: GoogleFonts.outfit(fontSize: 10)),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

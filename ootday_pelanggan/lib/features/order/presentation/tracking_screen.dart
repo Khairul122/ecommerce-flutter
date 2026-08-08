@@ -49,7 +49,15 @@ class TrackingScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(order.orderCode, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)),
+                        Expanded(
+                          child: Text(
+                            order.orderCode,
+                            style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
