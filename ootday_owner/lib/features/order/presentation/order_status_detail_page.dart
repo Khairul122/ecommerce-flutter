@@ -388,6 +388,7 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
   }
 
   Widget _errorState() {
+    final bool isUnauth = _error?.toLowerCase().contains('unauthenticated') ?? false;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -397,11 +398,28 @@ class _OrderStatusDetailPageState extends State<OrderStatusDetailPage> {
       ),
       child: Column(
         children: [
-          Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+          Icon(Icons.lock_clock_outlined, size: 48, color: Colors.amber[700]),
           const SizedBox(height: 12),
-          Text('Gagal memuat pesanan: $_error', textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          TextButton(onPressed: _loadOrders, child: const Text('Coba lagi')),
+          Text(
+            isUnauth
+                ? 'Sesi login Anda telah berakhir (Unauthenticated).\nSilakan login kembali untuk memperbarui token.'
+                : 'Gagal memuat pesanan: $_error',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[800], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB40001),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: isUnauth
+                ? () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  }
+                : _loadOrders,
+            child: Text(isUnauth ? 'Ke Halaman Login' : 'Coba lagi'),
+          ),
         ],
       ),
     );
