@@ -178,7 +178,7 @@ class AppDependencies {
     final checkoutRepository = CheckoutRepositoryImpl(remote: checkoutRemote);
     final checkoutProvider = CheckoutProvider(
       getPaymentMethodsUseCase: GetPaymentMethodsUseCase(checkoutRepository),
-      getShippingMethodsUseCase: GetShippingCostUseCase(checkoutRepository),
+      getShippingMethodsUseCase: GetShippingMethodsUseCase(checkoutRepository),
       checkShippingCostUseCase: CheckShippingCostUseCase(checkoutRepository),
       createOrderUseCase: CreateOrderUseCase(checkoutRepository),
     );
