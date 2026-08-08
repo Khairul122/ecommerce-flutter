@@ -57,6 +57,32 @@ class OwnerOrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
         }
 
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'tracking_number')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('tracking_number', 100)->nullable();
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_courier')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_courier', 50)->nullable();
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_service')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_service', 50)->nullable();
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_weight')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->integer('shipping_weight')->default(0);
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_etd')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_etd', 50)->nullable();
+            });
+        }
+
         if ($request->status === 'dibatalkan') {
             foreach ($order->items as $item) {
                 if ($item->variant_id) {

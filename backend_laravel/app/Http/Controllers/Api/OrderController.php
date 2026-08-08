@@ -111,7 +111,31 @@ class OrderController extends Controller
         $shippingCost = $request->filled('shipping_cost') ? (float) $request->shipping_cost : ($shippingMethod->base_cost ?? 15000);
         $courier = $request->shipping_courier ?? ($shippingMethod->name ?? 'JNE');
         $service = $request->shipping_service ?? 'REG';
-        $etd = $request->shipping_etd ?? '2-3 hari';
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'tracking_number')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('tracking_number', 100)->nullable();
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_courier')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_courier', 50)->nullable();
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_service')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_service', 50)->nullable();
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_weight')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->integer('shipping_weight')->default(0);
+            });
+        }
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('orders', 'shipping_etd')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function ($table) {
+                $table->string('shipping_etd', 50)->nullable();
+            });
+        }
 
         $order = DB::transaction(function () use ($cartItems, $address, $shippingMethod, $request, $user, $subtotal, $totalWeight, $shippingCost, $courier, $service, $etd, $storeIds) {
             $order = \App\Models\Order::create([
