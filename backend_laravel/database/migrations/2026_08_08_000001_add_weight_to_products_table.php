@@ -8,14 +8,18 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->integer('weight')->default(500)->after('price')->comment('Berat produk dalam gram');
+            if (!Schema::hasColumn('products', 'weight')) {
+                $table->integer('weight')->default(500)->after('price')->comment('Berat produk dalam gram');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('weight');
+            if (Schema::hasColumn('products', 'weight')) {
+                $table->dropColumn('weight');
+            }
         });
     }
 };

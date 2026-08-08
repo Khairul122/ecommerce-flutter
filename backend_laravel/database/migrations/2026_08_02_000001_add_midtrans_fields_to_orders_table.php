@@ -8,16 +8,30 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('snap_token')->nullable()->after('payment_proof_url');
-            $table->string('snap_redirect_url')->nullable()->after('snap_token');
-            $table->string('payment_type', 50)->nullable()->after('snap_redirect_url');
+            if (!Schema::hasColumn('orders', 'snap_token')) {
+                $table->string('snap_token')->nullable()->after('payment_proof_url');
+            }
+            if (!Schema::hasColumn('orders', 'snap_redirect_url')) {
+                $table->string('snap_redirect_url')->nullable();
+            }
+            if (!Schema::hasColumn('orders', 'payment_type')) {
+                $table->string('payment_type', 50)->nullable();
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['snap_token', 'snap_redirect_url', 'payment_type']);
+            $columnsToDrop = [];
+            foreach (['snap_token', 'snap_redirect_url', 'payment_type'] as $col) {
+                if (Schema::hasColumn('orders', $col)) {
+                    $columnsToDrop[] = $col;
+                }
+            }
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };
