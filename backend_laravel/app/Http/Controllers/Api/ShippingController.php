@@ -82,4 +82,12 @@ class ShippingController extends Controller
     {
         return $this->calculateCost($request);
     }
+
+    /**
+     * Alias untuk cities (sesuai route /shipping/destinations & call dari Flutter app)
+     */
+    public function destinations(Request $request)
+    {
+        return $this->cities($request);
+    }
 }
